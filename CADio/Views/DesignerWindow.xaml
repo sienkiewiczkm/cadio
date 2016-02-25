@@ -6,6 +6,6 @@
         xmlns:local="clr-namespace:CADio"
         xmlns:rendering="clr-namespace:CADio.Rendering"
         mc:Ignorable="d"
-        Title="DesignerWindow" Height="585" Width="733">
+        Title="CADio" Height="600" Width="600">
     <rendering:RenderTarget Background="Black" Renderer="{Binding ActiveRenderer}"/>
 </Window>

@@ -29,15 +29,31 @@ namespace CADio.Rendering
         protected override void OnRender(DrawingContext dc)
         {
             ClearBackground(dc);
-            RasterizeRenderedPrimitives(dc);
+            var pixelSpacePrimitives = GetPixelSpacePrimitives();
+            RasterizeRenderedPrimitives(dc, pixelSpacePrimitives);
         }
 
-        private void RasterizeRenderedPrimitives(DrawingContext dc)
+        private IEnumerable<Line2D> GetPixelSpacePrimitives()
         {
             if (Renderer == null)
-                return;
+                return new List<Line2D>();
 
-            foreach (var line in Renderer.GetRenderedPrimitives())
+            return Renderer.GetRenderedPrimitives()
+                .Select(line => new Line2D(
+                    ConvertPointToPixelSpace(line.From), ConvertPointToPixelSpace(line.To), line.Color
+                )).ToList();
+        }
+
+        private Point ConvertPointToPixelSpace(Point point)
+        {
+            var x = (point.X*0.5 + 0.5) * ActualWidth;
+            var y = (point.Y*0.5 + 0.5) * ActualHeight;
+            return new Point(x, y);
+        }
+
+        private void RasterizeRenderedPrimitives(DrawingContext dc, IEnumerable<Line2D> pixelSpacePrimitives)
+        {
+            foreach (var line in pixelSpacePrimitives)
             {
                 dc.DrawLine(new Pen() {Brush = new SolidColorBrush(line.Color)}, line.From, line.To);
             }

@@ -57,8 +57,14 @@
     </ApplicationDefinition>
     <Compile Include="Geometry\Mesh.cs" />
     <Compile Include="Geometry\IndexedSegment.cs" />
+    <Compile Include="Geometry\Shapes\Box.cs" />
+    <Compile Include="Geometry\Shapes\IShape.cs" />
     <Compile Include="Geometry\Shapes\Torus.cs" />
     <Compile Include="Geometry\Vertex.cs" />
+    <Compile Include="Mathematics\Matrix4x4.cs" />
+    <Compile Include="Mathematics\Transformations3D.cs" />
+    <Compile Include="Mathematics\Vector3DExtensions.cs" />
+    <Compile Include="Mathematics\Vector4D.cs" />
     <Compile Include="Rendering\IRenderer.cs" />
     <Compile Include="Rendering\Line2D.cs" />
     <Compile Include="Rendering\Renderer.cs" />

@@ -4,7 +4,7 @@ using System.Windows.Media.Media3D;
 
 namespace CADio.Geometry.Shapes
 {
-    public class Torus
+    public class Torus : IShape
     {
         private double _smallRingRadius;
         private double _largeRingRadius;
