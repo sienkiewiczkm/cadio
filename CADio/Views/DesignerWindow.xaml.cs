@@ -40,8 +40,6 @@ namespace CADio.Views
             var movement = mousePosition - _lastMousePosition;
             _viewModel.RotateSceneWithMouse(movement);
             _lastMousePosition = mousePosition;
-
-            Debug.WriteLine("Mouse moving y={0}", movement.Y);
         }
     }
 }
