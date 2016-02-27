@@ -13,16 +13,26 @@ namespace CADio.Rendering
 {
     public class Renderer : IRenderer
     {
+        public event EventHandler RenderOutputChanged;
+
+        public double XRotation { get; set; }
+        public double YRotation { get; set; }
+
+        public void ForceRedraw()
+        {
+            RenderOutputChanged?.Invoke(this, null);
+        }
+
         public IList<Line2D> GetRenderedPrimitives()
         {
-            var projection = Transformations3D.SimplePerspective(0.1)
-                .Multiply(Transformations3D.Translation(new Vector3D(0, 0, 2)))
-                .Multiply(Transformations3D.RotationX(Math.PI/3))
-                .Multiply(Transformations3D.RotationY(Math.PI/3));
+            var projection = Transformations3D.SimplePerspective(2);
+            var worldMat = Transformations3D.Translation(new Vector3D(0, 0, 1)) * Transformations3D.RotationX(XRotation) 
+                * Transformations3D.RotationY(YRotation);
             var box = new Box {Size = new Vector3D(1, 1, 1)};
 
+            var transformation = projection*worldMat;
             var transformedVertices = box.Vertices
-                .Select(t => ((Vector3D) t.Position).ExtendAffine().Transform(projection)).ToList();
+                .Select(t => ((Vector3D) t.Position).ExtendTo4D().Transform(transformation).WDivide()).ToList();
 
             return box.Indices
                 .Select(indicePair => new Line2D(

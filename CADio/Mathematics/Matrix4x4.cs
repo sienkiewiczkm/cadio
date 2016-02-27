@@ -43,5 +43,10 @@ namespace CADio.Mathematics
                         newMatrix[row, column] += this[row, i] * matrix[i, column];
             return newMatrix;
         }
+
+        public static Matrix4x4 operator *(Matrix4x4 a, Matrix4x4 b)
+        {
+            return a.Multiply(b);
+        }
     }
 }

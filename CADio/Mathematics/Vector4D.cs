@@ -11,6 +11,14 @@ namespace CADio.Mathematics
         public double Z;
         public double W;
 
+        public Vector4D(double x, double y, double z, double w)
+        {
+            X = x;
+            Y = y;
+            Z = z;
+            W = w;
+        }
+
         public double[] ToArray()
         {
             return new [] { X, Y, Z, W };
@@ -24,6 +32,11 @@ namespace CADio.Mathematics
                 for (int j = 0; j < 4; ++j)
                     output[row] += transformation[row, j]*vector[j];
             return new Vector4D {X = output[0], Y = output[1], Z = output[2], W = output[3]};
+        }
+
+        public Vector4D WDivide()
+        {
+            return new Vector4D(X / W, Y / W, Z / W, 1);
         }
 
         public static explicit operator Point(Vector4D vector)

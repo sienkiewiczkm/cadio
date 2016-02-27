@@ -13,12 +13,30 @@ namespace CADio.Rendering
     {
         public static readonly DependencyProperty RendererProperty = DependencyProperty.Register(
             "Renderer", typeof(IRenderer), typeof(RenderTarget), 
-            new FrameworkPropertyMetadata(default(IRenderer), FrameworkPropertyMetadataOptions.AffectsRender));
+            new FrameworkPropertyMetadata(default(IRenderer), FrameworkPropertyMetadataOptions.AffectsRender,
+                SetupRendererEventSubscription));
 
         public IRenderer Renderer
         {
             get { return (IRenderer) GetValue(RendererProperty); }
             set { SetValue(RendererProperty, value); }
+        }
+
+        private static void SetupRendererEventSubscription(DependencyObject obj, DependencyPropertyChangedEventArgs e)
+        {
+            var renderTarget = (RenderTarget) obj;
+            var oldValue = (IRenderer) e.OldValue;
+            var newValue = (IRenderer) e.NewValue;
+
+            if (oldValue != null)
+            {
+                oldValue.RenderOutputChanged -= renderTarget.OnRenderOutputChanged;
+            }
+
+            if (newValue != null)
+            {
+                newValue.RenderOutputChanged += renderTarget.OnRenderOutputChanged;
+            }
         }
 
         public void RequestRedraw()
@@ -31,6 +49,11 @@ namespace CADio.Rendering
             ClearBackground(dc);
             var pixelSpacePrimitives = GetPixelSpacePrimitives();
             RasterizeRenderedPrimitives(dc, pixelSpacePrimitives);
+        }
+
+        private void OnRenderOutputChanged(object sender, EventArgs e)
+        {
+            RequestRedraw();
         }
 
         private IEnumerable<Line2D> GetPixelSpacePrimitives()
