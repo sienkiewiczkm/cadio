@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media.Media3D;
 
@@ -12,6 +13,19 @@ namespace CADio.Geometry.Shapes
         private int _largeRingSegmentsCount;
         private IList<Vertex> _verticesCache;
         private IList<IndexedSegment> _indexedSegmentsCache;
+
+        public Torus() : this(32, 32, 0.2, 0.5)
+        {
+            
+        }
+
+        public Torus(int smallRingSegments, int largeRingSegments, double smallRingRadius, double largeRingRadius)
+        {
+            _smallRingSegmentsCount = smallRingSegments;
+            _largeRingSegmentsCount = largeRingSegments;
+            _smallRingRadius = smallRingRadius;
+            _largeRingRadius = largeRingRadius;
+        }
 
         public double SmallRingRadius
         {
@@ -87,17 +101,60 @@ namespace CADio.Geometry.Shapes
             // y = r cos(theta)
             // z = sin(phi) (r sin(theta) + R)
             //   phi, theta in [0, 2pi)
+            //   phi - duży pierścień
+            //   theta - mały pierścień
 
-            _verticesCache = new List<Vertex>()
-            {
-                new Vertex() { Position = new Point3D(0, 0, 0) },
-                new Vertex() { Position = new Point3D(10, 10, 0) },
-            };
+            _verticesCache = new List<Vertex>();
+            _indexedSegmentsCache = new List<IndexedSegment>();
 
-            _indexedSegmentsCache = new List<IndexedSegment>()
+            // Generate rings vertices
+            for (int i = 0; i < LargeRingSegmentsCount; ++i)
             {
-                new IndexedSegment(0, 1)
-            };
+                var phi = 2*Math.PI*i/LargeRingSegmentsCount;
+                var sinphi = Math.Sin(phi);
+                var cosphi = Math.Cos(phi);
+
+                for (int j = 0; j < SmallRingSegmentsCount; ++j)
+                {
+                    var theta = 2*Math.PI*j/SmallRingSegmentsCount;
+                    var sintheta = Math.Sin(theta);
+                    var costheta = Math.Cos(theta);
+
+                    var x = cosphi*(SmallRingRadius*sintheta + LargeRingRadius);
+                    var y = SmallRingRadius*costheta;
+                    var z = sinphi*(SmallRingRadius*sintheta + LargeRingRadius);
+
+                    var vertex = new Vertex
+                    {
+                        Position = new Point3D(x, y, z)
+                    };
+
+                    _verticesCache.Add(vertex);
+                }
+            }
+
+            // Create small rings
+            for (int i = 0; i < LargeRingSegmentsCount; ++i)
+            {
+                var baseIndex = i*SmallRingSegmentsCount;
+                for (int j = 0; j < SmallRingSegmentsCount; ++j)
+                {
+                    var nextSubindex = (j + 1)%SmallRingSegmentsCount;
+                    _indexedSegmentsCache.Add(new IndexedSegment(baseIndex+j, baseIndex+nextSubindex));
+                }   
+            }
+
+            // Create large rings
+            for (int i = 0; i < SmallRingSegmentsCount; ++i)
+            {
+                for (int j = 0; j < LargeRingSegmentsCount; ++j)
+                {
+                    var nextj = (j + 1)%LargeRingSegmentsCount;
+                    var firstIndex = j*SmallRingSegmentsCount + i;
+                    var secondIndex = nextj*SmallRingSegmentsCount + i;
+                    _indexedSegmentsCache.Add(new IndexedSegment(firstIndex, secondIndex));
+                }
+            }
         }
     }
 }

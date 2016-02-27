@@ -28,7 +28,7 @@ namespace CADio.Rendering
             var projection = Transformations3D.SimplePerspective(2);
             var worldMat = Transformations3D.Translation(new Vector3D(0, 0, 1)) * Transformations3D.RotationX(XRotation) 
                 * Transformations3D.RotationY(YRotation);
-            var box = new Box {Size = new Vector3D(1, 1, 1)};
+            var box = new Torus();
 
             var transformation = projection*worldMat;
             var transformedVertices = box.Vertices
