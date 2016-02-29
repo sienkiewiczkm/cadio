@@ -7,6 +7,8 @@
         xmlns:rendering="clr-namespace:CADio.Rendering"
         mc:Ignorable="d"
         Title="CADio" Height="600" Width="600">
-    <rendering:RenderTarget Background="Black" Renderer="{Binding ActiveRenderer}"
-                            MouseDown="OnMouseDown" MouseUp="OnMouseUp" MouseMove="OnMouseMove"/>
+    <Grid>
+        <rendering:RenderTarget Background="Black" Renderer="{Binding ActiveRenderer}"
+                            MouseDown="OnMouseDown" MouseUp="OnMouseUp" MouseMove="OnMouseMove" MouseWheel="OnMouseWheel"/>
+    </Grid>
 </Window>

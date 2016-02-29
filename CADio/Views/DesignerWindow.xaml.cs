@@ -11,7 +11,7 @@ namespace CADio.Views
     public partial class DesignerWindow : Window
     {
         private readonly DesignerViewModel _viewModel = new DesignerViewModel();
-        private bool _rotationActive;
+        private bool _leftMouseButtonDown;
         private Point _lastMousePosition;
 
         public DesignerWindow()
@@ -23,23 +23,37 @@ namespace CADio.Views
         private void OnMouseDown(object sender, MouseButtonEventArgs e)
         {
             _lastMousePosition = e.GetPosition(this);
-            _rotationActive = true;
+            _leftMouseButtonDown = true;
         }
 
         private void OnMouseUp(object sender, MouseButtonEventArgs e)
         {
-            _rotationActive = false;
+            _leftMouseButtonDown = false;
         }
 
         private void OnMouseMove(object sender, MouseEventArgs e)
         {
-            if (!_rotationActive)
+            if (!_leftMouseButtonDown)
                 return;
 
             var mousePosition = e.GetPosition(this);
             var movement = mousePosition - _lastMousePosition;
-            _viewModel.RotateSceneWithMouse(movement);
+
+            if (Keyboard.IsKeyDown(Key.LeftShift))
+            {
+                _viewModel.TranslateSceneWithMouse(movement);
+            }
+            else
+            {
+                _viewModel.RotateSceneWithMouse(movement);
+            }
+
             _lastMousePosition = mousePosition;
+        }
+
+        private void OnMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            _viewModel.ScaleWithMouse(e.Delta);
         }
     }
 }

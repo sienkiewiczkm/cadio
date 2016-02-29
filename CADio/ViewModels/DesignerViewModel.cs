@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Input;
+using System.Windows.Media.Media3D;
+using CADio.Geometry.Shapes;
+using CADio.Mathematics;
 using CADio.Rendering;
+using CADio.SceneManagement;
 
 namespace CADio.ViewModels
 {
@@ -17,7 +16,8 @@ namespace CADio.ViewModels
 
         public DesignerViewModel()
         {
-            ActiveRenderer = new Renderer();
+            ActiveRenderer = new Renderer {Scene = new Scene()};
+            ActiveRenderer.Scene.Shapes.Add(new Torus());
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -34,8 +34,24 @@ namespace CADio.ViewModels
 
         public void RotateSceneWithMouse(Vector mouseMovement)
         {
-            ActiveRenderer.XRotation += mouseMovement.Y/50;
-            ActiveRenderer.YRotation += mouseMovement.X/50;
+            var rotation = Transformations3D.RotationY(mouseMovement.X/50)
+                * Transformations3D.RotationX(-mouseMovement.Y/50);
+            ActiveRenderer.Scene.WorldTransformation = rotation * ActiveRenderer.Scene.WorldTransformation;
+            ActiveRenderer.ForceRedraw();
+        }
+
+        public void ScaleWithMouse(int delta)
+        {
+            var scalingFactor = Math.Max(0, 1.0 + delta*0.002);
+            var scalingMatrix = Transformations3D.Scaling(scalingFactor);
+            ActiveRenderer.Scene.WorldTransformation = scalingMatrix*ActiveRenderer.Scene.WorldTransformation;
+            ActiveRenderer.ForceRedraw();
+        }
+
+        public void TranslateSceneWithMouse(Vector mouseMovement)
+        {
+            var translation = Transformations3D.Translation(new Vector3D(mouseMovement.X/50, 0.0, mouseMovement.Y/50));
+            ActiveRenderer.Scene.WorldTransformation = translation*ActiveRenderer.Scene.WorldTransformation;
             ActiveRenderer.ForceRedraw();
         }
 

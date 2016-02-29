@@ -14,12 +14,8 @@ namespace CADio.Geometry.Shapes
         private IList<Vertex> _verticesCache;
         private IList<IndexedSegment> _indexedSegmentsCache;
 
-        public Torus() : this(32, 32, 0.2, 0.5)
-        {
-            
-        }
-
-        public Torus(int smallRingSegments, int largeRingSegments, double smallRingRadius, double largeRingRadius)
+        public Torus(int smallRingSegments = 32, int largeRingSegments = 32, 
+            double smallRingRadius = 0.2, double largeRingRadius = 0.5)
         {
             _smallRingSegmentsCount = smallRingSegments;
             _largeRingSegmentsCount = largeRingSegments;

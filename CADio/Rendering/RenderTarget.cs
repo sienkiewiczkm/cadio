@@ -70,7 +70,7 @@ namespace CADio.Rendering
         private Point ConvertPointToPixelSpace(Point point)
         {
             var x = (point.X*0.5 + 0.5) * ActualWidth;
-            var y = (point.Y*0.5 + 0.5) * ActualHeight;
+            var y = (-point.Y*0.5 + 0.5) * ActualHeight;
             return new Point(x, y);
         }
 

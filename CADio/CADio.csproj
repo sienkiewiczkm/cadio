@@ -69,6 +69,7 @@
     <Compile Include="Rendering\Line2D.cs" />
     <Compile Include="Rendering\Renderer.cs" />
     <Compile Include="Rendering\RenderTarget.cs" />
+    <Compile Include="SceneManagement\Scene.cs" />
     <Compile Include="ViewModels\DesignerViewModel.cs" />
     <Compile Include="Views\DesignerWindow.xaml.cs">
       <DependentUpon>DesignerWindow.xaml</DependentUpon>
