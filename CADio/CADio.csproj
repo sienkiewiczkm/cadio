@@ -69,8 +69,12 @@
     <Compile Include="Rendering\Line2D.cs" />
     <Compile Include="Rendering\Renderer.cs" />
     <Compile Include="Rendering\RenderTarget.cs" />
+    <Compile Include="SampleData\DesignSceneListData\DesignSceneListData.xaml.cs">
+      <DependentUpon>DesignSceneListData.xaml</DependentUpon>
+    </Compile>
     <Compile Include="SceneManagement\Scene.cs" />
     <Compile Include="ViewModels\DesignerViewModel.cs" />
+    <Compile Include="ViewModels\SceneTreeViewModel.cs" />
     <Compile Include="Views\DesignerWindow.xaml.cs">
       <DependentUpon>DesignerWindow.xaml</DependentUpon>
     </Compile>
@@ -78,9 +82,27 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Views\SceneTree.xaml.cs">
+      <DependentUpon>SceneTree.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ShapeEditors\TorusEditor.xaml.cs">
+      <DependentUpon>TorusEditor.xaml</DependentUpon>
+    </Compile>
+    <Page Include="SampleData\DesignSceneListData\DesignSceneListData.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\DesignerWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\SceneTree.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ShapeEditors\TorusEditor.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
@@ -106,6 +128,7 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
+    <None Include="SampleData\DesignSceneListData\DesignSceneListData.xsd" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

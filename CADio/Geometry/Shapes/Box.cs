@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Windows.Controls;
 using System.Windows.Media.Media3D;
 
 namespace CADio.Geometry.Shapes
@@ -19,6 +20,8 @@ namespace CADio.Geometry.Shapes
             }
         }
 
+        public string Name => "Box";
+
         public IList<Vertex> Vertices
         {
             get
@@ -37,6 +40,11 @@ namespace CADio.Geometry.Shapes
                     RecalculateMesh();
                 return _indexedSegmentsCache;
             }
+        }
+
+        public Control GetEditorControl()
+        {
+            return null;
         }
 
         private void RequestRecalculation()

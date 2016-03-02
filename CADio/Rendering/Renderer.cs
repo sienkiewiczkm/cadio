@@ -17,7 +17,6 @@ namespace CADio.Rendering
         private const double MinWorldScale = 0.05;
 
         private Scene _scene;
-        private double _worldScale = 1.0;
 
         public event EventHandler RenderOutputChanged;
 

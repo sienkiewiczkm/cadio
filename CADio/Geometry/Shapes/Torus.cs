@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media.Media3D;
+using CADio.Views.ShapeEditors;
 
 namespace CADio.Geometry.Shapes
 {
-    public class Torus : IShape
+    public class Torus : IShape, INotifyPropertyChanged
     {
         private double _smallRingRadius;
         private double _largeRingRadius;
@@ -23,13 +27,16 @@ namespace CADio.Geometry.Shapes
             _largeRingRadius = largeRingRadius;
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public double SmallRingRadius
         {
             get { return _smallRingRadius; }
             set
             {
-                RequestRecalculation();
                 _smallRingRadius = value;
+                RequestRecalculation();
+                OnPropertyChanged();
             }
         }
 
@@ -38,8 +45,9 @@ namespace CADio.Geometry.Shapes
             get { return _largeRingRadius; }
             set
             {
-                RequestRecalculation();
                 _largeRingRadius = value;
+                RequestRecalculation();
+                OnPropertyChanged();
             }
         }
 
@@ -48,9 +56,14 @@ namespace CADio.Geometry.Shapes
             get { return _smallRingSegmentsCount; }
             set
             {
-                if (_smallRingSegmentsCount != value)
-                    RequestRecalculation();
+                var isPropertyChanged = _smallRingSegmentsCount != value;
                 _smallRingSegmentsCount = value;
+
+                if (isPropertyChanged)
+                {
+                    RequestRecalculation();
+                    OnPropertyChanged();
+                }
             }
         }
 
@@ -59,11 +72,18 @@ namespace CADio.Geometry.Shapes
             get { return _largeRingSegmentsCount; }
             set
             {
-                if (_largeRingSegmentsCount != value)
-                    RequestRecalculation();
+                var isPropertyChanged = _largeRingSegmentsCount != value;
                 _largeRingSegmentsCount = value;
+
+                if (isPropertyChanged)
+                {
+                    RequestRecalculation();
+                    OnPropertyChanged();
+                }
             }
         }
+
+        public string Name => "Torus";
 
         public IList<Vertex> Vertices
         {
@@ -83,6 +103,14 @@ namespace CADio.Geometry.Shapes
                     RecalculateTorus();
                 return _indexedSegmentsCache;
             }
+        }
+
+        public Control GetEditorControl()
+        {
+            return new TorusEditor()
+            {
+                DataContext = this
+            };
         }
 
         private void RequestRecalculation()
@@ -151,6 +179,11 @@ namespace CADio.Geometry.Shapes
                     _indexedSegmentsCache.Add(new IndexedSegment(firstIndex, secondIndex));
                 }
             }
+        }
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

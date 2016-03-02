@@ -18,6 +18,11 @@ namespace CADio.ViewModels
         {
             ActiveRenderer = new Renderer {Scene = new Scene()};
             ActiveRenderer.Scene.Shapes.Add(new Torus());
+
+            SceneTreeViewModel = new SceneTreeViewModel()
+            {
+                Scene = ActiveRenderer.Scene
+            };
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -31,6 +36,8 @@ namespace CADio.ViewModels
                 OnPropertyChanged();
             }
         }
+
+        public SceneTreeViewModel SceneTreeViewModel { get; set; }
 
         public void RotateSceneWithMouse(Vector mouseMovement)
         {
