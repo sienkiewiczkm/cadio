@@ -1,11 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CADio", "CADio\CADio.csproj", "{807FACFD-0E70-4B68-80C4-C86BCDFFE8AE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CADio.Test", "CADio.Test\CADio.Test.csproj", "{C291AC45-5955-4991-8757-ED901E757567}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CADio.RayCaster", "CADio.RayCaster\CADio.RayCaster.csproj", "{527A7047-BE8C-4798-86DA-885C6815BBCB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CADio.RayCaster.Test", "CADio.RayCaster.Test\CADio.RayCaster.Test.csproj", "{6CEB91A4-7598-4E23-9239-25FE1B71BB60}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +25,14 @@ Global
 		{C291AC45-5955-4991-8757-ED901E757567}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C291AC45-5955-4991-8757-ED901E757567}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C291AC45-5955-4991-8757-ED901E757567}.Release|Any CPU.Build.0 = Release|Any CPU
+		{527A7047-BE8C-4798-86DA-885C6815BBCB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{527A7047-BE8C-4798-86DA-885C6815BBCB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{527A7047-BE8C-4798-86DA-885C6815BBCB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{527A7047-BE8C-4798-86DA-885C6815BBCB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CEB91A4-7598-4E23-9239-25FE1B71BB60}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CEB91A4-7598-4E23-9239-25FE1B71BB60}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CEB91A4-7598-4E23-9239-25FE1B71BB60}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CEB91A4-7598-4E23-9239-25FE1B71BB60}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
