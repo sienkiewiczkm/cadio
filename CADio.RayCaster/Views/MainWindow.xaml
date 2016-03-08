@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:CADio.RayCaster"
         mc:Ignorable="d"
         Title="MainWindow">
-    <Canvas Name="OutputCanvas" SizeChanged="ImageSizeChanged">
+    <Canvas Name="OutputCanvas" SizeChanged="ImageSizeChanged" MouseMove="OnMouseMove" MouseDown="OnMouseDown" MouseUp="OnMouseUp" MouseWheel="OnMouseWheel">
         <Image Name="ImageSource" Source="{Binding FrontBuffer}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
     </Canvas>
 </Window>

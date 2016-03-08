@@ -11,7 +11,7 @@ namespace CADio.Test
         [TestMethod]
         public void MultiplyMatrixAndIdentity_ReturnsUnchanged()
         {
-            var matrix = new Matrix4x4()
+            var matrix = new Matrix4X4()
             {
                 Cells = new double[4, 4]
                 {
@@ -22,7 +22,7 @@ namespace CADio.Test
                 }
             };
 
-            var identity = Matrix4x4.Identity;
+            var identity = Matrix4X4.Identity;
             var output = matrix*identity;
 
             var equal = AreEqual(matrix, output);
@@ -33,7 +33,7 @@ namespace CADio.Test
         [TestMethod]
         public void MultiplyMatrices_ReturnsValid()
         {
-            var a = new Matrix4x4()
+            var a = new Matrix4X4()
             {
                 Cells = new double[4, 4]
                 {
@@ -44,7 +44,7 @@ namespace CADio.Test
                 }
             };
 
-            var b = new Matrix4x4()
+            var b = new Matrix4X4()
             {
                 Cells = new double[4, 4]
                 {
@@ -55,7 +55,7 @@ namespace CADio.Test
                 }
             };
 
-            var expected = new Matrix4x4()
+            var expected = new Matrix4X4()
             {
                 Cells = new double[4, 4]
                 {
@@ -70,9 +70,34 @@ namespace CADio.Test
             Assert.IsTrue(AreEqual(result, expected));
         }
 
-        private static bool AreEqual(Matrix4x4 matrix, Matrix4x4 output)
+        [TestMethod]
+        public void InverseIdentityMatrix_ShouldBeIdentity()
         {
-            const double threshold = 0.005;
+            var identityInversion = Matrix4X4.Identity.GaussianInverse();
+            Assert.IsTrue(AreEqual(Matrix4X4.Identity, identityInversion));
+        }
+
+        [TestMethod]
+        public void InverseSampleMatrix_MultiplicationOfSampleAndInverseShouldBeIdentity()
+        {
+            var input = new Matrix4X4()
+            {
+                Cells = new double[4, 4]
+                {
+                    {2, 1, 3, -2},
+                    {-3, 2, 7, 1},
+                    {8, 4, 1, 0},
+                    {8, -1, 1, 3}
+                }
+            };
+
+            var inputInversion = input.GaussianInverse();
+            var inputInversionMulInput = inputInversion*input;
+            Assert.IsTrue(AreEqual(Matrix4X4.Identity, inputInversionMulInput));
+        }
+
+        private static bool AreEqual(Matrix4X4 matrix, Matrix4X4 output, double threshold = 0.005)
+        {
             for (int i = 0; i < 4; ++i)
                 for (int j = 0; j < 4; ++j)
                     if (Math.Abs(matrix[i, j] - output[i, j]) > threshold)

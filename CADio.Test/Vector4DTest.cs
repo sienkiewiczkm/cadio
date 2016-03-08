@@ -11,7 +11,7 @@ namespace CADio.Test
         public void Transform_IdentityShouldNotChangeVector()
         {
             var vector = new Vector4D(1, 2, 3, 4);
-            var transformation = Matrix4x4.Identity;
+            var transformation = Matrix4X4.Identity;
             var outputVector = transformation*vector;
 
             Assert.AreEqual(vector.X, outputVector.X);
@@ -23,7 +23,7 @@ namespace CADio.Test
         [TestMethod]
         public void Transform_SwapCoordinates()
         {
-            var transform = new Matrix4x4()
+            var transform = new Matrix4X4()
             {
                 Cells = new double[4, 4]
                 {

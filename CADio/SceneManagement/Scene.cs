@@ -6,7 +6,7 @@ namespace CADio.SceneManagement
 {
     public class Scene
     {
-        public Matrix4x4 WorldTransformation { get; set; } = Matrix4x4.Identity;
+        public Matrix4X4 WorldTransformation { get; set; } = Matrix4X4.Identity;
         public List<IShape> Shapes { get; set; } = new List<IShape>();
     }
 }

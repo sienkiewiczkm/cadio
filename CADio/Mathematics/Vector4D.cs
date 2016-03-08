@@ -24,7 +24,7 @@ namespace CADio.Mathematics
             return new [] { X, Y, Z, W };
         }
 
-        public Vector4D Transform(Matrix4x4 transformation)
+        public Vector4D Transform(Matrix4X4 transformation)
         {
             var vector = ToArray();
             var output = new double[4];
@@ -44,7 +44,7 @@ namespace CADio.Mathematics
             return new Point(vector.X, vector.Y);
         }
 
-        public static Vector4D operator *(Matrix4x4 transformation, Vector4D vector)
+        public static Vector4D operator *(Matrix4X4 transformation, Vector4D vector)
         {
             return vector.Transform(transformation);
         }

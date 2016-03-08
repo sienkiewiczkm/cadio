@@ -32,6 +32,7 @@ namespace CADio.RayCaster.Views
         private int _renderWidth;
         private int _renderHeight;
         private Thread _renderThread;
+        private Matrix4X4 _worldTransformation = Matrix4X4.Identity;
 
         private void RefreshImage()
         {
@@ -50,6 +51,8 @@ namespace CADio.RayCaster.Views
         }
 
         private volatile bool _killThread;
+        private bool _mouseRotationEnabled;
+
         private void RenderAdaptively()
         {
             const int pixelStartingSizePow2 = 32;
@@ -94,20 +97,23 @@ namespace CADio.RayCaster.Views
             var rayx = aspect*(2.0*x/maxX - 1.0);
             var rayy = (double) y/maxY*2.0 - 1.0;
 
-            var matrix = new Matrix4x4()
+            var matrix = new Matrix4X4()
             {
                 Cells = new double[4, 4]
                 {
-                    {1, 0, 0, 0},
+                    {2, 0, 0, 0},
                     {0, 2, 0, 0},
-                    {0, 0, 1, 0},
+                    {0, 0, 2, 0},
                     {0, 0, 0, -1}
                 }
             };
 
+            var inversedWorld = _worldTransformation.GaussianInverse();
+            var dm = inversedWorld.Transpose() * matrix * inversedWorld;
+
             var vec = new Vector4D(rayx, rayy, 0.0, 1.0);
 
-            var solution = ImplicitEllipsoidEquationSolver.SolveZ(vec, matrix);
+            var solution = ImplicitEllipsoidEquationSolver.SolveZ(vec, dm);
             if (solution.HasValue)
                 return Colors.Yellow;
 
@@ -119,6 +125,42 @@ namespace CADio.RayCaster.Views
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private Point _previousPosition;
+        private void OnMouseMove(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            if (!_mouseRotationEnabled) return;
+
+            var position = e.GetPosition(this);
+            var movement = position - _previousPosition;
+
+            var rotationMatrix = Transformations3D.RotationY(0.005*movement.X)
+                                 *Transformations3D.RotationX(0.005*movement.Y);
+
+            _worldTransformation = rotationMatrix*_worldTransformation;
+
+            RefreshImage();
+        }
+
+        private void OnMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            _mouseRotationEnabled = true;
+            _previousPosition = e.GetPosition(this);
+        }
+
+        private void OnMouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            _mouseRotationEnabled = false;
+        }
+
+        private void OnMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
+        {
+            var scalingFactor = Math.Max(0, 1.0 + e.Delta*0.002);
+            var scalingMatrix = Transformations3D.Scaling(scalingFactor);
+            _worldTransformation = scalingMatrix*_worldTransformation;
+
+            RefreshImage();
         }
     }
 }

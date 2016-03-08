@@ -6,9 +6,9 @@ namespace CADio.Mathematics
 {
     public static class Transformations3D
     {
-        public static Matrix4x4 Translation(Vector3D v)
+        public static Matrix4X4 Translation(Vector3D v)
         {
-            return new Matrix4x4
+            return new Matrix4X4
             {
                 Cells = new [,]
                 {
@@ -20,14 +20,14 @@ namespace CADio.Mathematics
             };
         }
 
-        public static Matrix4x4 Scaling(double scale)
+        public static Matrix4X4 Scaling(double scale)
         {
             return Scaling(new Vector3D(scale, scale, scale));
         }
 
-        public static Matrix4x4 Scaling(Vector3D scale)
+        public static Matrix4X4 Scaling(Vector3D scale)
         {
-            return new Matrix4x4
+            return new Matrix4X4
             {
                 Cells = new [,]
                 {
@@ -39,12 +39,12 @@ namespace CADio.Mathematics
             };
         }
 
-        public static Matrix4x4 RotationX(double angle)
+        public static Matrix4X4 RotationX(double angle)
         {
             var cos = Math.Cos(angle);
             var sin = Math.Sin(angle);
 
-            return new Matrix4x4
+            return new Matrix4X4
             {
                 Cells = new [,]
                 {
@@ -56,12 +56,12 @@ namespace CADio.Mathematics
             };
         }
 
-        public static Matrix4x4 RotationY(double angle)
+        public static Matrix4X4 RotationY(double angle)
         {
             var cos = Math.Cos(angle);
             var sin = Math.Sin(angle);
 
-            return new Matrix4x4
+            return new Matrix4X4
             {
                 Cells = new [,]
                 {
@@ -73,12 +73,12 @@ namespace CADio.Mathematics
             };
         }
 
-        public static Matrix4x4 RotationZ(double angle)
+        public static Matrix4X4 RotationZ(double angle)
         {
             var cos = Math.Cos(angle);
             var sin = Math.Sin(angle);
 
-            return new Matrix4x4
+            return new Matrix4X4
             {
                 Cells = new[,]
                 {
@@ -90,11 +90,11 @@ namespace CADio.Mathematics
             };
         }
 
-        public static Matrix4x4 SimplePerspective(double r)
+        public static Matrix4X4 SimplePerspective(double r)
         {
             var q = 1/r;
 
-            return new Matrix4x4
+            return new Matrix4X4
             {
                 Cells = new [,]
                 {

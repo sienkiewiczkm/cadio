@@ -11,7 +11,7 @@ namespace CADio.RayCaster.Test
         [TestMethod]
         public void TrySolveSimpleQuadraticEquation()
         {
-            var mat = new Matrix4x4()
+            var mat = new Matrix4X4()
             {
                 Cells = new double[4, 4]
                 {

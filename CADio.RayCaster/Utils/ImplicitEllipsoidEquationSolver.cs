@@ -11,7 +11,7 @@ namespace CADio.RayCaster.Utils
             return variance < acceptableVariance;
         }
 
-        public static double? SolveZ(Vector4D v, Matrix4x4 mat)
+        public static double? SolveZ(Vector4D v, Matrix4X4 mat)
         {
             var A = mat[2, 2];
             var B = (mat[2, 0] + mat[0, 2]) * v.X + (mat[2, 1] + mat[1, 2]) * v.Y + (mat[3, 2] + mat[2, 3]) * v.W;
@@ -42,6 +42,11 @@ namespace CADio.RayCaster.Utils
                 (-B - Math.Sqrt(delta)) / (2 * A),
                 (-B + Math.Sqrt(delta)) / (2 * A)
             );
+        }
+
+        public static Vector4D? CalculateNormal(Vector4D point, Matrix4X4 mat)
+        {
+            return null;
         }
     }
 }
