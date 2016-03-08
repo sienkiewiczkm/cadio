@@ -5,8 +5,54 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CADio.RayCaster"
         mc:Ignorable="d"
-        Title="MainWindow">
-    <Canvas Name="OutputCanvas" SizeChanged="ImageSizeChanged" MouseMove="OnMouseMove" MouseDown="OnMouseDown" MouseUp="OnMouseUp" MouseWheel="OnMouseWheel">
-        <Image Name="ImageSource" Source="{Binding FrontBuffer}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-    </Canvas>
+        Title="CADio RayCaster">
+    <DockPanel LastChildFill="True">
+        <StackPanel DockPanel.Dock="Right" MinWidth="100">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <Label Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right">Mode:</Label>
+                <ComboBox Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" SelectedItem="{Binding DisplayMode}" ItemsSource="{Binding AvailableDisplayModes}" VerticalAlignment="Center"></ComboBox>
+
+                <Label Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right">A:</Label>
+                <Slider Grid.Row="1" Grid.Column="1" TickFrequency="0.1" Minimum="0.1" Maximum="5" Width="100" VerticalAlignment="Center" Value="{Binding EllipsoidA}"/>
+                <TextBlock Grid.Row="1" Grid.Column="2" Width="32" Text="{Binding EllipsoidA, StringFormat='0.##'}" VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center"/>
+
+                <Label Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right">B:</Label>
+                <Slider Grid.Row="2" Grid.Column="1" TickFrequency="0.1" Minimum="0.1" Maximum="5" Width="100" VerticalAlignment="Center" Value="{Binding EllipsoidB}"/>
+                <TextBlock Grid.Row="2" Grid.Column="2" Width="32" Text="{Binding EllipsoidB, StringFormat='0.##'}" VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center"/>
+
+                <Label Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right">C:</Label>
+                <Slider Grid.Row="3" Grid.Column="1" TickFrequency="0.1" Minimum="0.1" Maximum="5" Width="100" VerticalAlignment="Center" Value="{Binding EllipsoidC}"/>
+                <TextBlock Grid.Row="3" Grid.Column="2" Width="32" Text="{Binding EllipsoidC, StringFormat='0.##'}" VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center"/>
+
+                <Label Grid.Row="4" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right">Pixel size:</Label>
+                <Slider Grid.Row="4" Grid.Column="1" TickFrequency="1" Minimum="0" Maximum="8" Width="100" TickPlacement="BottomRight" VerticalAlignment="Center" Value="{Binding PixelSizePower}"/>
+                <TextBlock Grid.Row="4" Grid.Column="2" Width="32" Text="{Binding PixelSize}" VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center"/>
+
+                <Label Grid.Row="5" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right">Exponent:</Label>
+                <Slider Grid.Row="5" Grid.Column="1" TickFrequency="0.1" Minimum="0" Maximum="10" Width="100" VerticalAlignment="Center" Value="{Binding Exponent}"/>
+                <TextBlock Grid.Row="5" Grid.Column="2" Width="32" Text="{Binding Exponent, StringFormat='0.##'}" VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center"/>
+
+            </Grid>
+            <CheckBox IsChecked="{Binding IsOnePixelStepEnabled}">One pixel step (default: half step)</CheckBox>
+        </StackPanel>
+
+        <Canvas Name="OutputCanvas" SizeChanged="ImageSizeChanged" MouseMove="OnMouseMove" MouseDown="OnMouseDown" MouseUp="OnMouseUp" MouseWheel="OnMouseWheel">
+            <Image Name="ImageSource" Source="{Binding FrontBuffer}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+        </Canvas>
+    </DockPanel>
 </Window>

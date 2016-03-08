@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows;
@@ -16,7 +19,21 @@ namespace CADio.RayCaster.Views
     /// </summary>
     public partial class MainWindow : INotifyPropertyChanged
     {
-        private WriteableBitmap _writeableBitmap;
+        private int _renderWidth;
+        private int _renderHeight;
+        private Thread _renderThread;
+        private Matrix4X4 _worldTransformation = Matrix4X4.Identity;
+        private Point _previousPosition;
+        private bool _mouseRotationEnabled;
+        private volatile bool _killThread;
+
+        private DisplayMode _displayMode = DisplayMode.ColorWithLighting;
+        private double _ellipsoidA = 1;
+        private double _ellipsoidB = 1;
+        private double _ellipsoidC = 1;
+        private int _pixelSizePower = 5;
+        private double _exponent = 1;
+        private bool _isOnePixelStepEnabled;
 
         public MainWindow()
         {
@@ -24,15 +41,88 @@ namespace CADio.RayCaster.Views
             DataContext = this;
         }
 
-        private void ImageSizeChanged(object sender, SizeChangedEventArgs e)
+        public DisplayMode DisplayMode
         {
-            RefreshImage();
+            get { return _displayMode; }
+            set
+            {
+                _displayMode = value;
+                RefreshImage();
+                OnPropertyChanged();
+            }
         }
 
-        private int _renderWidth;
-        private int _renderHeight;
-        private Thread _renderThread;
-        private Matrix4X4 _worldTransformation = Matrix4X4.Identity;
+        public IEnumerable<DisplayMode> AvailableDisplayModes
+            => Enum.GetValues(typeof (DisplayMode)).Cast<DisplayMode>();
+
+        public double EllipsoidA
+        {
+            get { return _ellipsoidA; }
+            set
+            {
+                _ellipsoidA = value;
+                RefreshImage();
+                OnPropertyChanged();
+            }
+        }
+
+        public double EllipsoidB
+        {
+            get { return _ellipsoidB; }
+            set
+            {
+                _ellipsoidB = value;
+                RefreshImage();
+                OnPropertyChanged();
+            }
+        }
+
+        public double EllipsoidC
+        {
+            get { return _ellipsoidC; }
+            set
+            {
+                _ellipsoidC = value;
+                RefreshImage();
+                OnPropertyChanged();
+            }
+        }
+
+        public int PixelSizePower
+        {
+            get { return _pixelSizePower; }
+            set
+            {
+                _pixelSizePower = value;
+                RefreshImage();
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(PixelSize));
+            }
+        }
+
+        public int PixelSize => 1 << _pixelSizePower;
+
+        public double Exponent
+        {
+            get { return _exponent; }
+            set
+            {
+                _exponent = value;
+                RefreshImage();
+                OnPropertyChanged();
+            }
+        }
+
+        public bool IsOnePixelStepEnabled
+        {
+            get { return _isOnePixelStepEnabled; }
+            set
+            {
+                _isOnePixelStepEnabled = value;
+                RefreshImage();
+                OnPropertyChanged();
+            }
+        }
 
         private void RefreshImage()
         {
@@ -50,13 +140,9 @@ namespace CADio.RayCaster.Views
             _renderThread.Start();
         }
 
-        private volatile bool _killThread;
-        private bool _mouseRotationEnabled;
-
         private void RenderAdaptively()
         {
-            const int pixelStartingSizePow2 = 32;
-            for (var pixelSize = pixelStartingSizePow2; pixelSize > 0; --pixelSize)
+            for (var pixelSize = PixelSize; pixelSize > 0; pixelSize = IsOnePixelStepEnabled ? pixelSize - 1 : pixelSize / 2)
             {
                 var output = BitmapFactory.New(_renderWidth, _renderHeight);
 
@@ -97,17 +183,17 @@ namespace CADio.RayCaster.Views
             var rayx = aspect*(2.0*x/maxX - 1.0);
             var rayy = (double) y/maxY*2.0 - 1.0;
 
-            var a = 1.0;
-            var b = 0.8;
-            var c = 1.0;
+            var a2 = EllipsoidA * EllipsoidA;
+            var b2 = EllipsoidB * EllipsoidB;
+            var c2 = EllipsoidC * EllipsoidC;
 
             var matrix = new Matrix4X4()
             {
                 Cells = new double[4, 4]
                 {
-                    {1/(a*a), 0, 0, 0},
-                    {0, 1/(b*b), 0, 0},
-                    {0, 0, 1/(c*c), 0},
+                    {1/a2, 0, 0, 0},
+                    {0, 1/b2, 0, 0},
+                    {0, 0, 1/c2, 0},
                     {0, 0, 0, -1}
                 }
             };
@@ -129,15 +215,24 @@ namespace CADio.RayCaster.Views
             var normal = ImplicitEllipsoidEquationSolver.CalculateNormal(crossPoint, dm);
             var lightVec = new Vector4D(0.0, 0.0, -1.0, 0.0);
             var dot = Math.Max(0, normal.DotProduct(lightVec));
+            dot = Math.Pow(dot, Exponent);
+
             var material = Colors.Yellow;
 
             //var foundzcolor = (byte) ((foundZ.Value + 1.0)*0.5*255.0);
             //return Color.FromRgb(foundzcolor, foundzcolor, foundzcolor);
 
-            bool showNormals = false;
-            if (showNormals)
+            if (DisplayMode == DisplayMode.OnlyNormals)
             {
-                return Color.FromRgb((byte) (255.0*normal.X), (byte) (255.0*normal.Y), (byte) (255.0*normal.Z));
+                var nx = (normal.X + 1.0)*0.5;
+                var ny = (normal.Y + 1.0)*0.5;
+                var nz = (normal.Z + 1.0)*0.5;
+                return Color.FromRgb((byte) (255.0*nx), (byte) (255.0*ny), (byte) (255.0*nz));
+            }
+
+            if (DisplayMode == DisplayMode.LightingOnly)
+            {
+                material = Colors.White;
             }
 
             return Color.FromRgb((byte)(dot*material.R), (byte)(dot*material.G), (byte)(dot*material.B));
@@ -150,13 +245,18 @@ namespace CADio.RayCaster.Views
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private Point _previousPosition;
+        private void ImageSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            RefreshImage();
+        }
+
         private void OnMouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
             if (!_mouseRotationEnabled) return;
 
             var position = e.GetPosition(this);
             var movement = position - _previousPosition;
+            _previousPosition = position;
 
             var rotationMatrix = Transformations3D.RotationY(0.005*movement.X)
                                  *Transformations3D.RotationX(0.005*movement.Y);
