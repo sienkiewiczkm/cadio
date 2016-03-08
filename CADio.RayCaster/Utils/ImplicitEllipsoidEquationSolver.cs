@@ -44,9 +44,38 @@ namespace CADio.RayCaster.Utils
             );
         }
 
-        public static Vector4D? CalculateNormal(Vector4D point, Matrix4X4 mat)
+        public static Vector4D CalculateNormal(Vector4D point, Matrix4X4 mat)
         {
-            return null;
+            return new Vector4D(
+                DerivativeX(point, mat),
+                DerivativeY(point, mat),
+                DerivativeZ(point, mat),
+                0.0
+            ).Normalize();
+        }
+
+        private static double DerivativeX(Vector4D v, Matrix4X4 mat)
+        {
+            return 2.0*v.X*mat[0, 0]
+                   + (mat[1, 0] + mat[0, 1])*v.Y
+                   + (mat[2, 0] + mat[0, 2])*v.Z
+                   + (mat[3, 0] + mat[0, 3])*v.W;
+        }
+
+        private static double DerivativeY(Vector4D v, Matrix4X4 mat)
+        {
+            return 2.0*v.Y*mat[1, 1]
+                   + (mat[1, 0] + mat[0, 1])*v.X
+                   + (mat[2, 1] + mat[1, 2])*v.Z
+                   + (mat[3, 1] + mat[1, 3])*v.W;
+        }
+
+        private static double DerivativeZ(Vector4D v, Matrix4X4 mat)
+        {
+            return 2.0*mat[2, 2]*v.Z
+                   + (mat[2, 0] + mat[0, 2])*v.X
+                   + (mat[2, 1] + mat[1, 2])*v.Y
+                   + (mat[3, 2] + mat[2, 3])*v.W;
         }
     }
 }

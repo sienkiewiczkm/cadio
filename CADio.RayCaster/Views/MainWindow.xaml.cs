@@ -97,13 +97,17 @@ namespace CADio.RayCaster.Views
             var rayx = aspect*(2.0*x/maxX - 1.0);
             var rayy = (double) y/maxY*2.0 - 1.0;
 
+            var a = 1.0;
+            var b = 0.8;
+            var c = 1.0;
+
             var matrix = new Matrix4X4()
             {
                 Cells = new double[4, 4]
                 {
-                    {2, 0, 0, 0},
-                    {0, 2, 0, 0},
-                    {0, 0, 2, 0},
+                    {1/(a*a), 0, 0, 0},
+                    {0, 1/(b*b), 0, 0},
+                    {0, 0, 1/(c*c), 0},
                     {0, 0, 0, -1}
                 }
             };
@@ -113,11 +117,30 @@ namespace CADio.RayCaster.Views
 
             var vec = new Vector4D(rayx, rayy, 0.0, 1.0);
 
-            var solution = ImplicitEllipsoidEquationSolver.SolveZ(vec, dm);
-            if (solution.HasValue)
-                return Colors.Yellow;
+            var foundZ = ImplicitEllipsoidEquationSolver.SolveZ(vec, dm);
+            if (!foundZ.HasValue) return Colors.Black;
 
-            return Colors.Black;
+            if (x == maxX/2 && y == maxY/2)
+            {
+                Console.WriteLine("debugpoint");
+            }
+
+            var crossPoint = new Vector4D(rayx, rayy, foundZ.Value, 1.0);
+            var normal = ImplicitEllipsoidEquationSolver.CalculateNormal(crossPoint, dm);
+            var lightVec = new Vector4D(0.0, 0.0, -1.0, 0.0);
+            var dot = Math.Max(0, normal.DotProduct(lightVec));
+            var material = Colors.Yellow;
+
+            //var foundzcolor = (byte) ((foundZ.Value + 1.0)*0.5*255.0);
+            //return Color.FromRgb(foundzcolor, foundzcolor, foundzcolor);
+
+            bool showNormals = false;
+            if (showNormals)
+            {
+                return Color.FromRgb((byte) (255.0*normal.X), (byte) (255.0*normal.Y), (byte) (255.0*normal.Z));
+            }
+
+            return Color.FromRgb((byte)(dot*material.R), (byte)(dot*material.G), (byte)(dot*material.B));
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

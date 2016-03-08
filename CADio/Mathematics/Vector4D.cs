@@ -19,6 +19,9 @@ namespace CADio.Mathematics
             W = w;
         }
 
+        public double LengthPow2 => X*X + Y*Y + Z*Z + W*W;
+        public double Length => Math.Sqrt(LengthPow2);
+
         public double[] ToArray()
         {
             return new [] { X, Y, Z, W };
@@ -47,6 +50,17 @@ namespace CADio.Mathematics
         public static Vector4D operator *(Matrix4X4 transformation, Vector4D vector)
         {
             return vector.Transform(transformation);
+        }
+
+        public Vector4D Normalize()
+        {
+            var l = Length;
+            return new Vector4D(X/l, Y/l, Z/l, W/l);
+        }
+
+        public double DotProduct(Vector4D v)
+        {
+            return X*v.X + Y*v.Y + Z*v.Z + W*v.Z;
         }
     }
 }
