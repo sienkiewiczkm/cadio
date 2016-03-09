@@ -6,8 +6,10 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Media.Media3D;
 using System.Windows.Threading;
 using CADio.Mathematics;
 using CADio.RayCaster.Utils;
@@ -24,7 +26,7 @@ namespace CADio.RayCaster.Views
         private Thread _renderThread;
         private Matrix4X4 _worldTransformation = Matrix4X4.Identity;
         private Point _previousPosition;
-        private bool _mouseRotationEnabled;
+        private bool _mouseLMBDown;
         private volatile bool _killThread;
 
         private DisplayMode _displayMode = DisplayMode.ColorWithLighting;
@@ -206,18 +208,13 @@ namespace CADio.RayCaster.Views
             var foundZ = ImplicitEllipsoidEquationSolver.SolveZ(vec, dm);
             if (!foundZ.HasValue) return Colors.Black;
 
-            if (x == maxX/2 && y == maxY/2)
-            {
-                Console.WriteLine("debugpoint");
-            }
-
             var crossPoint = new Vector4D(rayx, rayy, foundZ.Value, 1.0);
             var normal = ImplicitEllipsoidEquationSolver.CalculateNormal(crossPoint, dm);
             var lightVec = new Vector4D(0.0, 0.0, -1.0, 0.0);
             var dot = Math.Max(0, normal.DotProduct(lightVec));
             dot = Math.Pow(dot, Exponent);
 
-            var material = Colors.Yellow;
+            var material = Color.FromRgb(255,128,0);
 
             //var foundzcolor = (byte) ((foundZ.Value + 1.0)*0.5*255.0);
             //return Color.FromRgb(foundzcolor, foundzcolor, foundzcolor);
@@ -250,13 +247,19 @@ namespace CADio.RayCaster.Views
             RefreshImage();
         }
 
-        private void OnMouseMove(object sender, System.Windows.Input.MouseEventArgs e)
+        private void OnMouseMove(object sender, MouseEventArgs e)
         {
-            if (!_mouseRotationEnabled) return;
+            if (!_mouseLMBDown) return;
 
             var position = e.GetPosition(this);
             var movement = position - _previousPosition;
             _previousPosition = position;
+
+            if (Keyboard.IsKeyDown(Key.LeftShift))
+            {
+                MoveSceneUsingMouse(movement);
+                return;
+            }
 
             var rotationMatrix = Transformations3D.RotationY(0.005*movement.X)
                                  *Transformations3D.RotationX(0.005*movement.Y);
@@ -266,18 +269,25 @@ namespace CADio.RayCaster.Views
             RefreshImage();
         }
 
-        private void OnMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void MoveSceneUsingMouse(Vector movement)
         {
-            _mouseRotationEnabled = true;
+            var translation = Transformations3D.Translation(new Vector3D(movement.X*0.001, movement.Y*0.001, 0));
+            _worldTransformation = translation*_worldTransformation;
+            RefreshImage();
+        }
+
+        private void OnMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            _mouseLMBDown = true;
             _previousPosition = e.GetPosition(this);
         }
 
-        private void OnMouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void OnMouseUp(object sender, MouseButtonEventArgs e)
         {
-            _mouseRotationEnabled = false;
+            _mouseLMBDown = false;
         }
 
-        private void OnMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
+        private void OnMouseWheel(object sender, MouseWheelEventArgs e)
         {
             var scalingFactor = Math.Max(0, 1.0 + e.Delta*0.002);
             var scalingMatrix = Transformations3D.Scaling(scalingFactor);
