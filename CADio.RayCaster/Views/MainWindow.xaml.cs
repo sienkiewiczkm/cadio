@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -10,7 +9,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
-using System.Windows.Threading;
 using CADio.Mathematics;
 using CADio.RayCaster.Utils;
 
@@ -152,8 +150,6 @@ namespace CADio.RayCaster.Views
                 {
                     output.Clear(Colors.Blue);
 
-                    var col = (Color.FromRgb(((byte) ((pixelSize - 1)*8)), 0, 0));
-
                     for (var yblock = 0; yblock < (output.PixelHeight + pixelSize - 1)/pixelSize; ++yblock)
                     {
                         for (var xblock = 0; xblock < (output.PixelWidth + pixelSize - 1)/pixelSize; ++xblock)
@@ -214,7 +210,7 @@ namespace CADio.RayCaster.Views
             var dot = Math.Max(0, normal.DotProduct(lightVec));
             dot = Math.Pow(dot, Exponent);
 
-            var material = Color.FromRgb(255,128,0);
+            var material = Color.FromRgb(255,255,0);
 
             //var foundzcolor = (byte) ((foundZ.Value + 1.0)*0.5*255.0);
             //return Color.FromRgb(foundzcolor, foundzcolor, foundzcolor);
@@ -294,6 +290,21 @@ namespace CADio.RayCaster.Views
             _worldTransformation = scalingMatrix*_worldTransformation;
 
             RefreshImage();
+        }
+
+        private void OnKeyDown(object sender, KeyEventArgs e)
+        {
+            switch (e.Key)
+            {
+                case Key.A:
+                    _worldTransformation = Transformations3D.Translation(new Vector3D(0, 0, +0.5))*_worldTransformation;
+                    RefreshImage();
+                    break;
+                case Key.Z:
+                    _worldTransformation = Transformations3D.Translation(new Vector3D(0, 0, -0.5)) * _worldTransformation;
+                    RefreshImage();
+                    break;
+            }
         }
     }
 }
