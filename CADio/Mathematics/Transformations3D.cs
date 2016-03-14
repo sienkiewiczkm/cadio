@@ -105,5 +105,22 @@ namespace CADio.Mathematics
                 }
             };
         }
+
+        public static Matrix4X4 SimplePerspectiveWithEyeShift(double r, double eyeShift)
+        {
+            var p = eyeShift/(2*r);
+            var q = 1 / r;
+
+            return new Matrix4X4
+            {
+                Cells = new[,]
+                {
+                    {1, 0, p, 0},
+                    {0, 1, 0, 0},
+                    {0, 0, 0, 0},
+                    {0, 0, q, 1},
+                }
+            };
+        }
     }
 }

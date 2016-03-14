@@ -10,27 +10,23 @@
         xmlns:shapeEditors="clr-namespace:CADio.Views.ShapeEditors"
         mc:Ignorable="d"
         Width="800" Height="600"
-        Title="CADio">
+        Title="CADio"
+        Loaded="OnLoaded">
     <Window.Resources>
         <DataTemplate DataType="{x:Type shapes:Torus}">
             <shapeEditors:TorusEditor/>
         </DataTemplate>
     </Window.Resources>
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="300"/>
-            <RowDefinition Height="300"/>
-        </Grid.RowDefinitions>
-        
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="600"/>
-            <ColumnDefinition Width="200"/>
-        </Grid.ColumnDefinitions>
-        
-        <rendering:RenderTarget Grid.RowSpan="2" Background="Black" Renderer="{Binding ActiveRenderer}"
-            MouseDown="OnMouseDown" MouseUp="OnMouseUp" MouseMove="OnMouseMove" MouseWheel="OnMouseWheel"/>
-        
-        <views:SceneTree Grid.Row="0"  Grid.Column="1" DataContext="{Binding SceneTreeViewModel}"/>
-        <ContentPresenter Grid.Row="1" Grid.Column="1" Content="{Binding SceneTreeViewModel.SelectedShape}"/>
-    </Grid>
+    <DockPanel LastChildFill="True">
+        <ToolBar DockPanel.Dock="Top">
+            <CheckBox IsChecked="{Binding ElementName=RT, Path=Enable3D}">Enable 3D</CheckBox>
+        </ToolBar>
+        <StackPanel DockPanel.Dock="Right" Width="200">
+            <views:SceneTree Height="200" DataContext="{Binding SceneTreeViewModel}"/>
+            <ContentPresenter Content="{Binding SceneTreeViewModel.SelectedShape}"/>
+        </StackPanel>
+
+        <rendering:RenderTarget x:Name="RT" Renderer="{Binding ActiveRenderer}"
+            MouseDown="OnMouseDown" MouseUp="OnMouseUp" MouseMove="OnMouseMove" MouseWheel="OnMouseWheel" SizeChanged="OnSizeChange"/>
+    </DockPanel>
 </Window>

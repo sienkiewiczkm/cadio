@@ -55,5 +55,15 @@ namespace CADio.Views
         {
             _viewModel.ScaleWithMouse(e.Delta);
         }
+
+        private void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            _viewModel.ActiveRenderer.ForceRedraw();
+        }
+
+        private void OnSizeChange(object sender, SizeChangedEventArgs e)
+        {
+            _viewModel.ActiveRenderer.ForceRedraw();
+        }
     }
 }

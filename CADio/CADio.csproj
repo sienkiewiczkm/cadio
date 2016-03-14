@@ -49,6 +49,10 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="WriteableBitmapEx.Wpf, Version=1.5.0.0, Culture=neutral, PublicKeyToken=50375ca6144f1c69, processorArchitecture=MSIL">
+      <HintPath>..\packages\WriteableBitmapEx.1.5.0.0\lib\net40\WriteableBitmapEx.Wpf.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -67,6 +71,7 @@
     <Compile Include="Mathematics\Vector4D.cs" />
     <Compile Include="Rendering\IRenderer.cs" />
     <Compile Include="Rendering\Line2D.cs" />
+    <Compile Include="Rendering\PerspectiveType.cs" />
     <Compile Include="Rendering\Renderer.cs" />
     <Compile Include="Rendering\RenderTarget.cs" />
     <Compile Include="SampleData\DesignSceneListData\DesignSceneListData.xaml.cs">
@@ -123,6 +128,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

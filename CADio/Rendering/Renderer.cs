@@ -35,14 +35,34 @@ namespace CADio.Rendering
             RenderOutputChanged?.Invoke(this, null);
         }
 
-        public IList<Line2D> GetRenderedPrimitives()
+        public IList<Line2D> GetRenderedPrimitives(PerspectiveType perspectiveType)
         {
-            var projection = Transformations3D.SimplePerspective(2);
+            var perspectiveDistance = 2.0;
+            var eyeShift = 0.3;
+
+            Matrix4X4 projection;
+            switch (perspectiveType)
+            {
+                case PerspectiveType.Standard:
+                    projection = Transformations3D.SimplePerspective(perspectiveDistance);
+                    break;
+                case PerspectiveType.LeftEye:
+                    projection = Transformations3D.SimplePerspectiveWithEyeShift(perspectiveDistance, -eyeShift);
+                    break;
+                case PerspectiveType.RightEye:
+                    projection = Transformations3D.SimplePerspectiveWithEyeShift(perspectiveDistance, +eyeShift);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(perspectiveType), perspectiveType, null);
+            }
+
             var worldMat = Scene.WorldTransformation;
 
             var transformation = projection*worldMat;
 
             var rasterizedLines = new List<Line2D>();
+
+            var perspectiveColor = perspectiveType == PerspectiveType.LeftEye ? RightEyeFilteredColor : LeftEyeFilteredColor;
 
             foreach (var shape in Scene.Shapes)
             {
@@ -57,48 +77,22 @@ namespace CADio.Rendering
                     if (firstPos.W < 0 && secondPos.W < 0)
                         continue;
 
-                    // clip
                     if (firstPos.W < 0 || secondPos.W < 0)
                     {
                         continue;
-                        /*if (firstPos.W < 0)
-                        {
-                            var temp = firstPos;
-                            firstPos = secondPos;
-                            secondPos = temp;
-                        }
-
-                        var x = (secondPos.W / (secondPos.W - firstPos.W)) * (firstPos.X - secondPos.X) + secondPos.X;
-                        var y = (secondPos.W / (secondPos.W - firstPos.W)) * (firstPos.Y - secondPos.Y) + secondPos.Y;
-
-                        secondPos = new Vector4D(x, y, 0, 1);*/
                     }
 
                     firstPos = firstPos.WDivide();
                     secondPos = secondPos.WDivide();
 
-                    rasterizedLines.Add(new Line2D(
-                        (Point) firstPos,
-                        (Point) secondPos,
-                        Colors.Green)
-                    );
+                    rasterizedLines.Add(new Line2D((Point) firstPos, (Point) secondPos, perspectiveColor));
                 }
-
-                /*
-                var transformedVertices = shape.Vertices
-                    .Select(t => ((Vector3D) t.Position).ExtendTo4D().Transform(transformation).WDivide()).ToList();
-
-                rasterizedLines.AddRange(
-                    shape.Indices.Select(indicePair => new Line2D(
-                        (Point) transformedVertices[indicePair.First],
-                        (Point) transformedVertices[indicePair.Second],
-                        Colors.Green
-                    )).ToList()
-                );
-                */
             }
 
             return rasterizedLines;
         }
+
+        private static Color LeftEyeFilteredColor => Colors.Cyan;
+        private static Color RightEyeFilteredColor => Colors.Red;
     }
 }
