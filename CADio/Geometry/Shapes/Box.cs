@@ -21,6 +21,7 @@ namespace CADio.Geometry.Shapes
         }
 
         public string Name => "Box";
+        public bool IsEditable { get; set; } = true;
 
         public IList<Vertex> Vertices
         {
@@ -32,7 +33,7 @@ namespace CADio.Geometry.Shapes
             }
         }
 
-        public IList<IndexedSegment> Indices
+        public IList<IndexedSegment> Segments
         {
             get
             {
@@ -59,15 +60,15 @@ namespace CADio.Geometry.Shapes
 
             _verticesCache = new List<Vertex>
             {
-                new Vertex {Position = new Point3D(+halfSize.X, -halfSize.Y, +halfSize.Z)}, // 0
-                new Vertex {Position = new Point3D(-halfSize.X, -halfSize.Y, +halfSize.Z)}, // 1
-                new Vertex {Position = new Point3D(-halfSize.X, -halfSize.Y, -halfSize.Z)}, // 2
-                new Vertex {Position = new Point3D(+halfSize.X, -halfSize.Y, -halfSize.Z)}, // 3
+                new Vertex(new Point3D(+halfSize.X, -halfSize.Y, +halfSize.Z)), // 0
+                new Vertex(new Point3D(-halfSize.X, -halfSize.Y, +halfSize.Z)), // 1
+                new Vertex(new Point3D(-halfSize.X, -halfSize.Y, -halfSize.Z)), // 2
+                new Vertex(new Point3D(+halfSize.X, -halfSize.Y, -halfSize.Z)), // 3
 
-                new Vertex {Position = new Point3D(+halfSize.X, +halfSize.Y, +halfSize.Z)}, // 4
-                new Vertex {Position = new Point3D(-halfSize.X, +halfSize.Y, +halfSize.Z)}, // 5
-                new Vertex {Position = new Point3D(-halfSize.X, +halfSize.Y, -halfSize.Z)}, // 6
-                new Vertex {Position = new Point3D(+halfSize.X, +halfSize.Y, -halfSize.Z)}, // 7
+                new Vertex(new Point3D(+halfSize.X, +halfSize.Y, +halfSize.Z)), // 4
+                new Vertex(new Point3D(-halfSize.X, +halfSize.Y, +halfSize.Z)), // 5
+                new Vertex(new Point3D(-halfSize.X, +halfSize.Y, -halfSize.Z)), // 6
+                new Vertex(new Point3D(+halfSize.X, +halfSize.Y, -halfSize.Z)), // 7
             };
 
             _indexedSegmentsCache = new List<IndexedSegment>

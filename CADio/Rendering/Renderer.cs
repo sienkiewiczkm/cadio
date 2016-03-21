@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
+using CADio.Geometry;
 using CADio.Geometry.Shapes;
+using CADio.Helpers;
 using CADio.Mathematics;
 using CADio.SceneManagement;
 
@@ -40,40 +42,52 @@ namespace CADio.Rendering
 
         public IList<Line2D> GetRenderedPrimitives(PerspectiveType perspectiveType)
         {
-            var perspectiveDistance = 2.0;
+            Scene.Camera.ObserverOffset = 2.0;
 
             Matrix4X4 projection;
             switch (perspectiveType)
             {
                 case PerspectiveType.Standard:
-                    projection = Transformations3D.SimplePerspective(perspectiveDistance);
+                    projection = Transformations3D.SimplePerspective(Scene.Camera.ObserverOffset);
                     break;
                 case PerspectiveType.LeftEye:
-                    projection = Transformations3D.SimplePerspectiveWithEyeShift(perspectiveDistance, -EyeDistance);
+                    projection = Transformations3D.SimplePerspectiveWithEyeShift(Scene.Camera.ObserverOffset, -EyeDistance);
                     break;
                 case PerspectiveType.RightEye:
-                    projection = Transformations3D.SimplePerspectiveWithEyeShift(perspectiveDistance, +EyeDistance);
+                    projection = Transformations3D.SimplePerspectiveWithEyeShift(Scene.Camera.ObserverOffset, +EyeDistance);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(perspectiveType), perspectiveType, null);
             }
 
             var worldMat = Scene.WorldTransformation;
-            var transformation = projection*worldMat;
+            var transformation = projection*Scene.Camera.GetViewMatrix();
 
             var rasterizedLines = new List<Line2D>();
 
-            var perspectiveColor = perspectiveType == PerspectiveType.LeftEye ? RightEyeFilteredColor : LeftEyeFilteredColor;
+            Color? perspectiveColorOverride = null;
+            switch (perspectiveType)
+            {
+                case PerspectiveType.LeftEye:
+                    perspectiveColorOverride = RightEyeFilteredColor;
+                    break;
+                case PerspectiveType.RightEye:
+                    perspectiveColorOverride = LeftEyeFilteredColor;
+                    break;
+            }
 
             foreach (var shape in Scene.Shapes)
             {
-                for (var i = 0; i < shape.Indices.Count; ++i)
+                foreach (var segment in shape.Segments)
                 {
-                    var firstIndex = shape.Indices[i].First;
-                    var secondIndex = shape.Indices[i].Second;
+                    var firstIndex = segment.First;
+                    var secondIndex = segment.Second;
 
-                    var firstPos = ((Vector3D) shape.Vertices[firstIndex].Position).ExtendTo4D().Transform(transformation);
-                    var secondPos = ((Vector3D) shape.Vertices[secondIndex].Position).ExtendTo4D().Transform(transformation);
+                    var v1 = shape.Vertices[firstIndex];
+                    var v2 = shape.Vertices[secondIndex];
+
+                    var firstPos = ((Vector3D) v1.Position).ExtendTo4D().Transform(transformation);
+                    var secondPos = ((Vector3D) v2.Position).ExtendTo4D().Transform(transformation);
 
                     if (firstPos.W < 0 && secondPos.W < 0)
                         continue;
@@ -83,10 +97,12 @@ namespace CADio.Rendering
                         continue;
                     }
 
+                    var segmentColor = ColorHelpers.Lerp(v1.Color, v2.Color, 0.5);
+
                     firstPos = firstPos.WDivide();
                     secondPos = secondPos.WDivide();
 
-                    rasterizedLines.Add(new Line2D((Point) firstPos, (Point) secondPos, perspectiveColor));
+                    rasterizedLines.Add(new Line2D((Point) firstPos, (Point) secondPos, perspectiveColorOverride ?? segmentColor));
                 }
             }
 

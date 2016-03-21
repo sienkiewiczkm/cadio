@@ -84,6 +84,7 @@ namespace CADio.Geometry.Shapes
         }
 
         public string Name => "Torus";
+        public bool IsEditable { get; set; } = true;
 
         public IList<Vertex> Vertices
         {
@@ -95,7 +96,7 @@ namespace CADio.Geometry.Shapes
             }
         }
 
-        public IList<IndexedSegment> Indices
+        public IList<IndexedSegment> Segments
         {
             get
             {
@@ -132,13 +133,13 @@ namespace CADio.Geometry.Shapes
             _indexedSegmentsCache = new List<IndexedSegment>();
 
             // Generate rings vertices
-            for (int i = 0; i < LargeRingSegmentsCount; ++i)
+            for (var i = 0; i < LargeRingSegmentsCount; ++i)
             {
                 var phi = 2*Math.PI*i/LargeRingSegmentsCount;
                 var sinphi = Math.Sin(phi);
                 var cosphi = Math.Cos(phi);
 
-                for (int j = 0; j < SmallRingSegmentsCount; ++j)
+                for (var j = 0; j < SmallRingSegmentsCount; ++j)
                 {
                     var theta = 2*Math.PI*j/SmallRingSegmentsCount;
                     var sintheta = Math.Sin(theta);
@@ -148,20 +149,15 @@ namespace CADio.Geometry.Shapes
                     var y = SmallRingRadius*costheta;
                     var z = sinphi*(SmallRingRadius*sintheta + LargeRingRadius);
 
-                    var vertex = new Vertex
-                    {
-                        Position = new Point3D(x, y, z)
-                    };
-
-                    _verticesCache.Add(vertex);
+                    _verticesCache.Add(new Vertex(new Point3D(x, y, z)));
                 }
             }
 
             // Create small rings
-            for (int i = 0; i < LargeRingSegmentsCount; ++i)
+            for (var i = 0; i < LargeRingSegmentsCount; ++i)
             {
                 var baseIndex = i*SmallRingSegmentsCount;
-                for (int j = 0; j < SmallRingSegmentsCount; ++j)
+                for (var j = 0; j < SmallRingSegmentsCount; ++j)
                 {
                     var nextSubindex = (j + 1)%SmallRingSegmentsCount;
                     _indexedSegmentsCache.Add(new IndexedSegment(baseIndex+j, baseIndex+nextSubindex));

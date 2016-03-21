@@ -23,9 +23,43 @@ namespace CADio.Rendering
                 FrameworkPropertyMetadataOptions.AffectsRender,
                 RequestRedrawOnDependencyChange));
 
+        // currently MUST be black because of 3d and additions
+        public static readonly DependencyProperty ClearColorProperty = DependencyProperty.Register(
+            "ClearColor", typeof (Color), typeof (RenderTarget), new PropertyMetadata(Colors.Black));
+
         private WriteableBitmap _leftEyeChannel;
         private WriteableBitmap _rightEyeChannel;
         private WriteableBitmap _outputBitmap;
+
+        public IRenderer Renderer
+        {
+            get { return (IRenderer)GetValue(RendererProperty); }
+            set { SetValue(RendererProperty, value); }
+        }
+
+        public bool Enable3D
+        {
+            get { return (bool)GetValue(Enable3DProperty); }
+            set { SetValue(Enable3DProperty, value); }
+        }
+
+        public Color ClearColor
+        {
+            get { return (Color)GetValue(ClearColorProperty); }
+            set { SetValue(ClearColorProperty, value); }
+        }
+
+        public WriteableBitmap OutputBitmap
+        {
+            get { return _outputBitmap; }
+            set
+            {
+                _outputBitmap = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         protected override Size ArrangeOverride(Size arrangeSize)
         {
@@ -46,30 +80,6 @@ namespace CADio.Rendering
             _rightEyeChannel = BitmapFactory.New(width, height);
 
             Source = _outputBitmap;
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public IRenderer Renderer
-        {
-            get { return (IRenderer) GetValue(RendererProperty); }
-            set { SetValue(RendererProperty, value); }
-        }
-
-        public bool Enable3D
-        {
-            get { return (bool)GetValue(Enable3DProperty); }
-            set { SetValue(Enable3DProperty, value); }
-        }
-
-        public WriteableBitmap OutputBitmap
-        {
-            get { return _outputBitmap; }
-            set
-            {
-                _outputBitmap = value;
-                OnPropertyChanged();
-            }
         }
 
         private static void SetupRendererEventSubscription(DependencyObject obj, DependencyPropertyChangedEventArgs e)
@@ -152,8 +162,8 @@ namespace CADio.Rendering
                 foreach (var line in pixelSpacePrimitives)
                 {
                     targetBitmap.DrawLineAa(
-                        (int)line.From.X, (int)line.From.Y, 
-                        (int)line.To.X,   (int)line.To.Y, 
+                        (int) line.From.X, (int) line.From.Y,
+                        (int) line.To.X, (int) line.To.Y,
                         line.Color);
                 }
             }
@@ -161,12 +171,12 @@ namespace CADio.Rendering
 
         private void ClearBackground()
         {
-            _outputBitmap.Clear(Colors.Black);
+            _outputBitmap.Clear(ClearColor);
 
             if (Enable3D)
             {
-                _leftEyeChannel.Clear(Colors.Black);
-                _rightEyeChannel.Clear(Colors.Black);
+                _leftEyeChannel.Clear(ClearColor);
+                _rightEyeChannel.Clear(ClearColor);
             }
         }
 

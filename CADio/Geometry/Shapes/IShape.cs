@@ -6,8 +6,9 @@ namespace CADio.Geometry.Shapes
     public interface IShape
     {
         string Name { get; }
+        bool IsEditable { get; set; }
         IList<Vertex> Vertices { get; }
-        IList<IndexedSegment> Indices { get; }
+        IList<IndexedSegment> Segments { get; }
 
         Control GetEditorControl();
     }

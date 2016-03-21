@@ -25,19 +25,21 @@
             </MenuItem>
             <MenuItem Header="Help" />
         </Menu>
-        <ToolBar DockPanel.Dock="Top">
-            <CheckBox IsChecked="{Binding ElementName=RT, Path=Enable3D}">
-                <Image Source="../Resources/rotation.ico" Width="16" Height="16"/>
-            </CheckBox>
-            <StackPanel Orientation="Horizontal" IsEnabled="{Binding ElementName=RT, Path=Enable3D}">
-                <Label VerticalAlignment="Center" HorizontalAlignment="Right">Eye distance:</Label>
-                <Slider TickFrequency="0.01" Minimum="0.05" Maximum="10" 
-                    Value="{Binding EyeDistance}"
-                    Width="100" VerticalAlignment="Center"/>
-                <TextBlock Text="{Binding EyeDistance, StringFormat='0.##'}" 
-                           TextAlignment="Center" Width="32" VerticalAlignment="Center" HorizontalAlignment="Center" />
-            </StackPanel>
-        </ToolBar>
+        <ToolBarTray DockPanel.Dock="Top">
+            <ToolBar>
+                <CheckBox IsChecked="{Binding ElementName=RT, Path=Enable3D}">
+                    <Image Source="../Resources/rotation.ico" Width="16" Height="16"/>
+                </CheckBox>
+                <StackPanel Orientation="Horizontal" IsEnabled="{Binding ElementName=RT, Path=Enable3D}">
+                    <Label VerticalAlignment="Center" HorizontalAlignment="Right">Eye distance:</Label>
+                    <Slider TickFrequency="0.01" Minimum="0.05" Maximum="10" 
+                        Value="{Binding EyeDistance}"
+                        Width="100" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding EyeDistance, StringFormat='0.##'}" 
+                               TextAlignment="Center" Width="32" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                </StackPanel>
+            </ToolBar>
+        </ToolBarTray>
         <StackPanel DockPanel.Dock="Right" Width="200">
             <views:SceneTree Height="200" DataContext="{Binding SceneTreeViewModel}"/>
             <ContentPresenter Content="{Binding SceneTreeViewModel.SelectedShape}"/>

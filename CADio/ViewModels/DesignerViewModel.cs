@@ -17,7 +17,8 @@ namespace CADio.ViewModels
         public DesignerViewModel()
         {
             ActiveRenderer = new Renderer {Scene = new Scene()};
-            ActiveRenderer.Scene.Shapes.Add(new Torus());
+            ActiveRenderer.Scene.Shapes.Add(new Sphere() {Radius = 0.01});
+            ActiveRenderer.Scene.Shapes.Add(new Cursor3D());
 
             SceneTreeViewModel = new SceneTreeViewModel()
             {
@@ -52,24 +53,20 @@ namespace CADio.ViewModels
 
         public void RotateSceneWithMouse(Vector mouseMovement)
         {
-            var rotation = Transformations3D.RotationY(mouseMovement.X/50)
-                * Transformations3D.RotationX(-mouseMovement.Y/50);
-            ActiveRenderer.Scene.WorldTransformation = rotation * ActiveRenderer.Scene.WorldTransformation;
+            ActiveRenderer.Scene.Camera.XRotation += -mouseMovement.Y/50;
+            ActiveRenderer.Scene.Camera.YRotation += -mouseMovement.X/50;
             ActiveRenderer.ForceRedraw();
         }
 
         public void ScaleWithMouse(int delta)
         {
-            var scalingFactor = Math.Max(0, 1.0 + delta*0.002);
-            var scalingMatrix = Transformations3D.Scaling(scalingFactor);
-            ActiveRenderer.Scene.WorldTransformation = scalingMatrix*ActiveRenderer.Scene.WorldTransformation;
-            ActiveRenderer.ForceRedraw();
+            //ActiveRenderer.Scene.Camera.Zoom += delta*0.002;
+            //ActiveRenderer.ForceRedraw();
         }
 
         public void TranslateSceneWithMouse(Vector mouseMovement)
         {
-            var translation = Transformations3D.Translation(new Vector3D(mouseMovement.X/50, 0.0, mouseMovement.Y/50));
-            ActiveRenderer.Scene.WorldTransformation = translation*ActiveRenderer.Scene.WorldTransformation;
+            ActiveRenderer.Scene.Camera.Move(new Vector3D(mouseMovement.X/50, 0, -mouseMovement.Y/50));
             ActiveRenderer.ForceRedraw();
         }
 

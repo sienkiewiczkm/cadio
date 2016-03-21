@@ -6,11 +6,25 @@
              xmlns:local="clr-namespace:CADio.Views"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="200" d:DataContext="{d:DesignData /SampleData/DesignSceneListData/DesignSceneListData.xaml}">
-    <ListView ItemsSource="{Binding Scene.Shapes}" SelectedItem="{Binding SelectedShape}">
-        <ListView.ItemTemplate>
-            <DataTemplate>
-                <TextBlock Text="{Binding Name}"/>
-            </DataTemplate>
-        </ListView.ItemTemplate>
-    </ListView>
+    <GroupBox Header="Scene">
+        <DockPanel LastChildFill="True">
+            <WrapPanel DockPanel.Dock="Top">
+                <local:DropDownButton Background="Transparent" BorderBrush="Transparent">
+                    <local:DropDownButton.DropDown>
+                        <ContextMenu>
+                            <MenuItem Header="Point"/>
+                        </ContextMenu>
+                    </local:DropDownButton.DropDown>
+                    <Image Source="../Resources/add.ico" Width="16"/>
+                </local:DropDownButton>
+            </WrapPanel>
+            <ListView ItemsSource="{Binding Scene.Shapes}" SelectedItem="{Binding SelectedShape}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}"/>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </DockPanel>
+    </GroupBox>
 </UserControl>
