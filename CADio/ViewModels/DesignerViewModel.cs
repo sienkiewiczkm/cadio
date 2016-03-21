@@ -37,6 +37,17 @@ namespace CADio.ViewModels
             }
         }
 
+        public double EyeDistance
+        {
+            get {  return ActiveRenderer.EyeDistance; }
+            set
+            {
+                ActiveRenderer.EyeDistance = value; // todo: notifiers
+                ActiveRenderer.ForceRedraw();
+                OnPropertyChanged();
+            }
+        }
+
         public SceneTreeViewModel SceneTreeViewModel { get; set; }
 
         public void RotateSceneWithMouse(Vector mouseMovement)

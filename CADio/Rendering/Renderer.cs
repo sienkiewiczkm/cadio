@@ -14,11 +14,14 @@ namespace CADio.Rendering
 {
     public class Renderer : IRenderer
     {
-        private const double MinWorldScale = 0.05;
+        private static Color LeftEyeFilteredColor => Colors.Cyan;
+        private static Color RightEyeFilteredColor => Colors.Red;
 
         private Scene _scene;
 
         public event EventHandler RenderOutputChanged;
+
+        public double EyeDistance { get; set; } = 0.3;
 
         public Scene Scene
         {
@@ -38,7 +41,6 @@ namespace CADio.Rendering
         public IList<Line2D> GetRenderedPrimitives(PerspectiveType perspectiveType)
         {
             var perspectiveDistance = 2.0;
-            var eyeShift = 0.3;
 
             Matrix4X4 projection;
             switch (perspectiveType)
@@ -47,17 +49,16 @@ namespace CADio.Rendering
                     projection = Transformations3D.SimplePerspective(perspectiveDistance);
                     break;
                 case PerspectiveType.LeftEye:
-                    projection = Transformations3D.SimplePerspectiveWithEyeShift(perspectiveDistance, -eyeShift);
+                    projection = Transformations3D.SimplePerspectiveWithEyeShift(perspectiveDistance, -EyeDistance);
                     break;
                 case PerspectiveType.RightEye:
-                    projection = Transformations3D.SimplePerspectiveWithEyeShift(perspectiveDistance, +eyeShift);
+                    projection = Transformations3D.SimplePerspectiveWithEyeShift(perspectiveDistance, +EyeDistance);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(perspectiveType), perspectiveType, null);
             }
 
             var worldMat = Scene.WorldTransformation;
-
             var transformation = projection*worldMat;
 
             var rasterizedLines = new List<Line2D>();
@@ -91,8 +92,5 @@ namespace CADio.Rendering
 
             return rasterizedLines;
         }
-
-        private static Color LeftEyeFilteredColor => Colors.Cyan;
-        private static Color RightEyeFilteredColor => Colors.Red;
     }
 }

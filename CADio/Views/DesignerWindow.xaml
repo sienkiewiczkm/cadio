@@ -11,22 +11,39 @@
         mc:Ignorable="d"
         Width="800" Height="600"
         Title="CADio"
-        Loaded="OnLoaded">
+        Loaded="OnLoaded" Icon="pack://application:,,,/Resources/scene.ico">
     <Window.Resources>
         <DataTemplate DataType="{x:Type shapes:Torus}">
             <shapeEditors:TorusEditor/>
         </DataTemplate>
     </Window.Resources>
+
     <DockPanel LastChildFill="True">
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="File">
+                <MenuItem Header="Exit" InputGestureText="Alt+F4" />
+            </MenuItem>
+            <MenuItem Header="Help" />
+        </Menu>
         <ToolBar DockPanel.Dock="Top">
-            <CheckBox IsChecked="{Binding ElementName=RT, Path=Enable3D}">Enable 3D</CheckBox>
+            <CheckBox IsChecked="{Binding ElementName=RT, Path=Enable3D}">
+                <Image Source="../Resources/rotation.ico" Width="16" Height="16"/>
+            </CheckBox>
+            <StackPanel Orientation="Horizontal" IsEnabled="{Binding ElementName=RT, Path=Enable3D}">
+                <Label VerticalAlignment="Center" HorizontalAlignment="Right">Eye distance:</Label>
+                <Slider TickFrequency="0.01" Minimum="0.05" Maximum="10" 
+                    Value="{Binding EyeDistance}"
+                    Width="100" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding EyeDistance, StringFormat='0.##'}" 
+                           TextAlignment="Center" Width="32" VerticalAlignment="Center" HorizontalAlignment="Center" />
+            </StackPanel>
         </ToolBar>
         <StackPanel DockPanel.Dock="Right" Width="200">
             <views:SceneTree Height="200" DataContext="{Binding SceneTreeViewModel}"/>
             <ContentPresenter Content="{Binding SceneTreeViewModel.SelectedShape}"/>
         </StackPanel>
-
         <rendering:RenderTarget x:Name="RT" Renderer="{Binding ActiveRenderer}"
-            MouseDown="OnMouseDown" MouseUp="OnMouseUp" MouseMove="OnMouseMove" MouseWheel="OnMouseWheel" SizeChanged="OnSizeChange"/>
+            MouseDown="OnMouseDown" MouseUp="OnMouseUp" MouseMove="OnMouseMove" 
+            MouseWheel="OnMouseWheel" SizeChanged="OnSizeChange"/>
     </DockPanel>
 </Window>

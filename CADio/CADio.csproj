@@ -34,9 +34,13 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Resources\scene.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -69,6 +73,11 @@
     <Compile Include="Mathematics\Transformations3D.cs" />
     <Compile Include="Mathematics\Vector3DExtensions.cs" />
     <Compile Include="Mathematics\Vector4D.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Rendering\IRenderer.cs" />
     <Compile Include="Rendering\Line2D.cs" />
     <Compile Include="Rendering\PerspectiveType.cs" />
@@ -114,11 +123,6 @@
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
@@ -138,6 +142,30 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\add.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\new.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\rotation.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\save.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\scene.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\settings.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\visibility.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\visibility2.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
