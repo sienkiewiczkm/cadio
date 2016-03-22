@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using CADio.Geometry;
 
 namespace CADio.Rendering
 {
@@ -134,17 +135,29 @@ namespace CADio.Rendering
             RequestRedraw();
         }
 
-        private IEnumerable<Line2D> GetPixelSpacePrimitives(PerspectiveType perspectiveType)
+        private RenderedPrimitives GetPixelSpacePrimitives(PerspectiveType perspectiveType)
         {
             if (Renderer == null)
-                return new List<Line2D>();
+                return new RenderedPrimitives();
 
-            return Renderer.GetRenderedPrimitives(perspectiveType)
+            var trasnformedPoints = Renderer.GetRenderedPrimitives(perspectiveType).Points
+                .Select(point => new Vertex2D(
+                    ConvertPointToPixelSpace(point.Position),
+                    point.Color
+                )).ToList();
+
+            var transformedLines = Renderer.GetRenderedPrimitives(perspectiveType).Lines
                 .Select(line => new Line2D(
                     ConvertPointToPixelSpace(line.From), 
                     ConvertPointToPixelSpace(line.To), 
                     line.Color
                 )).ToList();
+
+            return new RenderedPrimitives()
+            {
+                Points = trasnformedPoints,
+                Lines = transformedLines,
+            };
         }
 
         private Point ConvertPointToPixelSpace(Point point)
@@ -155,16 +168,26 @@ namespace CADio.Rendering
             return new Point(x, y);
         }
 
-        private void RasterizeRenderedPrimitives(WriteableBitmap targetBitmap, IEnumerable<Line2D> pixelSpacePrimitives)
+        private void RasterizeRenderedPrimitives(WriteableBitmap targetBitmap, RenderedPrimitives pixelSpacePrimitives)
         {
             using (targetBitmap.GetBitmapContext())
             {
-                foreach (var line in pixelSpacePrimitives)
+                foreach (var line in pixelSpacePrimitives.Lines)
                 {
                     targetBitmap.DrawLineAa(
                         (int) line.From.X, (int) line.From.Y,
                         (int) line.To.X, (int) line.To.Y,
                         line.Color);
+                }
+
+                foreach (var point in pixelSpacePrimitives.Points)
+                {
+                    targetBitmap.FillEllipseCentered(
+                        (int) point.Position.X, 
+                        (int) point.Position.Y, 
+                        3, 3, 
+                        point.Color
+                    );
                 }
             }
         }

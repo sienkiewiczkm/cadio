@@ -9,6 +9,7 @@ namespace CADio.Geometry.Shapes
         bool IsEditable { get; set; }
         IList<Vertex> Vertices { get; }
         IList<IndexedSegment> Segments { get; }
+        IList<Vertex> MarkerPoints { get; }
 
         Control GetEditorControl();
     }

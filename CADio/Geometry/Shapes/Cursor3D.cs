@@ -44,6 +44,8 @@ namespace CADio.Geometry.Shapes
             }
         }
 
+        public IList<Vertex> MarkerPoints => new List<Vertex>();
+
         public Control GetEditorControl()
         {
             return null;

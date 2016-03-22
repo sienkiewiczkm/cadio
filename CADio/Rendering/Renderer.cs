@@ -40,7 +40,7 @@ namespace CADio.Rendering
             RenderOutputChanged?.Invoke(this, null);
         }
 
-        public IList<Line2D> GetRenderedPrimitives(PerspectiveType perspectiveType)
+        public RenderedPrimitives GetRenderedPrimitives(PerspectiveType perspectiveType)
         {
             Scene.Camera.ObserverOffset = 2.0;
 
@@ -60,8 +60,7 @@ namespace CADio.Rendering
                     throw new ArgumentOutOfRangeException(nameof(perspectiveType), perspectiveType, null);
             }
 
-            var worldMat = Scene.WorldTransformation;
-            var transformation = projection*Scene.Camera.GetViewMatrix();
+            var viewProj = projection*Scene.Camera.GetViewMatrix();
 
             var rasterizedLines = new List<Line2D>();
 
@@ -76,8 +75,10 @@ namespace CADio.Rendering
                     break;
             }
 
-            foreach (var shape in Scene.Shapes)
+            foreach (var worldObject in Scene.Objects)
             {
+                var shape = worldObject.Shape;
+                var transformation = viewProj * worldObject.GetWorldMatrix();
                 foreach (var segment in shape.Segments)
                 {
                     var firstIndex = segment.First;
@@ -106,7 +107,29 @@ namespace CADio.Rendering
                 }
             }
 
-            return rasterizedLines;
+            var rasterizedPoints = new List<Vertex2D>();
+            foreach (var worldObject in Scene.Objects)
+            {
+                var shape = worldObject.Shape;
+                var transformation = viewProj * worldObject.GetWorldMatrix();
+
+                foreach (var markerPoint in shape.MarkerPoints)
+                {
+                    var pos = ((Vector3D) markerPoint.Position).ExtendTo4D().Transform(transformation);
+                    // todo:clip
+                    if (pos.W < 0) continue;
+                    rasterizedPoints.Add(new Vertex2D(
+                        (Point) pos.WDivide(),
+                        markerPoint.Color
+                    ));
+                }
+            }
+
+            return new RenderedPrimitives()
+            {
+                Points =  rasterizedPoints,
+                Lines = rasterizedLines,
+            };
         }
     }
 }

@@ -8,7 +8,6 @@ namespace CADio.SceneManagement
     public class Scene
     {
         public Camera Camera { get; set; } = new Camera();
-        public Matrix4X4 WorldTransformation { get; set; } = Matrix4X4.Identity;
-        public List<IShape> Shapes { get; set; } = new List<IShape>();
+        public List<WorldObject> Objects { get; set; } = new List<WorldObject>();
     }
 }

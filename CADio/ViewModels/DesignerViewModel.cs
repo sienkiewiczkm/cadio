@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Media.Media3D;
+using System.Windows.Shapes;
 using CADio.Geometry.Shapes;
 using CADio.Mathematics;
 using CADio.Rendering;
@@ -17,8 +18,8 @@ namespace CADio.ViewModels
         public DesignerViewModel()
         {
             ActiveRenderer = new Renderer {Scene = new Scene()};
-            ActiveRenderer.Scene.Shapes.Add(new Sphere() {Radius = 0.01});
-            ActiveRenderer.Scene.Shapes.Add(new Cursor3D());
+            ActiveRenderer.Scene.Objects.Add(new WorldObject() {Shape = new MarkerPoint()});
+            ActiveRenderer.Scene.Objects.Add(new WorldObject() {Shape = new Cursor3D()});
 
             SceneTreeViewModel = new SceneTreeViewModel()
             {

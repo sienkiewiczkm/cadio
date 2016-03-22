@@ -7,6 +7,6 @@ namespace CADio.Rendering
     {
         event EventHandler RenderOutputChanged;
 
-        IList<Line2D> GetRenderedPrimitives(PerspectiveType perspectiveType);
+        RenderedPrimitives GetRenderedPrimitives(PerspectiveType perspectiveType);
     }
 }
