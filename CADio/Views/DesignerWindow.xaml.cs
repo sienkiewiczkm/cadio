@@ -5,9 +5,6 @@ using CADio.ViewModels;
 
 namespace CADio.Views
 {
-    /// <summary>
-    /// Interaction logic for DesignerWindow.xaml
-    /// </summary>
     public partial class DesignerWindow : Window
     {
         private readonly DesignerViewModel _viewModel = new DesignerViewModel();
@@ -22,8 +19,21 @@ namespace CADio.Views
 
         private void OnMouseDown(object sender, MouseButtonEventArgs e)
         {
-            _lastMousePosition = e.GetPosition(this);
-            _leftMouseButtonDown = true;
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                _lastMousePosition = e.GetPosition(this);
+                _leftMouseButtonDown = true;
+            }
+
+            if (e.RightButton == MouseButtonState.Pressed)
+            {
+                var aspect = RT.ActualWidth/RT.ActualHeight;
+                var pixelPosition = e.GetPosition(RT);
+                var xf = pixelPosition.X/RT.ActualWidth;
+                var yf = pixelPosition.Y/RT.ActualHeight;
+                var screenSpaceClick = new Point(2*aspect*xf-aspect, -(2*yf-1));
+                _viewModel.GrabUsingMouse(screenSpaceClick);
+            }
         }
 
         private void OnMouseUp(object sender, MouseButtonEventArgs e)
@@ -64,6 +74,27 @@ namespace CADio.Views
         private void OnSizeChange(object sender, SizeChangedEventArgs e)
         {
             _viewModel.ActiveRenderer.ForceRedraw();
+        }
+
+        private void OnPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            int cursorMovementX = 0, cursorMovementY = 0, cursorMovementZ = 0;
+
+            switch (e.Key)
+            {
+                case Key.Q: ++cursorMovementX; break;
+                case Key.A: --cursorMovementX; break;
+                case Key.W: ++cursorMovementY; break;
+                case Key.S: --cursorMovementY; break;
+                case Key.E: ++cursorMovementZ; break;
+                case Key.D: --cursorMovementZ; break;
+            }
+
+            if (e.Key == Key.F) _viewModel.GrabNearestPointOrUngrab();
+
+            var moveStep = 0.05;
+            _viewModel.MoveManipulator(moveStep * cursorMovementX, 
+                moveStep * cursorMovementY, moveStep * cursorMovementZ);
         }
     }
 }

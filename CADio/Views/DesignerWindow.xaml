@@ -11,7 +11,8 @@
         mc:Ignorable="d"
         Width="800" Height="600"
         Title="CADio"
-        Loaded="OnLoaded" Icon="pack://application:,,,/Resources/scene.ico">
+        Loaded="OnLoaded" Icon="pack://application:,,,/Resources/scene.ico"
+        PreviewKeyDown="OnPreviewKeyDown">
     <Window.Resources>
         <DataTemplate DataType="{x:Type shapes:Torus}">
             <shapeEditors:TorusEditor/>
@@ -40,9 +41,13 @@
                 </StackPanel>
             </ToolBar>
         </ToolBarTray>
+        <StatusBar DockPanel.Dock="Bottom">
+            <TextBlock Text="{Binding CursorReadableInfo}"/>
+        </StatusBar>
         <StackPanel DockPanel.Dock="Right" Width="200">
             <views:SceneTree Height="200" DataContext="{Binding SceneTreeViewModel}"/>
-            <ContentPresenter Content="{Binding SceneTreeViewModel.SelectedShape}"/>
+            <TextBox Text="{Binding SceneTreeViewModel.SelectedObject.Name}"/>
+            <ContentPresenter Content="{Binding SceneTreeViewModel.SelectedObject.Shape}"/>
         </StackPanel>
         <rendering:RenderTarget x:Name="RT" Renderer="{Binding ActiveRenderer}"
             MouseDown="OnMouseDown" MouseUp="OnMouseUp" MouseMove="OnMouseMove" 

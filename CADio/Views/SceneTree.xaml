@@ -6,22 +6,37 @@
              xmlns:local="clr-namespace:CADio.Views"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="200" d:DataContext="{d:DesignData /SampleData/DesignSceneListData/DesignSceneListData.xaml}">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+    </UserControl.Resources>
     <GroupBox Header="Scene">
         <DockPanel LastChildFill="True">
             <WrapPanel DockPanel.Dock="Top">
-                <local:DropDownButton Background="Transparent" BorderBrush="Transparent">
+                <local:DropDownButton>
                     <local:DropDownButton.DropDown>
                         <ContextMenu>
-                            <MenuItem Header="Point"/>
+                            <MenuItem Header="Point" Command="{Binding CreatePointCommand}"/>
                         </ContextMenu>
                     </local:DropDownButton.DropDown>
-                    <Image Source="../Resources/add.ico" Width="16"/>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="../Resources/add.ico" Width="16"/>
+                        <TextBlock>New object</TextBlock>
+                    </StackPanel>
                 </local:DropDownButton>
+                <Button Command="{Binding RemoveSelectedObjectCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="../Resources/remove.ico" Width="16"/>
+                        <TextBlock>Remove</TextBlock>
+                    </StackPanel>
+                </Button>
             </WrapPanel>
-            <ListView ItemsSource="{Binding Scene.Shapes}" SelectedItem="{Binding SelectedShape}">
+            <ListView ItemsSource="{Binding ListableObjects}" SelectedItem="{Binding SelectedObject}" MouseDoubleClick="ListDoubleClick">
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <TextBlock Text="{Binding Name}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Image DockPanel.Dock="Right" Source="../Resources/moving.ico" Visibility="{Binding Path=IsGrabbed, Converter={StaticResource BoolToVisibility}}" Width="16"/>
+                            <TextBlock Text="{Binding Name}"/>
+                        </StackPanel>
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>

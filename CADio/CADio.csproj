@@ -73,6 +73,7 @@
     <Compile Include="Geometry\Shapes\Torus.cs" />
     <Compile Include="Geometry\Vertex.cs" />
     <Compile Include="Helpers\ColorHelpers.cs" />
+    <Compile Include="Helpers\MVVM\RelayCommand.cs" />
     <Compile Include="Mathematics\MathHelpers.cs" />
     <Compile Include="Mathematics\Matrix4x4.cs" />
     <Compile Include="Mathematics\Transformations3D.cs" />
@@ -176,6 +177,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\visibility2.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\remove.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\moving.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -13,7 +13,7 @@ namespace CADio.Rendering
         private double _zoom = 1.0;
 
         public Point3D Position { get; set; }
-        public double ObserverOffset { get; set; }
+        public double ObserverOffset { get; set; } = 2.0;
 
         public double Zoom
         {

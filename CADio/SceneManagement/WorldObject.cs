@@ -6,12 +6,22 @@ namespace CADio.SceneManagement
 {
     public class WorldObject
     {
-        public string Name { get; set; }
+        private string _name;
+
+        public string Name
+        {
+            get { return _name ?? Shape?.Name; }
+            set { _name = value; }
+        }
+
+        public Scene Owner { get; set; }
         public Point3D Position { get; set; }
         public Vector3D Orientation { get; set; } // Euler angles
         public Vector3D Scale { get; set; } = new Vector3D(1, 1, 1);
-        public bool IsGrabable { get; set; }
+        public bool IsGrabable { get; set; } = true;
         public IShape Shape { get; set; }
+
+        public bool IsGrabbed => Owner?.GrabbedObject == this;
 
         public Matrix4X4 GetWorldMatrix()
         {
