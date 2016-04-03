@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Data;
 using System.Windows.Input;
@@ -15,10 +17,8 @@ namespace CADio.ViewModels
         private static int _sessionPointId = 1;
 
         private Scene _scene;
-        private WorldObject _selectedObject;
         private ICommand _createPointCommand;
         private ICommand _removeSelectedObjectCommand;
-        private ICollectionView _listableObjects;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -28,43 +28,17 @@ namespace CADio.ViewModels
             set
             {
                 if (_scene != null)
-                    _scene.PropertyChanged -= ScenePropertyChanged;
+                    ManageableScenes.Remove(_scene);
+
                 _scene = value;
-                _scene.PropertyChanged += ScenePropertyChanged;
-
-                CreateSourceView();
+                ManageableScenes.Add(value);
                 OnPropertyChanged();
             }
         }
 
-        private void ScenePropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            // todo: remove workaround :(
-            CreateSourceView();
-        }
+        public ObservableCollection<Scene> ManageableScenes { get; set; } = new ObservableCollection<Scene>(); 
 
-        private void CreateSourceView()
-        {
-            var view = CollectionViewSource.GetDefaultView(Scene.Objects);
-            view.Filter = obj => ((WorldObject) obj).IsGrabable;
-            ListableObjects = view;
-        }
-
-        public ICollectionView ListableObjects
-        {
-            get { return _listableObjects; }
-            set { _listableObjects = value; OnPropertyChanged(); }
-        }
-
-        public WorldObject SelectedObject
-        {
-            get { return _selectedObject; }
-            set
-            {
-                _selectedObject = value;
-                OnPropertyChanged();
-            }
-        }
+        public WorldObject SelectedObject => Scene.Objects.FirstOrDefault(t => t.IsSelected);
 
         public ICommand CreatePointCommand
         {
@@ -102,7 +76,6 @@ namespace CADio.ViewModels
         private void RemoveSelectedObject()
         {
             var objectToRemove = SelectedObject;
-            SelectedObject = null;
             _scene.DetachObject(objectToRemove);
         }
 

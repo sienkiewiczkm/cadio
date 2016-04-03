@@ -46,7 +46,7 @@
         </StatusBar>
         <StackPanel DockPanel.Dock="Right" Width="200">
             <views:SceneTree Height="200" DataContext="{Binding SceneTreeViewModel}"/>
-            <TextBox Text="{Binding SceneTreeViewModel.SelectedObject.Name}"/>
+            <TextBox Text="{Binding SceneTreeViewModel.Scene.FirstSelectedObject.Name}"/>
             <ContentPresenter Content="{Binding SceneTreeViewModel.SelectedObject.Shape}"/>
         </StackPanel>
         <rendering:RenderTarget x:Name="RT" Renderer="{Binding ActiveRenderer}"

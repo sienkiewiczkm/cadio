@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Windows.Data;
 using CADio.Geometry.Shapes;
 using CADio.Mathematics;
 using CADio.Rendering;
@@ -12,8 +14,10 @@ namespace CADio.SceneManagement
     {
         private WorldObject _grabbedObject;
         private WorldObject _manipulator;
-        private ObservableCollection<WorldObject> _objects = new ObservableCollection<WorldObject>();
+        private ObservableCollection<WorldObject> _objects;
         private Camera _camera = new Camera();
+        private ICollectionView _manageableObjects;
+        private WorldObject _firstSelectedObject;
 
         public Camera Camera
         {
@@ -24,7 +28,25 @@ namespace CADio.SceneManagement
         public ObservableCollection<WorldObject> Objects
         {
             get { return _objects; }
-            set { _objects = value; OnPropertyChanged(); }
+            set
+            {
+                _objects = value;
+                OnPropertyChanged();
+                CreateObjectCollectionView();
+            }
+        }
+
+        private void CreateObjectCollectionView()
+        {
+            var collectionView = CollectionViewSource.GetDefaultView(Objects);
+            collectionView.Filter = o => ((WorldObject) o).IsGrabable;
+            ManageableObjects = collectionView;
+        }
+
+        public ICollectionView ManageableObjects
+        {
+            get { return _manageableObjects; }
+            protected set { _manageableObjects = value; OnPropertyChanged(); }
         }
 
         public WorldObject Manipulator
@@ -36,16 +58,36 @@ namespace CADio.SceneManagement
         public WorldObject GrabbedObject
         {
             get { return _grabbedObject; }
-            set { _grabbedObject = value; OnPropertyChanged(); }
+            set
+            {
+                if (_grabbedObject != null)
+                    _grabbedObject.IsGrabbed = false;
+                _grabbedObject = value;
+                if (_grabbedObject != null)
+                    _grabbedObject.IsGrabbed = true;
+                OnPropertyChanged();
+            }
+        }
+
+        public WorldObject FirstSelectedObject
+        {
+            get { return _firstSelectedObject; }
+            set { _firstSelectedObject = value; OnPropertyChanged(); }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        public Scene()
+        {
+            Objects = new ObservableCollection<WorldObject>();
+        }
 
         public void AttachObject(WorldObject worldObject)
         {
             if (worldObject == null) return;
             worldObject.Owner?.DetachObject(worldObject);
             worldObject.Owner = this;
+            worldObject.PropertyChanged += OnWorldObjectChange;
             Objects.Add(worldObject);
         }
 
@@ -55,7 +97,21 @@ namespace CADio.SceneManagement
             if (GrabbedObject == worldObject)
                 GrabbedObject = null;
             Objects.Remove(worldObject);
-            worldObject.Owner = this;
+            worldObject.Owner = null;
+            worldObject.PropertyChanged -= OnWorldObjectChange;
+        }
+
+        private void OnWorldObjectChange(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case nameof(WorldObject.IsSelected):
+                    // todo: fix this workaround, need to pass OnPropertyChanged to parent somehow
+                    FirstSelectedObject = Objects.FirstOrDefault(t => t.IsSelected);
+                    break;
+                default:
+                    break;
+            }
         }
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)

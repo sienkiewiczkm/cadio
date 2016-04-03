@@ -4,6 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:CADio.Views"
+             xmlns:sceneManagement="clr-namespace:CADio.SceneManagement"
+             xmlns:shapes="clr-namespace:CADio.Geometry.Shapes"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="200" d:DataContext="{d:DesignData /SampleData/DesignSceneListData/DesignSceneListData.xaml}">
     <UserControl.Resources>
@@ -30,16 +32,39 @@
                     </StackPanel>
                 </Button>
             </WrapPanel>
-            <ListView ItemsSource="{Binding ListableObjects}" SelectedItem="{Binding SelectedObject}" MouseDoubleClick="ListDoubleClick">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
+            <TreeView Name="SceneTreeView"
+                      ItemsSource="{Binding ManageableScenes}"
+                      MouseDoubleClick="ListDoubleClick">
+                <TreeView.ItemContainerStyle>
+                    <Style TargetType="{x:Type TreeViewItem}">
+                        <Setter Property="IsSelected" Value="{Binding IsSelected}"/>
+                    </Style>
+                </TreeView.ItemContainerStyle>
+                <TreeView.Resources>
+                    <HierarchicalDataTemplate DataType="{x:Type sceneManagement:Scene}" ItemsSource="{Binding ManageableObjects}">
                         <StackPanel Orientation="Horizontal">
-                            <Image DockPanel.Dock="Right" Source="../Resources/moving.ico" Visibility="{Binding Path=IsGrabbed, Converter={StaticResource BoolToVisibility}}" Width="16"/>
-                            <TextBlock Text="{Binding Name}"/>
+                            <Image Source="../Resources/scene.ico"
+                                   Width="16"/>
+                            <TextBlock Text="Scene"/>
                         </StackPanel>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
+                    </HierarchicalDataTemplate>
+                    <HierarchicalDataTemplate DataType="{x:Type sceneManagement:WorldObject}">
+                        <HierarchicalDataTemplate.Resources>
+                            <DataTemplate DataType="{x:Type shapes:MarkerPoint}">
+                                <StackPanel Orientation="Horizontal">
+                                </StackPanel>
+                            </DataTemplate>
+                        </HierarchicalDataTemplate.Resources>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="../Resources/moving.ico" 
+                               Visibility="{Binding Path=IsGrabbed, Converter={StaticResource BoolToVisibility}}" 
+                               Width="16"/>
+                            <TextBlock Text="{Binding Name}"/>
+                            <ContentPresenter Content="{Binding Shape}"/>
+                        </StackPanel>
+                    </HierarchicalDataTemplate>
+                </TreeView.Resources>
+            </TreeView>
         </DockPanel>
     </GroupBox>
 </UserControl>
