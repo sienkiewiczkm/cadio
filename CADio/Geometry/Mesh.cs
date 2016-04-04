@@ -10,7 +10,7 @@ namespace CADio.Geometry
     public class Mesh
     {
         public IList<Vertex> Vertices { get; set; }
-        public IList<IndexedSegment> Indices { get; set; }
+        public IList<IndexedLine> Indices { get; set; }
         public Color Color { get; set; }
     }
 }

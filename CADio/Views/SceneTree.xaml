@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:CADio.Views"
              xmlns:sceneManagement="clr-namespace:CADio.SceneManagement"
              xmlns:shapes="clr-namespace:CADio.Geometry.Shapes"
+             xmlns:static="clr-namespace:CADio.Geometry.Shapes.Static"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="200" d:DataContext="{d:DesignData /SampleData/DesignSceneListData/DesignSceneListData.xaml}">
     <UserControl.Resources>
@@ -50,7 +51,7 @@
                     </HierarchicalDataTemplate>
                     <HierarchicalDataTemplate DataType="{x:Type sceneManagement:WorldObject}">
                         <HierarchicalDataTemplate.Resources>
-                            <DataTemplate DataType="{x:Type shapes:MarkerPoint}">
+                            <DataTemplate DataType="{x:Type static:MarkerPoint}">
                                 <StackPanel Orientation="Horizontal">
                                 </StackPanel>
                             </DataTemplate>

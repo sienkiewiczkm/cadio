@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Windows.Controls;
 using System.Windows.Media.Media3D;
 
-namespace CADio.Geometry.Shapes
+namespace CADio.Geometry.Shapes.Static
 {
     public class Sphere : IShape
     {
@@ -11,7 +11,7 @@ namespace CADio.Geometry.Shapes
         private int _horizontalCrossSections = 8;
         private int _crossSectionVertices = 8;
         private IList<Vertex> _verticesCache;
-        private IList<IndexedSegment> _indexedSegmentsCache;
+        private IList<IndexedLine> _indexedSegmentsCache;
 
         public int HorizontalCrossSections
         {
@@ -44,7 +44,6 @@ namespace CADio.Geometry.Shapes
         }
 
         public string Name => "Sphere";
-        public bool IsEditable { get; set; } = true;
 
         public IList<Vertex> Vertices
         {
@@ -56,7 +55,7 @@ namespace CADio.Geometry.Shapes
             }
         }
 
-        public IList<IndexedSegment> Segments
+        public IList<IndexedLine> Lines
         {
             get
             {
@@ -67,6 +66,7 @@ namespace CADio.Geometry.Shapes
         }
 
         public IList<Vertex> MarkerPoints => new List<Vertex>();
+        public IList<Vertex> RawPoints => new List<Vertex>();
 
         public Control GetEditorControl()
         {
@@ -82,7 +82,7 @@ namespace CADio.Geometry.Shapes
         private void RecalculateMesh()
         {
             _verticesCache = new List<Vertex>(2 + (HorizontalCrossSections - 2)*CrossSectionVertices);
-            _indexedSegmentsCache = new List<IndexedSegment>();
+            _indexedSegmentsCache = new List<IndexedLine>();
 
             _verticesCache.Add(new Vertex(new Point3D(0, +Radius, 0)));
             _verticesCache.Add(new Vertex(new Point3D(0, -Radius, 0)));
@@ -114,15 +114,15 @@ namespace CADio.Geometry.Shapes
                 {
                     var nextSubindex = (j + 1)%CrossSectionVertices;
                     _indexedSegmentsCache.Add(
-                        new IndexedSegment(baseIndex + j, baseIndex + nextSubindex)
+                        new IndexedLine(baseIndex + j, baseIndex + nextSubindex)
                     );
                 }
             }
 
             for (var i = 0; i < CrossSectionVertices; ++i)
             {
-                _indexedSegmentsCache.Add(new IndexedSegment(0, 2 + i));
-                _indexedSegmentsCache.Add(new IndexedSegment(1, _verticesCache.Count - i - 1));
+                _indexedSegmentsCache.Add(new IndexedLine(0, 2 + i));
+                _indexedSegmentsCache.Add(new IndexedLine(1, _verticesCache.Count - i - 1));
             }
 
             for (var i = 1; i < HorizontalCrossSections - 2; ++i)
@@ -133,7 +133,7 @@ namespace CADio.Geometry.Shapes
                 for (var j = 0; j < CrossSectionVertices; ++j)
                 {
                     _indexedSegmentsCache.Add(
-                        new IndexedSegment(currentBaseIndex + j, lowerBaseIndex + j)
+                        new IndexedLine(currentBaseIndex + j, lowerBaseIndex + j)
                     );
                 }
             }

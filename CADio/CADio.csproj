@@ -64,13 +64,14 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Geometry\Mesh.cs" />
-    <Compile Include="Geometry\IndexedSegment.cs" />
-    <Compile Include="Geometry\Shapes\Box.cs" />
-    <Compile Include="Geometry\Shapes\Cursor3D.cs" />
+    <Compile Include="Geometry\IndexedLine.cs" />
+    <Compile Include="Geometry\Shapes\Dynamic\SegmentedBezier.cs" />
+    <Compile Include="Geometry\Shapes\IDynamicShape.cs" />
     <Compile Include="Geometry\Shapes\IShape.cs" />
-    <Compile Include="Geometry\Shapes\MarkerPoint.cs" />
-    <Compile Include="Geometry\Shapes\Sphere.cs" />
-    <Compile Include="Geometry\Shapes\Torus.cs" />
+    <Compile Include="Geometry\Shapes\Static\Cursor3D.cs" />
+    <Compile Include="Geometry\Shapes\Static\MarkerPoint.cs" />
+    <Compile Include="Geometry\Shapes\Static\Sphere.cs" />
+    <Compile Include="Geometry\Shapes\Static\Torus.cs" />
     <Compile Include="Geometry\Vertex.cs" />
     <Compile Include="Helpers\ColorHelpers.cs" />
     <Compile Include="Helpers\MVVM\RelayCommand.cs" />

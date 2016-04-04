@@ -2,17 +2,17 @@
 using System.Windows.Controls;
 using System.Windows.Media.Media3D;
 
-namespace CADio.Geometry.Shapes
+namespace CADio.Geometry.Shapes.Static
 {
     public class MarkerPoint : IShape
     {
         private List<Vertex> _markerPointsCache;
          
         public string Name { get; set; } = "Point";
-        public bool IsEditable { get; set; } = true;
 
         public IList<Vertex> Vertices => new List<Vertex>();
-        public IList<IndexedSegment> Segments => new List<IndexedSegment>();
+        public IList<IndexedLine> Lines => new List<IndexedLine>();
+        public IList<Vertex> RawPoints => new List<Vertex>();
 
         public IList<Vertex> MarkerPoints
         {

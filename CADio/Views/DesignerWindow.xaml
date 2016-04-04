@@ -8,13 +8,14 @@
         xmlns:views="clr-namespace:CADio.Views"
         xmlns:shapes="clr-namespace:CADio.Geometry.Shapes"
         xmlns:shapeEditors="clr-namespace:CADio.Views.ShapeEditors"
+        xmlns:static="clr-namespace:CADio.Geometry.Shapes.Static"
         mc:Ignorable="d"
         Width="800" Height="600"
         Title="CADio"
         Loaded="OnLoaded" Icon="pack://application:,,,/Resources/scene.ico"
         PreviewKeyDown="OnPreviewKeyDown">
     <Window.Resources>
-        <DataTemplate DataType="{x:Type shapes:Torus}">
+        <DataTemplate DataType="{x:Type static:Torus}">
             <shapeEditors:TorusEditor/>
         </DataTemplate>
     </Window.Resources>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media.Media3D;
 
 namespace CADio.Mathematics
 {
@@ -11,6 +12,20 @@ namespace CADio.Mathematics
         public static byte Lerp(byte a, byte b, double t)
         {
             return (byte) (a + (b - a)*t);
+        }
+
+        public static double Lerp(double a, double b, double t)
+        {
+            return a + (b - a) * t;
+        }
+
+        public static Point3D Lerp(Point3D a, Point3D b, double t)
+        {
+            return new Point3D(
+                Lerp(a.X, b.X, t),
+                Lerp(a.Y, b.Y, t),
+                Lerp(a.Z, b.Z, t)
+            );
         }
 
         public static double Clamp(double val, double min, double max)

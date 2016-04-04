@@ -1,14 +1,14 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Windows.Controls;
 using System.Windows.Media.Media3D;
 
-namespace CADio.Geometry.Shapes
+namespace CADio.Geometry.Shapes.Static
 {
     public class Box : IShape
     {
         private Vector3D _size;
         private IList<Vertex> _verticesCache;
-        private IList<IndexedSegment> _indexedSegmentsCache;
+        private IList<IndexedLine> _indexedSegmentsCache;
 
         public Vector3D Size
         {
@@ -21,7 +21,6 @@ namespace CADio.Geometry.Shapes
         }
 
         public string Name => "Box";
-        public bool IsEditable { get; set; } = true;
 
         public IList<Vertex> Vertices
         {
@@ -33,7 +32,7 @@ namespace CADio.Geometry.Shapes
             }
         }
 
-        public IList<IndexedSegment> Segments
+        public IList<IndexedLine> Lines
         {
             get
             {
@@ -43,7 +42,8 @@ namespace CADio.Geometry.Shapes
             }
         }
 
-        public IList<Vertex> MarkerPoints => new List<Vertex>(); 
+        public IList<Vertex> MarkerPoints => new List<Vertex>();
+        public IList<Vertex> RawPoints { get; set; }
 
         public Control GetEditorControl()
         {
@@ -73,22 +73,22 @@ namespace CADio.Geometry.Shapes
                 new Vertex(new Point3D(+halfSize.X, +halfSize.Y, -halfSize.Z)), // 7
             };
 
-            _indexedSegmentsCache = new List<IndexedSegment>
+            _indexedSegmentsCache = new List<IndexedLine>
             {
-                new IndexedSegment(0, 1),
-                new IndexedSegment(1, 2),
-                new IndexedSegment(2, 3),
-                new IndexedSegment(3, 0),
+                new IndexedLine(0, 1),
+                new IndexedLine(1, 2),
+                new IndexedLine(2, 3),
+                new IndexedLine(3, 0),
 
-                new IndexedSegment(4, 5),
-                new IndexedSegment(5, 6),
-                new IndexedSegment(6, 7),
-                new IndexedSegment(7, 4),
+                new IndexedLine(4, 5),
+                new IndexedLine(5, 6),
+                new IndexedLine(6, 7),
+                new IndexedLine(7, 4),
 
-                new IndexedSegment(0, 4),
-                new IndexedSegment(1, 5),
-                new IndexedSegment(2, 6),
-                new IndexedSegment(3, 7),
+                new IndexedLine(0, 4),
+                new IndexedLine(1, 5),
+                new IndexedLine(2, 6),
+                new IndexedLine(3, 7),
             };
         }
     }

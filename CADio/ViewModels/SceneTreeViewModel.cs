@@ -7,6 +7,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using CADio.Geometry.Shapes;
+using CADio.Geometry.Shapes.Static;
 using CADio.Helpers.MVVM;
 using CADio.SceneManagement;
 

@@ -140,13 +140,21 @@ namespace CADio.Rendering
             if (Renderer == null)
                 return new RenderedPrimitives();
 
-            var trasnformedPoints = Renderer.GetRenderedPrimitives(perspectiveType).Points
+            var renderedPrimitives = Renderer.GetRenderedPrimitives(perspectiveType);
+
+            var trasnformedPoints = renderedPrimitives.Points
                 .Select(point => new Vertex2D(
                     ConvertPointToPixelSpace(point.Position),
                     point.Color
                 )).ToList();
 
-            var transformedLines = Renderer.GetRenderedPrimitives(perspectiveType).Lines
+            var trasnformedPixels = renderedPrimitives.RawPixels
+                .Select(point => new Vertex2D(
+                    ConvertPointToPixelSpace(point.Position),
+                    point.Color
+                )).ToList();
+
+            var transformedLines = renderedPrimitives.Lines
                 .Select(line => new Line2D(
                     ConvertPointToPixelSpace(line.From), 
                     ConvertPointToPixelSpace(line.To), 
@@ -155,6 +163,7 @@ namespace CADio.Rendering
 
             return new RenderedPrimitives()
             {
+                RawPixels = trasnformedPixels,
                 Points = trasnformedPoints,
                 Lines = transformedLines,
             };
@@ -186,6 +195,22 @@ namespace CADio.Rendering
                         (int) point.Position.X, 
                         (int) point.Position.Y, 
                         3, 3, 
+                        point.Color
+                    );
+                }
+
+                foreach (var point in pixelSpacePrimitives.RawPixels)
+                {
+                    if (point.Position.X < 0 || point.Position.Y < 0 ||
+                        (int) point.Position.X >= targetBitmap.PixelWidth ||
+                        (int) point.Position.Y >= targetBitmap.PixelHeight)
+                    {
+                        continue;
+                    }
+
+                    targetBitmap.SetPixel(
+                        (int)point.Position.X,
+                        (int)point.Position.Y,
                         point.Color
                     );
                 }

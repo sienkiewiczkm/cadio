@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Media3D;
 using CADio.Views.ShapeEditors;
 
-namespace CADio.Geometry.Shapes
+namespace CADio.Geometry.Shapes.Static
 {
     public class Torus : IShape, INotifyPropertyChanged
     {
@@ -16,7 +15,7 @@ namespace CADio.Geometry.Shapes
         private int _smallRingSegmentsCount;
         private int _largeRingSegmentsCount;
         private IList<Vertex> _verticesCache;
-        private IList<IndexedSegment> _indexedSegmentsCache;
+        private IList<IndexedLine> _indexedSegmentsCache;
 
         public Torus(int smallRingSegments = 32, int largeRingSegments = 32, 
             double smallRingRadius = 0.2, double largeRingRadius = 0.5)
@@ -84,7 +83,6 @@ namespace CADio.Geometry.Shapes
         }
 
         public string Name => "Torus";
-        public bool IsEditable { get; set; } = true;
 
         public IList<Vertex> Vertices
         {
@@ -96,7 +94,7 @@ namespace CADio.Geometry.Shapes
             }
         }
 
-        public IList<IndexedSegment> Segments
+        public IList<IndexedLine> Lines
         {
             get
             {
@@ -107,6 +105,7 @@ namespace CADio.Geometry.Shapes
         }
 
         public IList<Vertex> MarkerPoints => new List<Vertex>();
+        public IList<Vertex> RawPoints => new List<Vertex>();
 
         public Control GetEditorControl()
         {
@@ -132,7 +131,7 @@ namespace CADio.Geometry.Shapes
             //   theta - mały pierścień
 
             _verticesCache = new List<Vertex>();
-            _indexedSegmentsCache = new List<IndexedSegment>();
+            _indexedSegmentsCache = new List<IndexedLine>();
 
             // Generate rings vertices
             for (var i = 0; i < LargeRingSegmentsCount; ++i)
@@ -162,7 +161,7 @@ namespace CADio.Geometry.Shapes
                 for (var j = 0; j < SmallRingSegmentsCount; ++j)
                 {
                     var nextSubindex = (j + 1)%SmallRingSegmentsCount;
-                    _indexedSegmentsCache.Add(new IndexedSegment(baseIndex+j, baseIndex+nextSubindex));
+                    _indexedSegmentsCache.Add(new IndexedLine(baseIndex+j, baseIndex+nextSubindex));
                 }   
             }
 
@@ -174,7 +173,7 @@ namespace CADio.Geometry.Shapes
                     var nextj = (j + 1)%LargeRingSegmentsCount;
                     var firstIndex = j*SmallRingSegmentsCount + i;
                     var secondIndex = nextj*SmallRingSegmentsCount + i;
-                    _indexedSegmentsCache.Add(new IndexedSegment(firstIndex, secondIndex));
+                    _indexedSegmentsCache.Add(new IndexedLine(firstIndex, secondIndex));
                 }
             }
         }

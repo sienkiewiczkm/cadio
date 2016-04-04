@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
@@ -6,6 +7,8 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Media.Media3D;
 using CADio.Geometry.Shapes;
+using CADio.Geometry.Shapes.Dynamic;
+using CADio.Geometry.Shapes.Static;
 using CADio.Rendering;
 using CADio.SceneManagement;
 
@@ -21,7 +24,22 @@ namespace CADio.ViewModels
         {
             var manipulator = new WorldObject() {Shape = new Cursor3D(), IsGrabable = false};
 
+            // todo: move bezier into appropriate place and fix dynamic behaviour
+            var bezier = new SegmentedBezier
+            {
+                ControlPoints = new List<Point3D>()
+                {
+                    new Point3D(-1, 0, 0),
+                    new Point3D(0, 0, +1),
+                    new Point3D(+1, 0, 0),
+                    new Point3D(0, 0, -1),
+                }
+            };
+
+            bezier.UpdateGeometry();
+
             _scene.AttachObject(new WorldObject() {Shape = new MarkerPoint()});
+            _scene.AttachObject(new WorldObject() {Shape = bezier});
             _scene.AttachObject(manipulator);
             _scene.Manipulator = manipulator;
             _scene.PropertyChanged += SceneChanged;

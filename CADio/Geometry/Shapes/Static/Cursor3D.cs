@@ -3,16 +3,15 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
 
-namespace CADio.Geometry.Shapes
+namespace CADio.Geometry.Shapes.Static
 {
     public class Cursor3D : IShape
     {
         private double _size = 1.0;
         private IList<Vertex> _verticesCache;
-        private IList<IndexedSegment> _indexedSegmentsCache;
+        private IList<IndexedLine> _indexedSegmentsCache;
 
         public string Name => "Cursor 3D";
-        public bool IsEditable { get; set; } = true;
 
         public double Size
         {
@@ -34,7 +33,7 @@ namespace CADio.Geometry.Shapes
             }
         }
 
-        public IList<IndexedSegment> Segments
+        public IList<IndexedLine> Lines
         {
             get
             {
@@ -45,6 +44,7 @@ namespace CADio.Geometry.Shapes
         }
 
         public IList<Vertex> MarkerPoints => new List<Vertex>();
+        public IList<Vertex> RawPoints => new List<Vertex>();
 
         public Control GetEditorControl()
         {
@@ -69,11 +69,11 @@ namespace CADio.Geometry.Shapes
                 new Vertex(new Point3D(0, 0, -1), Colors.Blue),
             };
 
-            _indexedSegmentsCache = new List<IndexedSegment>
+            _indexedSegmentsCache = new List<IndexedLine>
             {
-                new IndexedSegment(0, 1),
-                new IndexedSegment(2, 3),
-                new IndexedSegment(4, 5),
+                new IndexedLine(0, 1),
+                new IndexedLine(2, 3),
+                new IndexedLine(4, 5),
             };
         }
     }

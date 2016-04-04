@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
+using CADio.Geometry;
+using CADio.Geometry.Shapes;
 using CADio.Helpers;
 using CADio.Mathematics;
 using CADio.SceneManagement;
@@ -49,7 +51,7 @@ namespace CADio.Rendering
             {
                 var shape = worldObject.Shape;
                 var transformation = viewProj * worldObject.GetWorldMatrix();
-                foreach (var segment in shape.Segments)
+                foreach (var segment in shape.Lines)
                 {
                     var firstIndex = segment.First;
                     var secondIndex = segment.Second;
@@ -77,34 +79,46 @@ namespace CADio.Rendering
                 }
             }
 
+            var rasterizedMarkerPoints = RasterizePoints(viewProj, perspectiveColorOverride, t => t.MarkerPoints);
+            var rasterizedRawPixels = RasterizePoints(viewProj, perspectiveColorOverride, t => t.RawPoints);
+
+            return new RenderedPrimitives()
+            {
+                Points =  rasterizedMarkerPoints,
+                Lines = rasterizedLines,
+                RawPixels = rasterizedRawPixels,
+            };
+        }
+
+        private List<Vertex2D> RasterizePoints(Matrix4X4 viewProj, Color? perspectiveColorOverride,
+            Func<IShape, IList<Vertex>> vertexExtractorFunc)
+        {
             var rasterizedPoints = new List<Vertex2D>();
+
             foreach (var worldObject in Scene.Objects)
             {
                 var shape = worldObject.Shape;
-                var transformation = viewProj * worldObject.GetWorldMatrix();
+                var transformation = viewProj*worldObject.GetWorldMatrix();
 
                 // todo: renderer probably should not check scene like that
                 Color? colorOverride = null;
                 if (worldObject == Scene.GrabbedObject)
                     colorOverride = Colors.Orange;
 
-                foreach (var markerPoint in shape.MarkerPoints)
+                var vertexCollection = vertexExtractorFunc(shape);
+                foreach (var point in vertexCollection)
                 {
-                    var pos = ((Vector3D) markerPoint.Position).ExtendTo4D().Transform(transformation);
-                    // todo:clip
+                    var pos = ((Vector3D) point.Position).ExtendTo4D().Transform(transformation);
+                    // todo: clip
                     if (pos.W < 0) continue;
                     rasterizedPoints.Add(new Vertex2D(
                         (Point) pos.WDivide(),
-                        perspectiveColorOverride ?? (colorOverride ?? markerPoint.Color)
+                        perspectiveColorOverride ?? (colorOverride ?? point.Color)
                     ));
                 }
             }
 
-            return new RenderedPrimitives()
-            {
-                Points =  rasterizedPoints,
-                Lines = rasterizedLines,
-            };
+            return rasterizedPoints;
         }
 
         public Point? GetStandardScreenSpacePosition(Point3D worldPosition)
