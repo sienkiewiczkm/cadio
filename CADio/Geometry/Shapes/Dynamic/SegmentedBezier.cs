@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
@@ -21,9 +23,9 @@ namespace CADio.Geometry.Shapes.Dynamic
 
         public IList<Point3D> ControlPoints; 
 
-        public void UpdateGeometry()
+        public void UpdateGeometry(Func<Point3D, Point3D, double> estimateScreenSpaceDistance)
         {
-            const int targetDegree = 1;
+            const int targetDegree = 3;
 
             var rawPointsList = new List<Vertex>();
             for (var i = 0; i + 1 < ControlPoints.Count; i += targetDegree)
@@ -31,18 +33,21 @@ namespace CADio.Geometry.Shapes.Dynamic
                 var controlPointsLeft = ControlPoints.Count - i;
                 var degree = Math.Min(controlPointsLeft - 1, targetDegree);
 
-                var bernsteinCoordinates = new double[degree + 1, 3];
-                for (var j = 0; j < degree + 1; ++j)
-                {
-                    bernsteinCoordinates[j, 0] = ControlPoints[i+j].X;
-                    bernsteinCoordinates[j, 1] = ControlPoints[i+j].Y;
-                    bernsteinCoordinates[j, 2] = ControlPoints[i+j].Z;
-                }
-
+                var bernsteinCoordinates = FillBernsteinCoordinatesArray(degree, i);
                 var solver = new DeCastlejauSolver(bernsteinCoordinates);
 
-                // Generate raw points for segment
-                var controlPointsWithin = 1000 + 1; // todo: dynamic
+                var bernsteinPolygonLength = 0.0;
+                for (var j = 0; j < degree; ++j)
+                {
+                    bernsteinPolygonLength += estimateScreenSpaceDistance(
+                        ControlPoints[i + j], 
+                        ControlPoints[i + j + 1]
+                    );
+                }
+
+                Debug.Print("bernstein: {0}", bernsteinPolygonLength);
+
+                var controlPointsWithin = (int)Math.Ceiling(2.0*bernsteinPolygonLength);
                 for (var j = 0; j < controlPointsWithin; ++j)
                 {
                     var t = (double)j/controlPointsWithin;
@@ -52,6 +57,18 @@ namespace CADio.Geometry.Shapes.Dynamic
             }
 
             RawPoints = rawPointsList;
+        }
+
+        private double[,] FillBernsteinCoordinatesArray(int degree, int i)
+        {
+            var bernsteinCoordinates = new double[degree + 1, 3];
+            for (var j = 0; j < degree + 1; ++j)
+            {
+                bernsteinCoordinates[j, 0] = ControlPoints[i + j].X;
+                bernsteinCoordinates[j, 1] = ControlPoints[i + j].Y;
+                bernsteinCoordinates[j, 2] = ControlPoints[i + j].Z;
+            }
+            return bernsteinCoordinates;
         }
     }
 }

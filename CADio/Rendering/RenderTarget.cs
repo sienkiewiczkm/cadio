@@ -140,7 +140,7 @@ namespace CADio.Rendering
             if (Renderer == null)
                 return new RenderedPrimitives();
 
-            var renderedPrimitives = Renderer.GetRenderedPrimitives(perspectiveType);
+            var renderedPrimitives = Renderer.GetRenderedPrimitives(perspectiveType, this);
 
             var trasnformedPoints = renderedPrimitives.Points
                 .Select(point => new Vertex2D(
@@ -169,10 +169,9 @@ namespace CADio.Rendering
             };
         }
 
-        private Point ConvertPointToPixelSpace(Point point)
+        public Point ConvertPointToPixelSpace(Point point)
         {
-            var aspect = ((float)OutputBitmap.PixelWidth)/OutputBitmap.PixelHeight;
-            var x = ((point.X/aspect)*0.5 + 0.5) * OutputBitmap.PixelWidth;
+            var x = (+point.X*0.5 + 0.5) * OutputBitmap.PixelWidth;
             var y = (-point.Y*0.5 + 0.5) * OutputBitmap.PixelHeight;
             return new Point(x, y);
         }

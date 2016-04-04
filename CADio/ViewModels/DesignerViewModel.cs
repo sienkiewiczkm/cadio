@@ -33,10 +33,9 @@ namespace CADio.ViewModels
                     new Point3D(0, 0, +1),
                     new Point3D(+1, 0, 0),
                     new Point3D(0, 0, -1),
+                    new Point3D(-1, 0, 0),
                 }
             };
-
-            bezier.UpdateGeometry();
 
             _scene.AttachObject(new WorldObject() {Shape = new MarkerPoint()});
             _scene.AttachObject(new WorldObject() {Shape = bezier});

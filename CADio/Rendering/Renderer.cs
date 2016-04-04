@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
@@ -15,6 +16,9 @@ namespace CADio.Rendering
     {
         private static Color LeftEyeFilteredColor => Colors.Cyan;
         private static Color RightEyeFilteredColor => Colors.Red;
+
+        // todo: fixme
+        private double _aspectRatio = 1.0;
 
         private Scene _scene;
 
@@ -37,9 +41,55 @@ namespace CADio.Rendering
             RenderOutputChanged?.Invoke(this, null);
         }
 
-        public RenderedPrimitives GetRenderedPrimitives(PerspectiveType perspectiveType)
+        private bool ClipLineCoordinate(ref Vector4D a, ref Vector4D b, int coordinateIndex, double factor)
+        {
+            var firstComponent = factor*a[coordinateIndex];
+            var firstInside = firstComponent <= a.W;
+
+            var secondComponent = factor*b[coordinateIndex];
+            var secondInside = secondComponent <= b.W;
+
+            if (firstInside && secondInside)
+                return true;
+
+            if (!firstInside && !secondInside)
+                return false;
+
+            var lerpAmt = (a.W - firstComponent)/((a.W - firstComponent) - (b.W - secondComponent));
+            var midPoint = a.Lerp(b, lerpAmt);
+
+            if (firstInside)
+                b = midPoint;
+            if (secondInside)
+                a = midPoint;
+
+            return true;
+        }
+
+        private bool TransformLineWithClip(Matrix4X4 transformation, ref Vector4D a, ref Vector4D b)
+        {
+            a = a.Transform(transformation);
+            b = b.Transform(transformation);
+
+            for (var i = 0; i < 3; ++i)
+            {
+                if (!ClipLineCoordinate(ref a, ref b, i, +1.0))
+                    return false;
+                if (!ClipLineCoordinate(ref a, ref b, i, -1.0))
+                    return false;
+            }
+
+            a = a.WDivide();
+            b = b.WDivide();
+            return true;
+        }
+
+        public RenderedPrimitives GetRenderedPrimitives(PerspectiveType perspectiveType, RenderTarget renderTarget)
         {
             Scene.Camera.ObserverOffset = 2.0;
+
+            // todo: fixme
+            _aspectRatio = (float) renderTarget.OutputBitmap.PixelWidth/renderTarget.OutputBitmap.PixelHeight;
 
             var projection = GetProjectionMatrix(perspectiveType);
             var viewProj = projection*Scene.Camera.GetViewMatrix();
@@ -51,6 +101,12 @@ namespace CADio.Rendering
             {
                 var shape = worldObject.Shape;
                 var transformation = viewProj * worldObject.GetWorldMatrix();
+
+                var dynamicShape = shape as IDynamicShape;
+                dynamicShape?.UpdateGeometry(
+                    (p1, p2) => 0.0
+                );
+
                 foreach (var segment in shape.Lines)
                 {
                     var firstIndex = segment.First;
@@ -61,19 +117,10 @@ namespace CADio.Rendering
 
                     var segmentColor = ColorHelpers.Lerp(v1.Color, v2.Color, 0.5);
 
-                    var firstPos = ((Vector3D) v1.Position).ExtendTo4D().Transform(transformation);
-                    var secondPos = ((Vector3D) v2.Position).ExtendTo4D().Transform(transformation);
-
-                    if (firstPos.W < 0 && secondPos.W < 0)
+                    var firstPos = ((Vector3D) v1.Position).ExtendTo4D();
+                    var secondPos = ((Vector3D) v2.Position).ExtendTo4D();
+                    if (!TransformLineWithClip(transformation, ref firstPos, ref secondPos))
                         continue;
-
-                    if (firstPos.W < 0 || secondPos.W < 0)
-                    {
-                        continue;
-                    }
-
-                    firstPos = firstPos.WDivide();
-                    secondPos = secondPos.WDivide();
 
                     rasterizedLines.Add(new Line2D((Point) firstPos, (Point) secondPos, perspectiveColorOverride ?? segmentColor));
                 }
@@ -150,13 +197,13 @@ namespace CADio.Rendering
             switch (perspectiveType)
             {
                 case PerspectiveType.Standard:
-                    projection = Transformations3D.SimplePerspective(Scene.Camera.ObserverOffset);
+                    projection = Transformations3D.SimplePerspective(Scene.Camera.ObserverOffset, _aspectRatio);
                     break;
                 case PerspectiveType.LeftEye:
-                    projection = Transformations3D.SimplePerspectiveWithEyeShift(Scene.Camera.ObserverOffset, -EyeDistance);
+                    projection = Transformations3D.SimplePerspectiveWithEyeShift(Scene.Camera.ObserverOffset, _aspectRatio, -EyeDistance);
                     break;
                 case PerspectiveType.RightEye:
-                    projection = Transformations3D.SimplePerspectiveWithEyeShift(Scene.Camera.ObserverOffset, +EyeDistance);
+                    projection = Transformations3D.SimplePerspectiveWithEyeShift(Scene.Camera.ObserverOffset, _aspectRatio, +EyeDistance);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(perspectiveType), perspectiveType, null);

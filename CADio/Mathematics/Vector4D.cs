@@ -22,6 +22,41 @@ namespace CADio.Mathematics
         public double LengthPow2 => X*X + Y*Y + Z*Z + W*W;
         public double Length => Math.Sqrt(LengthPow2);
 
+        public double this[int index]
+        {
+            get
+            {
+                switch (index)
+                {
+                    case 0:
+                        return X;
+                    case 1:
+                        return Y;
+                    case 2:
+                        return Z;
+                    default:
+                        throw new ArgumentException("Vector4D coordinate index should be in range [0,3].");
+                }
+            }
+            set
+            {
+                switch (index)
+                {
+                    case 0:
+                        X = value;
+                        break;
+                    case 1:
+                        Y = value;
+                        break;
+                    case 2:
+                        Z = value;
+                        break;
+                    default:
+                        throw new ArgumentException("Vector4D coordinate index should be in range [0,3].");
+                }
+            }
+        }
+
         public double[] ToArray()
         {
             return new [] { X, Y, Z, W };
@@ -61,6 +96,16 @@ namespace CADio.Mathematics
         public double DotProduct(Vector4D v)
         {
             return X*v.X + Y*v.Y + Z*v.Z + W*v.Z;
+        }
+
+        public Vector4D Lerp(Vector4D other, double t)
+        {
+            return new Vector4D(
+                MathHelpers.Lerp(X, other.X, t),
+                MathHelpers.Lerp(Y, other.Y, t),
+                MathHelpers.Lerp(Z, other.Z, t),
+                MathHelpers.Lerp(W, other.W, t)
+            );
         }
     }
 }

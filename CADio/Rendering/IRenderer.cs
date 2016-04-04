@@ -7,6 +7,6 @@ namespace CADio.Rendering
     {
         event EventHandler RenderOutputChanged;
 
-        RenderedPrimitives GetRenderedPrimitives(PerspectiveType perspectiveType);
+        RenderedPrimitives GetRenderedPrimitives(PerspectiveType perspectiveType, RenderTarget renderTarget);
     }
 }
