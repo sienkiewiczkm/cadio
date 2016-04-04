@@ -34,5 +34,12 @@ namespace CADio.Mathematics
             if (val > max) return max;
             return val;
         }
+
+        public static Point3D MakePoint3D(double[] array)
+        {
+            if (array.Length != 3)
+                throw new ArgumentException("Point3D requires exactly 3 coordinates.");
+            return new Point3D(array[0], array[1], array[2]);
+        }
     }
 }

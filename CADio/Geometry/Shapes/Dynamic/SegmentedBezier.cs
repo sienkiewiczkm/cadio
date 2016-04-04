@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using CADio.Mathematics;
+using CADio.Mathematics.Numerical;
 
 namespace CADio.Geometry.Shapes.Dynamic
 {
@@ -30,12 +31,22 @@ namespace CADio.Geometry.Shapes.Dynamic
                 var controlPointsLeft = ControlPoints.Count - i;
                 var degree = Math.Min(controlPointsLeft - 1, targetDegree);
 
+                var bernsteinCoordinates = new double[degree + 1, 3];
+                for (var j = 0; j < degree + 1; ++j)
+                {
+                    bernsteinCoordinates[j, 0] = ControlPoints[i+j].X;
+                    bernsteinCoordinates[j, 1] = ControlPoints[i+j].Y;
+                    bernsteinCoordinates[j, 2] = ControlPoints[i+j].Z;
+                }
+
+                var solver = new DeCastlejauSolver(bernsteinCoordinates);
+
                 // Generate raw points for segment
                 var controlPointsWithin = 1000 + 1; // todo: dynamic
                 for (var j = 0; j < controlPointsWithin; ++j)
                 {
                     var t = (double)j/controlPointsWithin;
-                    var lerped = MathHelpers.Lerp(ControlPoints[i], ControlPoints[i + 1], t);
+                    var lerped = MathHelpers.MakePoint3D(solver.Evaluate(t));
                     rawPointsList.Add(new Vertex() {Position = lerped, Color = Colors.White});
                 }
             }
