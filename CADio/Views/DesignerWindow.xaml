@@ -45,13 +45,29 @@
         <StatusBar DockPanel.Dock="Bottom">
             <TextBlock Text="{Binding CursorReadableInfo}"/>
         </StatusBar>
-        <StackPanel DockPanel.Dock="Right" Width="200">
-            <views:SceneTree Height="200" DataContext="{Binding SceneTreeViewModel}"/>
-            <TextBox Text="{Binding SceneTreeViewModel.Scene.FirstSelectedObject.Name}"/>
-            <ContentPresenter Content="{Binding SceneTreeViewModel.SelectedObject.Shape}"/>
-        </StackPanel>
-        <rendering:RenderTarget x:Name="RT" Renderer="{Binding ActiveRenderer}"
-            MouseDown="OnMouseDown" MouseUp="OnMouseUp" MouseMove="OnMouseMove" 
-            MouseWheel="OnMouseWheel" SizeChanged="OnSizeChange"/>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="3"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <rendering:RenderTarget x:Name="RT" Grid.Column="0" Renderer="{Binding ActiveRenderer}"
+                MouseDown="OnMouseDown" MouseUp="OnMouseUp" MouseMove="OnMouseMove" 
+                MouseWheel="OnMouseWheel" SizeChanged="OnSizeChange"/>
+            <GridSplitter Grid.Column="1" Width="3" Height="Auto" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition Height="3"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <views:SceneTree Grid.Row="0" DataContext="{Binding SceneTreeViewModel}"/>
+                <GridSplitter Grid.Row="1" ResizeDirection="Rows" Width="Auto" Height="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                <StackPanel Grid.Row="2">
+                    <TextBox Text="{Binding SceneTreeViewModel.Scene.FirstSelectedObject.Name}"/>
+                    <ContentPresenter Content="{Binding SceneTreeViewModel.SelectedObject.Shape}"/>
+                </StackPanel>
+            </Grid>
+        </Grid>
     </DockPanel>
 </Window>

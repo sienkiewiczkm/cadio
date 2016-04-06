@@ -97,10 +97,14 @@
     <Compile Include="SampleData\DesignSceneListData\DesignSceneListData.xaml.cs">
       <DependentUpon>DesignSceneListData.xaml</DependentUpon>
     </Compile>
+    <Compile Include="SceneManagement\ControlPoint.cs" />
+    <Compile Include="SceneManagement\ISmartEditTarget.cs" />
     <Compile Include="SceneManagement\Scene.cs" />
+    <Compile Include="SceneManagement\BezierWorldObject.cs" />
     <Compile Include="SceneManagement\WorldObject.cs" />
     <Compile Include="ViewModels\DesignerViewModel.cs" />
     <Compile Include="ViewModels\SceneTreeViewModel.cs" />
+    <Compile Include="Views\Converters\BoolToActiveColorConverter.cs" />
     <Compile Include="Views\DesignerWindow.xaml.cs">
       <DependentUpon>DesignerWindow.xaml</DependentUpon>
     </Compile>
@@ -186,7 +190,9 @@
   <ItemGroup>
     <Resource Include="Resources\moving.ico" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Resources\edit.ico" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

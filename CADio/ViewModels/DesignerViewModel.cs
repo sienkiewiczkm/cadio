@@ -25,20 +25,24 @@ namespace CADio.ViewModels
             var manipulator = new WorldObject() {Shape = new Cursor3D(), IsGrabable = false};
 
             // todo: move bezier into appropriate place and fix dynamic behaviour
-            var bezier = new SegmentedBezier
-            {
-                ControlPoints = new List<Point3D>()
-                {
-                    new Point3D(-1, 0, 0),
-                    new Point3D(0, 0, +1),
-                    new Point3D(+1, 0, 0),
-                    new Point3D(0, 0, -1),
-                    new Point3D(-1, 0, 0),
-                }
-            };
+            var pt1 = new WorldObject {Position = new Point3D(-1, 0, 0), Shape = new MarkerPoint()};
+            var pt2 = new WorldObject {Position = new Point3D(0, 0, +1), Shape = new MarkerPoint()};
+            var pt3 = new WorldObject {Position = new Point3D(+1, 0, 0), Shape = new MarkerPoint()};
+            var pt4 = new WorldObject {Position = new Point3D(0, 0, -1), Shape = new MarkerPoint()};
+
+            var bezier = new BezierWorldObject() {Shape = new SegmentedBezier()};
+            bezier.AttachObject(pt1);
+            bezier.AttachObject(pt2);
+            bezier.AttachObject(pt3);
+            bezier.AttachObject(pt4);
+
+            _scene.AttachObject(pt1);
+            _scene.AttachObject(pt2);
+            _scene.AttachObject(pt3);
+            _scene.AttachObject(pt4);
 
             _scene.AttachObject(new WorldObject() {Shape = new MarkerPoint()});
-            _scene.AttachObject(new WorldObject() {Shape = bezier});
+            _scene.AttachObject(bezier);
             _scene.AttachObject(manipulator);
             _scene.Manipulator = manipulator;
             _scene.PropertyChanged += SceneChanged;
@@ -119,9 +123,8 @@ namespace CADio.ViewModels
         public void MoveManipulator(double dx, double dy, double dz)
         {
             var shift = new Vector3D(dx, dy, dz);
-            _scene.Manipulator.Position += shift;
-            if (_scene.GrabbedObject != null)
-                _scene.GrabbedObject.Position += shift;
+            _scene.Manipulator.Translate(shift);
+            _scene.GrabbedObject?.Translate(shift);
 
             UpdateManipulatorInfo();
             ActiveRenderer.ForceRedraw();

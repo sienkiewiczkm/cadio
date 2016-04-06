@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Media.Media3D;
 using CADio.Geometry.Shapes;
@@ -25,6 +26,9 @@ namespace CADio.SceneManagement
         public bool IsGrabable { get; set; } = true;
         public IShape Shape { get; set; }
 
+        public IList<BezierWorldObject> ObjectUsers { get; set; } 
+            = new List<BezierWorldObject>();
+
         public bool IsSelected
         {
             get { return _isSelected; }
@@ -45,6 +49,22 @@ namespace CADio.SceneManagement
                            *Transformations3D.RotationZ(Orientation.Z);
             var scaling = Transformations3D.Scaling(Scale);
             return translation*rotation*scaling;
+        }
+
+        public virtual void PrerenderUpdate()
+        {
+        }
+
+        public void DetachFromCompositors()
+        {
+            foreach (var user in ObjectUsers)
+                user.DetachObject(this);
+            ObjectUsers.Clear();
+        }
+
+        public virtual void Translate(Vector3D translation)
+        {
+            Position += translation;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

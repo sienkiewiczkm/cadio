@@ -18,11 +18,27 @@ namespace CADio.SceneManagement
         private Camera _camera = new Camera();
         private ICollectionView _manageableObjects;
         private WorldObject _firstSelectedObject;
+        private ISmartEditTarget _smartEditTarget;
 
         public Camera Camera
         {
             get { return _camera; }
             set { _camera = value; OnPropertyChanged(); }
+        }
+
+        public ISmartEditTarget SmartEditTarget
+        {
+            get { return _smartEditTarget; }
+            set
+            {
+                var oldEditTarget = _smartEditTarget;
+                _smartEditTarget = value;
+
+                oldEditTarget?.NotifyAboutStateChange();
+                _smartEditTarget?.NotifyAboutStateChange();
+
+                OnPropertyChanged();
+            }
         }
 
         public ObservableCollection<WorldObject> Objects
@@ -96,6 +112,7 @@ namespace CADio.SceneManagement
             if (worldObject?.Owner != this) return;
             if (GrabbedObject == worldObject)
                 GrabbedObject = null;
+            worldObject.DetachFromCompositors();
             Objects.Remove(worldObject);
             worldObject.Owner = null;
             worldObject.PropertyChanged -= OnWorldObjectChange;

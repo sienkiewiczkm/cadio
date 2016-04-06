@@ -7,10 +7,13 @@
              xmlns:sceneManagement="clr-namespace:CADio.SceneManagement"
              xmlns:shapes="clr-namespace:CADio.Geometry.Shapes"
              xmlns:static="clr-namespace:CADio.Geometry.Shapes.Static"
+             xmlns:dynamic="clr-namespace:CADio.Geometry.Shapes.Dynamic"
+             xmlns:converters="clr-namespace:CADio.Views.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="200" d:DataContext="{d:DesignData /SampleData/DesignSceneListData/DesignSceneListData.xaml}">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+        <converters:BoolToActiveColorConverter x:Key="BoolToActiveColor"/>
     </UserControl.Resources>
     <GroupBox Header="Scene">
         <DockPanel LastChildFill="True">
@@ -19,6 +22,7 @@
                     <local:DropDownButton.DropDown>
                         <ContextMenu>
                             <MenuItem Header="Point" Command="{Binding CreatePointCommand}"/>
+                            <MenuItem Header="Segmented Bezier (max 3rd degree)" Command="{Binding CreateSegmentedBezierCommand}"/>
                         </ContextMenu>
                     </local:DropDownButton.DropDown>
                     <StackPanel Orientation="Horizontal">
@@ -35,7 +39,12 @@
             </WrapPanel>
             <TreeView Name="SceneTreeView"
                       ItemsSource="{Binding ManageableScenes}"
-                      MouseDoubleClick="ListDoubleClick">
+                      MouseDoubleClick="ListDoubleClick"
+                      AllowDrop="True"
+                      PreviewMouseLeftButtonDown="OnTreeViewPreviewMouseLeftButtonDown"
+                      PreviewMouseMove="OnTreeViewPreviewMouseMove"
+                      Drop="OnTreeViewDrop"
+                      DragEnter="OnTreeViewDragEnter">
                 <TreeView.ItemContainerStyle>
                     <Style TargetType="{x:Type TreeViewItem}">
                         <Setter Property="IsSelected" Value="{Binding IsSelected}"/>
@@ -55,8 +64,18 @@
                                 <StackPanel Orientation="Horizontal">
                                 </StackPanel>
                             </DataTemplate>
+                            <DataTemplate DataType="{x:Type dynamic:SegmentedBezier}">
+                                <StackPanel Orientation="Horizontal">
+                                </StackPanel>
+                            </DataTemplate>
                         </HierarchicalDataTemplate.Resources>
                         <StackPanel Orientation="Horizontal">
+                            <StackPanel.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Delete"/>
+                                    <MenuItem Header="Unlink"/>
+                                </ContextMenu>
+                            </StackPanel.ContextMenu>
                             <Image Source="../Resources/moving.ico" 
                                Visibility="{Binding Path=IsGrabbed, Converter={StaticResource BoolToVisibility}}" 
                                Width="16"/>
@@ -64,6 +83,36 @@
                             <ContentPresenter Content="{Binding Shape}"/>
                         </StackPanel>
                     </HierarchicalDataTemplate>
+                    <HierarchicalDataTemplate DataType="{x:Type sceneManagement:BezierWorldObject}" ItemsSource="{Binding Objects}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Name}" Margin="0 0 4 0"/>
+                            <Button Command="{Binding RequestSmartEditCommand}" 
+                                    Width="14" Height="14"
+                                    BorderThickness="1"
+                                    Background="{Binding Path=IsSmartEditEnabled, Converter={StaticResource BoolToActiveColor}}">
+                                <Image Source="../Resources/edit.ico"/>
+                            </Button>
+                            <Button Command="{Binding TogglePolygonRenderingCommand}" Width="14" Height="14" BorderThickness="1"
+                                    Background="{Binding Path=IsPolygonRenderingEnabled, Converter={StaticResource BoolToActiveColor}}">
+                                <Image Source="../Resources/visibility2.ico"/>
+                            </Button>
+                        </StackPanel>
+                    </HierarchicalDataTemplate>
+                    <DataTemplate DataType="{x:Type sceneManagement:ControlPoint}">
+                        <StackPanel Orientation="Horizontal">
+                            <StackPanel.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Unlink" Command="{Binding UnlinkCommand}"/>
+                                </ContextMenu>
+                            </StackPanel.ContextMenu>
+                            <TextBlock Text="Control Point ("/>
+                            <Image Source="../Resources/moving.ico" 
+                               Visibility="{Binding Path=Reference.IsGrabbed, Converter={StaticResource BoolToVisibility}}" 
+                               Width="16"/>
+                            <TextBlock Text="{Binding Reference.Name}"/>
+                            <TextBlock Text=")"/>
+                        </StackPanel>
+                    </DataTemplate>
                 </TreeView.Resources>
             </TreeView>
         </DockPanel>

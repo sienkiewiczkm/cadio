@@ -4,9 +4,11 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using CADio.Geometry.Shapes;
+using CADio.Geometry.Shapes.Dynamic;
 using CADio.Geometry.Shapes.Static;
 using CADio.Helpers.MVVM;
 using CADio.SceneManagement;
@@ -16,10 +18,12 @@ namespace CADio.ViewModels
     internal class SceneTreeViewModel : INotifyPropertyChanged
     {
         private static int _sessionPointId = 1;
+        private static int _sessionBezierId = 1;
 
         private Scene _scene;
         private ICommand _createPointCommand;
         private ICommand _removeSelectedObjectCommand;
+        private ICommand _createSegmentedBezierCommand;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -47,6 +51,12 @@ namespace CADio.ViewModels
             set { _createPointCommand = value; OnPropertyChanged(); }
         }
 
+        public ICommand CreateSegmentedBezierCommand
+        {
+            get { return _createSegmentedBezierCommand ?? (_createSegmentedBezierCommand = new RelayCommand(CreateSegmentedBezier)); }
+            set { _createSegmentedBezierCommand = value; OnPropertyChanged(); }
+        }
+
         public ICommand RemoveSelectedObjectCommand
         {
             get
@@ -71,7 +81,20 @@ namespace CADio.ViewModels
                 Shape = new MarkerPoint(),
             };
 
+            _scene.SmartEditTarget?.RegisterNewObject(newPoint);
             _scene.AttachObject(newPoint);
+        }
+
+        private void CreateSegmentedBezier()
+        {
+            var bezier = new BezierWorldObject()
+            {
+                Name = "Segmented Bezier " + _sessionBezierId++,
+                Shape = new SegmentedBezier(),
+            };
+
+            _scene.SmartEditTarget?.RegisterNewObject(bezier);
+            _scene.AttachObject(bezier);
         }
 
         private void RemoveSelectedObject()

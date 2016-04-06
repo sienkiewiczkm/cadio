@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -14,16 +15,18 @@ namespace CADio.Geometry.Shapes.Dynamic
     {
         public string Name => "Segmented Bezier";
 
-        public IList<Vertex> Vertices => new List<Vertex>();
-        public IList<IndexedLine> Lines => new List<IndexedLine>();
+        public IList<Vertex> Vertices { get; private set; }
+        public IList<IndexedLine> Lines { get; private set; }
         public IList<Vertex> MarkerPoints => new List<Vertex>();
         public IList<Vertex> RawPoints { get; private set; }
+        public bool IsPolygonRenderingEnabled { get; set; }
 
         public Control GetEditorControl() => null;
 
-        public IList<Point3D> ControlPoints; 
+        public IList<Point3D> ControlPoints = new List<Point3D>(); 
 
-        public void UpdateGeometry(Func<Point3D, Point3D, double> estimateScreenSpaceDistance)
+        public void UpdateGeometry(Func<Point3D, Point3D, double> estimateScreenSpaceDistance,
+            Predicate<Point3D> isInsideProjectiveCubePredicate)
         {
             const int targetDegree = 3;
 
@@ -45,9 +48,7 @@ namespace CADio.Geometry.Shapes.Dynamic
                     );
                 }
 
-                Debug.Print("bernstein: {0}", bernsteinPolygonLength);
-
-                var controlPointsWithin = (int)Math.Ceiling(2.0*bernsteinPolygonLength);
+                var controlPointsWithin = (int)Math.Ceiling(bernsteinPolygonLength);
                 for (var j = 0; j < controlPointsWithin; ++j)
                 {
                     var t = (double)j/controlPointsWithin;
@@ -56,7 +57,26 @@ namespace CADio.Geometry.Shapes.Dynamic
                 }
             }
 
-            RawPoints = rawPointsList;
+            RawPoints = new List<Vertex>();
+            Vertices = new List<Vertex>();
+            Lines = new List<IndexedLine>();
+
+            Vertices = rawPointsList;
+            Lines = Enumerable.Range(0, rawPointsList.Count - 1)
+                //.Where(t => t % 2 == 0)
+                .Select(t => new IndexedLine(t, t + 1))
+                .ToList();
+
+            if (IsPolygonRenderingEnabled && ControlPoints.Count >= 2)
+            {
+                var additionalVertices = ControlPoints.Select(t => new Vertex(t, Colors.Gray)).ToList();
+                var additionalLines = Enumerable.Range(Vertices.Count, ControlPoints.Count - 1)
+                    .Select(t => new IndexedLine(t, t + 1))
+                    .ToList();
+
+                Vertices = Vertices.Union(additionalVertices).ToList();
+                Lines = Lines.Union(additionalLines).ToList();
+            }
         }
 
         private double[,] FillBernsteinCoordinatesArray(int degree, int i)

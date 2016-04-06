@@ -190,6 +190,13 @@ namespace CADio.Rendering
 
                 foreach (var point in pixelSpacePrimitives.Points)
                 {
+                    if (point.Position.X < 0 || point.Position.Y < 0 ||
+                        (int)point.Position.X >= targetBitmap.PixelWidth ||
+                        (int)point.Position.Y >= targetBitmap.PixelHeight)
+                    {
+                        continue;
+                    }
+
                     targetBitmap.FillEllipseCentered(
                         (int) point.Position.X, 
                         (int) point.Position.Y, 

@@ -19,8 +19,8 @@ namespace CADio.Mathematics
             W = w;
         }
 
-        public double LengthPow2 => X*X + Y*Y + Z*Z + W*W;
-        public double Length => Math.Sqrt(LengthPow2);
+        public double LengthSquared => X*X + Y*Y + Z*Z + W*W;
+        public double Length => Math.Sqrt(LengthSquared);
 
         public double this[int index]
         {
@@ -80,6 +80,11 @@ namespace CADio.Mathematics
         public static explicit operator Point(Vector4D vector)
         {
             return new Point(vector.X, vector.Y);
+        }
+
+        public static Vector4D operator -(Vector4D a, Vector4D b)
+        {
+            return new Vector4D(a.X - b.X, a.Y - b.Y, a.Z - b.Z, a.W - b.W);
         }
 
         public static Vector4D operator *(Matrix4X4 transformation, Vector4D vector)

@@ -41,6 +41,14 @@ namespace CADio.Rendering
             RenderOutputChanged?.Invoke(this, null);
         }
 
+        private bool IsPositionInsideProjectiveCube(Vector4D v)
+        {
+            for (var i = 0; i < 3; ++i)
+                if (-v.W > v[i] || v[i] > v.W) // should be -w <= coord <= w
+                    return false;
+            return true;
+        }
+
         private bool ClipLineCoordinate(ref Vector4D a, ref Vector4D b, int coordinateIndex, double factor)
         {
             var firstComponent = factor*a[coordinateIndex];
@@ -98,13 +106,32 @@ namespace CADio.Rendering
             var perspectiveColorOverride = GetPerspectiveColorOverride(perspectiveType);
 
             foreach (var worldObject in Scene.Objects)
+                worldObject.PrerenderUpdate();
+
+            foreach (var worldObject in Scene.Objects)
             {
                 var shape = worldObject.Shape;
                 var transformation = viewProj * worldObject.GetWorldMatrix();
 
                 var dynamicShape = shape as IDynamicShape;
                 dynamicShape?.UpdateGeometry(
-                    (p1, p2) => 0.0
+                    /*(p1, p2) => // calculate with clip (only visible length)
+                    {
+                        var v1 = ((Vector3D) p1).ExtendTo4D();
+                        var v2 = ((Vector3D) p2).ExtendTo4D();
+                        if (!TransformLineWithClip(transformation, ref v1, ref v2))
+                            return 0.0;
+                        var pt1 = renderTarget.ConvertPointToPixelSpace((Point) v1);
+                        var pt2 = renderTarget.ConvertPointToPixelSpace((Point) v2);
+                        return (pt1-pt2).Length;
+                    },*/
+                    (p1, p2) =>
+                    {
+                        var v1 = (Point)((Vector3D) p1).ExtendTo4D().Transform(transformation).WDivide();
+                        var v2 = (Point)((Vector3D) p2).ExtendTo4D().Transform(transformation).WDivide();
+                        return (renderTarget.ConvertPointToPixelSpace(v1)- renderTarget.ConvertPointToPixelSpace(v2)).Length;
+                    },
+                    p => IsPositionInsideProjectiveCube(((Vector3D)p).ExtendTo4D().Transform(transformation))
                 );
 
                 foreach (var segment in shape.Lines)
