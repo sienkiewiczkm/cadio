@@ -26,7 +26,7 @@ namespace CADio.SceneManagement
 
         private void Unlink()
         {
-            Owner.DetachObject(Reference);
+            Owner.DetachObject(this);
         }
     }
 }

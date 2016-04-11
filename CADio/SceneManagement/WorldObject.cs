@@ -19,7 +19,7 @@ namespace CADio.SceneManagement
             set { _name = value; OnPropertyChanged(); }
         }
 
-        public Scene Owner { get; set; }
+        public Scene SceneManager { get; set; }
         public Point3D Position { get; set; }
         public Vector3D Orientation { get; set; } // Euler angles
         public Vector3D Scale { get; set; } = new Vector3D(1, 1, 1);

@@ -7,7 +7,7 @@ namespace CADio.Geometry.Shapes
 {
     public interface IDynamicShape : IShape
     {
-        void UpdateGeometry(Func<Point3D, Point3D, double> estimateScreenSpaceDistance, 
+        void UpdateGeometry(Func<Point3D, Point3D, double> estimateScreenSpaceDistanceWithoutClip, 
             Predicate<Point3D> isInsideProjectiveCubePredicate);
     }
 }

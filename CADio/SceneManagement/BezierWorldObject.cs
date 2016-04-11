@@ -17,7 +17,7 @@ namespace CADio.SceneManagement
         public ObservableCollection<ControlPoint> Objects { get; set; } 
             = new ObservableCollection<ControlPoint>();
 
-        public bool IsSmartEditEnabled => Owner?.SmartEditTarget == this;
+        public bool IsSmartEditEnabled => SceneManager?.SmartEditTarget == this;
 
         public ICommand RequestSmartEditCommand
         {
@@ -56,22 +56,29 @@ namespace CADio.SceneManagement
 
         private void RequestSmartEdit()
         {
-            Owner.SmartEditTarget = this;
+            SceneManager.SmartEditTarget = IsSmartEditEnabled ? null : this;
         }
 
         public void AttachObject(WorldObject worldObject)
         {
-            if (Objects.Any(t => t.Reference == worldObject))
-                return;
+            //if (Objects.Any(t => t.Reference == worldObject))
+            //    return;
             worldObject.ObjectUsers.Add(this);
             Objects.Add(new ControlPoint() {Owner = this, Reference = worldObject});
         }
 
         public void DetachObject(WorldObject worldObject)
         {
-            var cp = Objects.FirstOrDefault(t => t.Reference == worldObject);
-            if (cp != null)
-                Objects.Remove(cp);
+            ControlPoint controlPoint;
+            while ((controlPoint = Objects.FirstOrDefault(t => t.Reference == worldObject)) != null)
+                Objects.Remove(controlPoint);
+        }
+
+        public void DetachObject(ControlPoint controlPoint)
+        {
+            Objects.Remove(controlPoint);
+            //if (Objects.All(t => t.Reference != controlPoint.Reference))
+            //    controlPoint.Re
         }
 
         public override void PrerenderUpdate()
@@ -85,8 +92,8 @@ namespace CADio.SceneManagement
 
         public override void Translate(Vector3D translation)
         {
-            foreach (var obj in Objects)
-                obj.Reference?.Translate(translation);
+            foreach (var obj in Objects.Select(t => t.Reference).Distinct().ToList())
+                obj?.Translate(translation);
         }
 
         public void RegisterNewObject(WorldObject worldObject)

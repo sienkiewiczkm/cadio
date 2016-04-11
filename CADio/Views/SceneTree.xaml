@@ -70,12 +70,14 @@
                             </DataTemplate>
                         </HierarchicalDataTemplate.Resources>
                         <StackPanel Orientation="Horizontal">
+                            <!--
                             <StackPanel.ContextMenu>
                                 <ContextMenu>
                                     <MenuItem Header="Delete"/>
                                     <MenuItem Header="Unlink"/>
                                 </ContextMenu>
                             </StackPanel.ContextMenu>
+                            -->
                             <Image Source="../Resources/moving.ico" 
                                Visibility="{Binding Path=IsGrabbed, Converter={StaticResource BoolToVisibility}}" 
                                Width="16"/>

@@ -101,20 +101,20 @@ namespace CADio.SceneManagement
         public void AttachObject(WorldObject worldObject)
         {
             if (worldObject == null) return;
-            worldObject.Owner?.DetachObject(worldObject);
-            worldObject.Owner = this;
+            worldObject.SceneManager?.DetachObject(worldObject);
+            worldObject.SceneManager = this;
             worldObject.PropertyChanged += OnWorldObjectChange;
             Objects.Add(worldObject);
         }
 
         public void DetachObject(WorldObject worldObject)
         {
-            if (worldObject?.Owner != this) return;
+            if (worldObject?.SceneManager != this) return;
             if (GrabbedObject == worldObject)
                 GrabbedObject = null;
             worldObject.DetachFromCompositors();
             Objects.Remove(worldObject);
-            worldObject.Owner = null;
+            worldObject.SceneManager = null;
             worldObject.PropertyChanged -= OnWorldObjectChange;
         }
 

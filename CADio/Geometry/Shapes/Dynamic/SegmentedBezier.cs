@@ -25,7 +25,7 @@ namespace CADio.Geometry.Shapes.Dynamic
 
         public IList<Point3D> ControlPoints = new List<Point3D>(); 
 
-        public void UpdateGeometry(Func<Point3D, Point3D, double> estimateScreenSpaceDistance,
+        public void UpdateGeometry(Func<Point3D, Point3D, double> estimateScreenSpaceDistanceWithoutClip,
             Predicate<Point3D> isInsideProjectiveCubePredicate)
         {
             const int targetDegree = 3;
@@ -39,16 +39,16 @@ namespace CADio.Geometry.Shapes.Dynamic
                 var bernsteinCoordinates = FillBernsteinCoordinatesArray(degree, i);
                 var solver = new DeCastlejauSolver(bernsteinCoordinates);
 
-                var bernsteinPolygonLength = 0.0;
+                var bernsteinPolygonLengthNoClip = 0.0;
                 for (var j = 0; j < degree; ++j)
                 {
-                    bernsteinPolygonLength += estimateScreenSpaceDistance(
+                    bernsteinPolygonLengthNoClip += estimateScreenSpaceDistanceWithoutClip(
                         ControlPoints[i + j], 
                         ControlPoints[i + j + 1]
                     );
                 }
 
-                var controlPointsWithin = (int)Math.Ceiling(bernsteinPolygonLength);
+                var controlPointsWithin = (int)Math.Ceiling(bernsteinPolygonLengthNoClip);
                 for (var j = 0; j < controlPointsWithin; ++j)
                 {
                     var t = (double)j/controlPointsWithin;
@@ -61,11 +61,14 @@ namespace CADio.Geometry.Shapes.Dynamic
             Vertices = new List<Vertex>();
             Lines = new List<IndexedLine>();
 
-            Vertices = rawPointsList;
-            Lines = Enumerable.Range(0, rawPointsList.Count - 1)
-                //.Where(t => t % 2 == 0)
-                .Select(t => new IndexedLine(t, t + 1))
-                .ToList();
+            if (rawPointsList.Count > 0)
+            {
+                Vertices = rawPointsList;
+                Lines = Enumerable.Range(0, rawPointsList.Count - 1)
+                    //.Where(t => t % 2 == 0)
+                    .Select(t => new IndexedLine(t, t + 1))
+                    .ToList();
+            }
 
             if (IsPolygonRenderingEnabled && ControlPoints.Count >= 2)
             {
@@ -74,8 +77,8 @@ namespace CADio.Geometry.Shapes.Dynamic
                     .Select(t => new IndexedLine(t, t + 1))
                     .ToList();
 
-                Vertices = Vertices.Union(additionalVertices).ToList();
-                Lines = Lines.Union(additionalLines).ToList();
+                Vertices = Vertices.Concat(additionalVertices).ToList();
+                Lines = Lines.Concat(additionalLines).ToList();
             }
         }
 

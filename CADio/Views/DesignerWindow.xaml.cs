@@ -31,6 +31,7 @@ namespace CADio.Views
                 var pixelPosition = e.GetPosition(RT);
                 var xf = pixelPosition.X/RT.ActualWidth;
                 var yf = pixelPosition.Y/RT.ActualHeight;
+                aspect = 1.0;
                 var screenSpaceClick = new Point(2*aspect*xf-aspect, -(2*yf-1));
                 _viewModel.GrabUsingMouse(screenSpaceClick);
             }
