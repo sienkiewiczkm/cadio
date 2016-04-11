@@ -4,7 +4,7 @@ using CADio.Mathematics;
 
 namespace CADio.Rendering
 {
-    public class Camera
+    public class FreeCamera : ICamera
     {
         protected static double MinZoom = 0.1;
 
@@ -49,12 +49,23 @@ namespace CADio.Rendering
             }
         }
 
+        public Matrix4X4 GetPerspectiveMatrix(double xEyeShift)
+        {
+            return Transformations3D.SimplePerspectiveWithEyeShift(ObserverOffset, xEyeShift);
+        }
+
         public void Move(Vector3D relativeMove)
         {
             var view = GetViewMatrix();
             var right = new Vector3D(view[0, 0], view[0, 1], view[0, 2]);
             var forward = new Vector3D(view[2, 0], view[2, 1], view[2, 2]);
             Position += right*relativeMove.X + forward*relativeMove.Z;
+        }
+
+        public void Rotate(Vector3D relativeRotation)
+        {
+            XRotation += relativeRotation.X;
+            YRotation += relativeRotation.Y;
         }
 
         public Matrix4X4 GetViewMatrix()

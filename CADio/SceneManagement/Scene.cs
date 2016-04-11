@@ -15,12 +15,12 @@ namespace CADio.SceneManagement
         private WorldObject _grabbedObject;
         private WorldObject _manipulator;
         private ObservableCollection<WorldObject> _objects;
-        private Camera _camera = new Camera();
+        private ICamera _camera = new FreeCamera();
         private ICollectionView _manageableObjects;
         private WorldObject _firstSelectedObject;
         private ISmartEditTarget _smartEditTarget;
 
-        public Camera Camera
+        public ICamera Camera
         {
             get { return _camera; }
             set { _camera = value; OnPropertyChanged(); }

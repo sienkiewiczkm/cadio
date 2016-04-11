@@ -94,8 +94,6 @@ namespace CADio.Rendering
 
         public RenderedPrimitives GetRenderedPrimitives(PerspectiveType perspectiveType, RenderTarget renderTarget)
         {
-            Scene.Camera.ObserverOffset = 2.0;
-
             // todo: fixme
             _aspectRatio = (float) renderTarget.OutputBitmap.PixelWidth/renderTarget.OutputBitmap.PixelHeight;
 
@@ -220,17 +218,23 @@ namespace CADio.Rendering
 
         private Matrix4X4 GetProjectionMatrix(PerspectiveType perspectiveType)
         {
+            var camera = Scene?.Camera;
+            if (camera == null)
+                return Matrix4X4.Identity;
+
+            var aspectMatrix = Transformations3D.Scaling(new Vector3D(1.0/_aspectRatio, 1.0, 1.0));
+
             Matrix4X4 projection;
             switch (perspectiveType)
             {
                 case PerspectiveType.Standard:
-                    projection = Transformations3D.SimplePerspective(Scene.Camera.ObserverOffset, _aspectRatio);
+                    projection = aspectMatrix * camera.GetPerspectiveMatrix();
                     break;
                 case PerspectiveType.LeftEye:
-                    projection = Transformations3D.SimplePerspectiveWithEyeShift(Scene.Camera.ObserverOffset, _aspectRatio, -EyeDistance);
+                    projection = aspectMatrix * camera.GetPerspectiveMatrix(-EyeDistance);
                     break;
                 case PerspectiveType.RightEye:
-                    projection = Transformations3D.SimplePerspectiveWithEyeShift(Scene.Camera.ObserverOffset, _aspectRatio, +EyeDistance);
+                    projection = aspectMatrix * camera.GetPerspectiveMatrix(+EyeDistance);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(perspectiveType), perspectiveType, null);

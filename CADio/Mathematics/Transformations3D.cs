@@ -90,16 +90,15 @@ namespace CADio.Mathematics
             };
         }
 
-        public static Matrix4X4 SimplePerspective(double r, double aspect)
+        public static Matrix4X4 SimplePerspective(double r)
         {
-            var a = 1.0 / aspect;
             var q = 1/r;
 
             return new Matrix4X4
             {
                 Cells = new [,]
                 {
-                    {a, 0, 0, 0},
+                    {1, 0, 0, 0},
                     {0, 1, 0, 0},
                     {0, 0, 0, 0},
                     {0, 0, q, 1},
@@ -107,9 +106,8 @@ namespace CADio.Mathematics
             };
         }
 
-        public static Matrix4X4 SimplePerspectiveWithEyeShift(double r, double aspect, double eyeShift)
+        public static Matrix4X4 SimplePerspectiveWithEyeShift(double r, double eyeShift)
         {
-            var a = 1.0/aspect;
             var p = eyeShift/(2*r);
             var q = 1 / r;
 
@@ -117,7 +115,7 @@ namespace CADio.Mathematics
             {
                 Cells = new[,]
                 {
-                    {a, 0, p, 0},
+                    {1, 0, p, 0},
                     {0, 1, 0, 0},
                     {0, 0, 0, 0},
                     {0, 0, q, 1},

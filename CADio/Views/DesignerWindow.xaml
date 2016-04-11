@@ -41,6 +41,9 @@
                                TextAlignment="Center" Width="32" VerticalAlignment="Center" HorizontalAlignment="Center" />
                 </StackPanel>
             </ToolBar>
+            <ToolBar>
+                <ToggleButton></ToggleButton>
+            </ToolBar>
         </ToolBarTray>
         <StatusBar DockPanel.Dock="Bottom">
             <TextBlock Text="{Binding CursorReadableInfo}"/>

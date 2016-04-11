@@ -97,8 +97,8 @@ namespace CADio.ViewModels
 
         public void RotateSceneWithMouse(Vector mouseMovement)
         {
-            ActiveRenderer.Scene.Camera.XRotation += -mouseMovement.Y/50;
-            ActiveRenderer.Scene.Camera.YRotation += -mouseMovement.X/50;
+            var rotation = new Vector3D(-mouseMovement.Y/50, -mouseMovement.X/50, 0);
+            ActiveRenderer.Scene.Camera.Rotate(rotation);
 
             UpdateManipulatorInfo();
             ActiveRenderer.ForceRedraw();
