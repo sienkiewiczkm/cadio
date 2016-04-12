@@ -8,7 +8,7 @@ namespace CADio.SceneManagement
     public class ControlPoint : INotifyPropertyChanged
     {
         private ICommand _unlinkCommand;
-        public BezierWorldObject Owner { get; set; }
+        public IControlPointDependent Owner { get; set; }
         public WorldObject Reference { get; set; }
 
         public ICommand UnlinkCommand
@@ -26,7 +26,7 @@ namespace CADio.SceneManagement
 
         private void Unlink()
         {
-            Owner.DetachObject(this);
+            Owner.DetachControlPoint(this);
         }
     }
 }

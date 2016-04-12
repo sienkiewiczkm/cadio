@@ -22,7 +22,7 @@ namespace CADio.ViewModels
 
         public DesignerViewModel()
         {
-            var manipulator = new WorldObject() {Shape = new Cursor3D(), IsGrabable = false};
+            var manipulator = new WorldObject() {Shape = new Cursor3D(0.1), IsGrabable = false};
 
             // todo: move bezier into appropriate place and fix dynamic behaviour
             var pt1 = new WorldObject {Position = new Point3D(-1, 0, 0), Shape = new MarkerPoint()};
@@ -30,7 +30,7 @@ namespace CADio.ViewModels
             var pt3 = new WorldObject {Position = new Point3D(+1, 0, 0), Shape = new MarkerPoint()};
             var pt4 = new WorldObject {Position = new Point3D(0, 0, -1), Shape = new MarkerPoint()};
 
-            var bezier = new BezierWorldObject() {Shape = new SegmentedBezier()};
+            var bezier = new BezierC0WorldObject() {Shape = new BezierCurveC0()};
             bezier.AttachObject(pt1);
             bezier.AttachObject(pt2);
             bezier.AttachObject(pt3);
@@ -138,13 +138,13 @@ namespace CADio.ViewModels
             WorldObject closestObject = null;
             double closestDistance = double.MaxValue;
 
-            for (int i = 0; i < markerPoints.Count; ++i)
+            foreach (var markerPt in markerPoints)
             {
-                var screenSpacePosition = ActiveRenderer.GetStandardScreenSpacePosition(markerPoints[i].Position);
+                var screenSpacePosition = ActiveRenderer.GetStandardScreenSpacePosition(markerPt.Position);
                 if (!screenSpacePosition.HasValue) continue;
                 var candidateLength = (screenSpacePosition.Value - screenSpaceClick).Length;
                 if (candidateLength >= closestDistance) continue;
-                closestObject = markerPoints[i];
+                closestObject = markerPt;
                 closestDistance = candidateLength;
             }
 
@@ -180,7 +180,10 @@ namespace CADio.ViewModels
 
         private void TryToggleGrabbedObject(WorldObject closestPoint)
         {
-            _scene.GrabbedObject = _scene.GrabbedObject != closestPoint ? closestPoint : null;
+            var grabbedObject = _scene.GrabbedObject != closestPoint ? closestPoint : null;
+            if (grabbedObject != null)
+                _scene.Manipulator.Position = grabbedObject.Position;
+            _scene.GrabbedObject = grabbedObject;
         }
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)

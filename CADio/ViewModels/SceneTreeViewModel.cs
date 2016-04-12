@@ -23,7 +23,8 @@ namespace CADio.ViewModels
         private Scene _scene;
         private ICommand _createPointCommand;
         private ICommand _removeSelectedObjectCommand;
-        private ICommand _createSegmentedBezierCommand;
+        private ICommand _createBezierCurveC0Command;
+        private ICommand _createBezierCurveC2Command;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -51,10 +52,16 @@ namespace CADio.ViewModels
             set { _createPointCommand = value; OnPropertyChanged(); }
         }
 
-        public ICommand CreateSegmentedBezierCommand
+        public ICommand CreateBezierCurveC0Command
         {
-            get { return _createSegmentedBezierCommand ?? (_createSegmentedBezierCommand = new RelayCommand(CreateSegmentedBezier)); }
-            set { _createSegmentedBezierCommand = value; OnPropertyChanged(); }
+            get { return _createBezierCurveC0Command ?? (_createBezierCurveC0Command = new RelayCommand(CreateBezierCurveC0)); }
+            set { _createBezierCurveC0Command = value; OnPropertyChanged(); }
+        }
+
+        public ICommand CreateBezierCurveC2Command
+        {
+            get { return _createBezierCurveC2Command ?? (_createBezierCurveC2Command = new RelayCommand(CreateBezierCurveC2)); }
+            set { _createBezierCurveC2Command = value; OnPropertyChanged(); }
         }
 
         public ICommand RemoveSelectedObjectCommand
@@ -76,7 +83,7 @@ namespace CADio.ViewModels
         {
             var newPoint = new WorldObject()
             {
-                Name = "Point " + _sessionPointId++,
+                Name = "Point #" + _sessionPointId++,
                 Position = GetInsertionLocation(),
                 Shape = new MarkerPoint(),
             };
@@ -85,12 +92,24 @@ namespace CADio.ViewModels
             _scene.AttachObject(newPoint);
         }
 
-        private void CreateSegmentedBezier()
+        private void CreateBezierCurveC0()
         {
-            var bezier = new BezierWorldObject()
+            var bezier = new BezierC0WorldObject()
             {
-                Name = "Segmented Bezier " + _sessionBezierId++,
-                Shape = new SegmentedBezier(),
+                Name = "Bezier Curve C0 #" + _sessionBezierId++,
+                Shape = new BezierCurveC0(),
+            };
+
+            _scene.SmartEditTarget?.RegisterNewObject(bezier);
+            _scene.AttachObject(bezier);
+        }
+
+        private void CreateBezierCurveC2()
+        {
+            var bezier = new BezierC2WorldObject()
+            {
+                Name = "Bezier Curve C2 #" + _sessionBezierId++,
+                Shape = new BezierCurveC2(),
             };
 
             _scene.SmartEditTarget?.RegisterNewObject(bezier);

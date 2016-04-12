@@ -22,7 +22,8 @@
                     <local:DropDownButton.DropDown>
                         <ContextMenu>
                             <MenuItem Header="Point" Command="{Binding CreatePointCommand}"/>
-                            <MenuItem Header="Segmented Bezier (max 3rd degree)" Command="{Binding CreateSegmentedBezierCommand}"/>
+                            <MenuItem Header="Segmented Bezier C0 (max 3rd degree)" Command="{Binding CreateBezierCurveC0Command}"/>
+                            <MenuItem Header="Segmented Bezier C2 (max 3rd degree)" Command="{Binding CreateBezierCurveC2Command}"/>
                         </ContextMenu>
                     </local:DropDownButton.DropDown>
                     <StackPanel Orientation="Horizontal">
@@ -59,33 +60,29 @@
                         </StackPanel>
                     </HierarchicalDataTemplate>
                     <HierarchicalDataTemplate DataType="{x:Type sceneManagement:WorldObject}">
-                        <HierarchicalDataTemplate.Resources>
-                            <DataTemplate DataType="{x:Type static:MarkerPoint}">
-                                <StackPanel Orientation="Horizontal">
-                                </StackPanel>
-                            </DataTemplate>
-                            <DataTemplate DataType="{x:Type dynamic:SegmentedBezier}">
-                                <StackPanel Orientation="Horizontal">
-                                </StackPanel>
-                            </DataTemplate>
-                        </HierarchicalDataTemplate.Resources>
                         <StackPanel Orientation="Horizontal">
-                            <!--
-                            <StackPanel.ContextMenu>
-                                <ContextMenu>
-                                    <MenuItem Header="Delete"/>
-                                    <MenuItem Header="Unlink"/>
-                                </ContextMenu>
-                            </StackPanel.ContextMenu>
-                            -->
                             <Image Source="../Resources/moving.ico" 
                                Visibility="{Binding Path=IsGrabbed, Converter={StaticResource BoolToVisibility}}" 
                                Width="16"/>
                             <TextBlock Text="{Binding Name}"/>
-                            <ContentPresenter Content="{Binding Shape}"/>
                         </StackPanel>
                     </HierarchicalDataTemplate>
-                    <HierarchicalDataTemplate DataType="{x:Type sceneManagement:BezierWorldObject}" ItemsSource="{Binding Objects}">
+                    <HierarchicalDataTemplate DataType="{x:Type sceneManagement:BezierC0WorldObject}" ItemsSource="{Binding Objects}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Name}" Margin="0 0 4 0"/>
+                            <Button Command="{Binding RequestSmartEditCommand}" 
+                                    Width="14" Height="14"
+                                    BorderThickness="1"
+                                    Background="{Binding Path=IsSmartEditEnabled, Converter={StaticResource BoolToActiveColor}}">
+                                <Image Source="../Resources/edit.ico"/>
+                            </Button>
+                            <Button Command="{Binding TogglePolygonRenderingCommand}" Width="14" Height="14" BorderThickness="1"
+                                    Background="{Binding Path=IsPolygonRenderingEnabled, Converter={StaticResource BoolToActiveColor}}">
+                                <Image Source="../Resources/visibility2.ico"/>
+                            </Button>
+                        </StackPanel>
+                    </HierarchicalDataTemplate>
+                    <HierarchicalDataTemplate DataType="{x:Type sceneManagement:BezierC2WorldObject}" ItemsSource="{Binding Objects}">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="{Binding Name}" Margin="0 0 4 0"/>
                             <Button Command="{Binding RequestSmartEditCommand}" 

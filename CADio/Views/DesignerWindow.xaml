@@ -9,17 +9,17 @@
         xmlns:shapes="clr-namespace:CADio.Geometry.Shapes"
         xmlns:shapeEditors="clr-namespace:CADio.Views.ShapeEditors"
         xmlns:static="clr-namespace:CADio.Geometry.Shapes.Static"
+        xmlns:dynamic="clr-namespace:CADio.Geometry.Shapes.Dynamic"
         mc:Ignorable="d"
         Width="800" Height="600"
         Title="CADio"
         Loaded="OnLoaded" Icon="pack://application:,,,/Resources/scene.ico"
         PreviewKeyDown="OnPreviewKeyDown">
     <Window.Resources>
-        <DataTemplate DataType="{x:Type static:Torus}">
-            <shapeEditors:TorusEditor/>
+        <DataTemplate DataType="{x:Type dynamic:BezierCurveC2}">
+            <shapeEditors:BezierCurveC2Editor/>
         </DataTemplate>
     </Window.Resources>
-
     <DockPanel LastChildFill="True">
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="File">
@@ -68,7 +68,8 @@
                 <GridSplitter Grid.Row="1" ResizeDirection="Rows" Width="Auto" Height="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
                 <StackPanel Grid.Row="2">
                     <TextBox Text="{Binding SceneTreeViewModel.Scene.FirstSelectedObject.Name}"/>
-                    <ContentPresenter Content="{Binding SceneTreeViewModel.SelectedObject.Shape}"/>
+                    <Label Content="{Binding SceneTreeViewModel.Scene.FirstSelectedObject.Shape}"/>
+                    <ContentControl ContentTemplate="{Binding SceneTreeViewModel.FirstSelectedObject.Shape}"/>
                 </StackPanel>
             </Grid>
         </Grid>

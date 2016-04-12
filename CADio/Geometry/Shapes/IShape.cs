@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Windows.Controls;
 
 namespace CADio.Geometry.Shapes
@@ -30,6 +31,7 @@ namespace CADio.Geometry.Shapes
         /// </summary>
         IList<Vertex> RawPoints { get; }
 
+        [Obsolete]
         Control GetEditorControl();
     }
 }

@@ -4,10 +4,11 @@ using System.Runtime.CompilerServices;
 using System.Windows.Media.Media3D;
 using CADio.Geometry.Shapes;
 using CADio.Mathematics;
+using CADio.Views.DragDropSupport;
 
 namespace CADio.SceneManagement
 {
-    public class WorldObject : INotifyPropertyChanged
+    public class WorldObject : IDragable, INotifyPropertyChanged
     {
         private string _name;
         private bool _isSelected;
@@ -26,8 +27,8 @@ namespace CADio.SceneManagement
         public bool IsGrabable { get; set; } = true;
         public IShape Shape { get; set; }
 
-        public IList<BezierWorldObject> ObjectUsers { get; set; } 
-            = new List<BezierWorldObject>();
+        public IList<IControlPointDependent> ObjectControlPointUsers { get; set; } 
+            = new List<IControlPointDependent>();
 
         public bool IsSelected
         {
@@ -57,9 +58,9 @@ namespace CADio.SceneManagement
 
         public void DetachFromCompositors()
         {
-            foreach (var user in ObjectUsers)
-                user.DetachObject(this);
-            ObjectUsers.Clear();
+            foreach (var user in ObjectControlPointUsers)
+                user.DetachObjectReferences(this);
+            ObjectControlPointUsers.Clear();
         }
 
         public virtual void Translate(Vector3D translation)

@@ -5,10 +5,11 @@ using System.Windows.Media.Media3D;
 using CADio.Geometry.Shapes.Dynamic;
 using CADio.Geometry.Shapes.Static;
 using CADio.Helpers.MVVM;
+using CADio.Views.DragDropSupport;
 
 namespace CADio.SceneManagement
 {
-    public class BezierWorldObject : WorldObject, ISmartEditTarget
+    public class BezierC0WorldObject : WorldObject, IDropzone, ISmartEditTarget, IControlPointDependent
     {
         private ICommand _requestSmartEditCommand;
         private ICommand _togglePolygonRenderingCommand;
@@ -49,9 +50,9 @@ namespace CADio.SceneManagement
 
         private void SetupPolygonRendering()
         {
-            if (!(Shape is SegmentedBezier))
+            if (!(Shape is BezierCurveC0))
                 return;
-            ((SegmentedBezier) Shape).IsPolygonRenderingEnabled = IsPolygonRenderingEnabled;
+            ((BezierCurveC0) Shape).IsPolygonRenderingEnabled = IsPolygonRenderingEnabled;
         }
 
         private void RequestSmartEdit()
@@ -61,29 +62,25 @@ namespace CADio.SceneManagement
 
         public void AttachObject(WorldObject worldObject)
         {
-            //if (Objects.Any(t => t.Reference == worldObject))
-            //    return;
-            worldObject.ObjectUsers.Add(this);
+            worldObject.ObjectControlPointUsers.Add(this);
             Objects.Add(new ControlPoint() {Owner = this, Reference = worldObject});
         }
 
-        public void DetachObject(WorldObject worldObject)
+        public void DetachObjectReferences(WorldObject worldObject)
         {
             ControlPoint controlPoint;
             while ((controlPoint = Objects.FirstOrDefault(t => t.Reference == worldObject)) != null)
                 Objects.Remove(controlPoint);
         }
 
-        public void DetachObject(ControlPoint controlPoint)
+        public void DetachControlPoint(ControlPoint controlPoint)
         {
             Objects.Remove(controlPoint);
-            //if (Objects.All(t => t.Reference != controlPoint.Reference))
-            //    controlPoint.Re
         }
 
         public override void PrerenderUpdate()
         {
-            var bezier = Shape as SegmentedBezier;
+            var bezier = Shape as BezierCurveC0;
             if (bezier == null)
                 return;
 
@@ -105,6 +102,13 @@ namespace CADio.SceneManagement
         public void NotifyAboutStateChange()
         {
             OnPropertyChanged(nameof(IsSmartEditEnabled));
+        }
+
+        public void Drop(IDragable dragable)
+        {
+            var markerPoint = dragable as WorldObject;
+            if (markerPoint?.Shape is MarkerPoint)
+                AttachObject(markerPoint);
         }
     }
 }

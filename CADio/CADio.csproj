@@ -65,7 +65,8 @@
     </ApplicationDefinition>
     <Compile Include="Geometry\Mesh.cs" />
     <Compile Include="Geometry\IndexedLine.cs" />
-    <Compile Include="Geometry\Shapes\Dynamic\SegmentedBezier.cs" />
+    <Compile Include="Geometry\Shapes\Dynamic\BezierCurveC2.cs" />
+    <Compile Include="Geometry\Shapes\Dynamic\BezierCurveC0.cs" />
     <Compile Include="Geometry\Shapes\IDynamicShape.cs" />
     <Compile Include="Geometry\Shapes\IShape.cs" />
     <Compile Include="Geometry\Shapes\Static\Cursor3D.cs" />
@@ -99,10 +100,12 @@
     <Compile Include="SampleData\DesignSceneListData\DesignSceneListData.xaml.cs">
       <DependentUpon>DesignSceneListData.xaml</DependentUpon>
     </Compile>
+    <Compile Include="SceneManagement\BezierC2WorldObject.cs" />
     <Compile Include="SceneManagement\ControlPoint.cs" />
+    <Compile Include="SceneManagement\IControlPointDependent.cs" />
     <Compile Include="SceneManagement\ISmartEditTarget.cs" />
     <Compile Include="SceneManagement\Scene.cs" />
-    <Compile Include="SceneManagement\BezierWorldObject.cs" />
+    <Compile Include="SceneManagement\BezierC0WorldObject.cs" />
     <Compile Include="SceneManagement\WorldObject.cs" />
     <Compile Include="ViewModels\DesignerViewModel.cs" />
     <Compile Include="ViewModels\SceneTreeViewModel.cs" />
@@ -114,9 +117,15 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Views\DragDropSupport\IDragable.cs" />
+    <Compile Include="Views\DragDropSupport\IDropzone.cs" />
     <Compile Include="Views\DropDownButton.cs" />
+    <Compile Include="Views\Extensions\EnumerationExtension.cs" />
     <Compile Include="Views\SceneTree.xaml.cs">
       <DependentUpon>SceneTree.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ShapeEditors\BezierCurveC2Editor.xaml.cs">
+      <DependentUpon>BezierCurveC2Editor.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\ShapeEditors\TorusEditor.xaml.cs">
       <DependentUpon>TorusEditor.xaml</DependentUpon>
@@ -130,6 +139,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\SceneTree.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ShapeEditors\BezierCurveC2Editor.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -6,6 +6,7 @@ using System.Windows.Media;
 using CADio.Geometry.Shapes.Static;
 using CADio.SceneManagement;
 using CADio.ViewModels;
+using CADio.Views.DragDropSupport;
 
 namespace CADio.Views
 {
@@ -49,7 +50,7 @@ namespace CADio.Views
                     if (senderTreeView == null || treeViewItem == null)
                         return;
 
-                    var sceneObject = senderTreeView.SelectedItem as WorldObject;
+                    var sceneObject = senderTreeView.SelectedItem as IDragable;
                     if (sceneObject == null)
                         return;
 
@@ -59,32 +60,23 @@ namespace CADio.Views
             }
         }
 
-        private void OnTreeViewDrop(object sender, System.Windows.DragEventArgs e)
+        private void OnTreeViewDrop(object sender, DragEventArgs e)
         {
             var treeViewItem = FindAncestor<TreeViewItem>((DependencyObject)e.OriginalSource);
-            var dropTarget = treeViewItem?.Header as WorldObject;
+            var dropzone = treeViewItem?.Header as IDropzone;
 
-            if (e.Data.GetDataPresent(DragDropFormat))
+            if (dropzone != null && e.Data.GetDataPresent(DragDropFormat))
             {
-                var sceneObject = e.Data.GetData(DragDropFormat) as WorldObject;
-                if (sceneObject == null)
-                    return;
-
-                HandleSceneObjectDrop(sceneObject, dropTarget);
+                var dragable = e.Data.GetData(DragDropFormat) as IDragable;
+                if (dragable != null)
+                    dropzone.Drop(dragable);
             }
         }
 
-        private void OnTreeViewDragEnter(object sender, System.Windows.DragEventArgs e)
+        private void OnTreeViewDragEnter(object sender, DragEventArgs e)
         {
             if (!e.Data.GetDataPresent(DragDropFormat))
                 e.Effects = DragDropEffects.None;
-        }
-
-        private void HandleSceneObjectDrop(WorldObject sceneObject, WorldObject dropTarget)
-        {
-            var composite = dropTarget as BezierWorldObject;
-            if (composite != null && sceneObject?.Shape is MarkerPoint)
-                composite.AttachObject(sceneObject);
         }
 
         private static T FindAncestor<T>(DependencyObject current) where T : DependencyObject

@@ -11,9 +11,9 @@ using CADio.Mathematics.Numerical;
 
 namespace CADio.Geometry.Shapes.Dynamic
 {
-    public class SegmentedBezier : IDynamicShape
+    public class BezierCurveC0 : IDynamicShape
     {
-        public string Name => "Segmented Bezier";
+        public string Name => "Bezier Curve C0";
 
         public IList<Vertex> Vertices { get; private set; }
         public IList<IndexedLine> Lines { get; private set; }
