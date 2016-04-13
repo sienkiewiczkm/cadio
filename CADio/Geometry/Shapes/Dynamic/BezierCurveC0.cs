@@ -30,32 +30,7 @@ namespace CADio.Geometry.Shapes.Dynamic
         {
             const int targetDegree = 3;
 
-            var rawPointsList = new List<Vertex>();
-            for (var i = 0; i + 1 < ControlPoints.Count; i += targetDegree)
-            {
-                var controlPointsLeft = ControlPoints.Count - i;
-                var degree = Math.Min(controlPointsLeft - 1, targetDegree);
-
-                var bernsteinCoordinates = FillBernsteinCoordinatesArray(degree, i);
-                var solver = new DeCastlejauSolver(bernsteinCoordinates);
-
-                var bernsteinPolygonLengthNoClip = 0.0;
-                for (var j = 0; j < degree; ++j)
-                {
-                    bernsteinPolygonLengthNoClip += estimateScreenSpaceDistanceWithoutClip(
-                        ControlPoints[i + j], 
-                        ControlPoints[i + j + 1]
-                    );
-                }
-
-                var controlPointsWithin = (int)Math.Ceiling(bernsteinPolygonLengthNoClip);
-                for (var j = 0; j < controlPointsWithin; ++j)
-                {
-                    var t = (double)j/controlPointsWithin;
-                    var lerped = MathHelpers.MakePoint3D(solver.Evaluate(t));
-                    rawPointsList.Add(new Vertex() {Position = lerped, Color = Colors.White});
-                }
-            }
+            var rawPointsList = SampleBezierCurveC0(ControlPoints, estimateScreenSpaceDistanceWithoutClip, targetDegree);
 
             RawPoints = new List<Vertex>();
             Vertices = new List<Vertex>();
@@ -82,14 +57,53 @@ namespace CADio.Geometry.Shapes.Dynamic
             }
         }
 
-        private double[,] FillBernsteinCoordinatesArray(int degree, int i)
+        public static List<Vertex> SampleBezierCurveC0(IList<Point3D> controlPoints, Func<Point3D, Point3D, double> estimateScreenSpaceDistanceWithoutClip, int targetDegree)
+        {
+            var rawPointsList = new List<Vertex>();
+            for (var i = 0; i + 1 < controlPoints.Count; i += targetDegree)
+            {
+                var controlPointsLeft = controlPoints.Count - i;
+                var degree = Math.Min(controlPointsLeft - 1, targetDegree);
+
+                var bernsteinCoordinates = FillBernsteinCoordinatesArray(controlPoints, degree, i);
+                var solver = new DeCastlejauSolver(bernsteinCoordinates);
+
+                var bernsteinPolygonLengthNoClip = EstimateScreenSpacePolygonLength(controlPoints, estimateScreenSpaceDistanceWithoutClip, degree, i);
+
+                var controlPointsWithin = (int) Math.Ceiling(bernsteinPolygonLengthNoClip);
+                for (var j = 0; j < controlPointsWithin; ++j)
+                {
+                    var t = (double) j/controlPointsWithin;
+                    var lerped = MathHelpers.MakePoint3D(solver.Evaluate(t));
+                    rawPointsList.Add(new Vertex() {Position = lerped, Color = Colors.White});
+                }
+            }
+
+            return rawPointsList;
+        }
+
+        public static double EstimateScreenSpacePolygonLength(IList<Point3D> controlPoints, Func<Point3D, Point3D, double> estimateScreenSpaceDistanceWithoutClip,
+            int lineCount, int startIndex)
+        {
+            var bernsteinPolygonLengthNoClip = 0.0;
+            for (var j = 0; j < lineCount; ++j)
+            {
+                bernsteinPolygonLengthNoClip += estimateScreenSpaceDistanceWithoutClip(
+                    controlPoints[startIndex + j],
+                    controlPoints[startIndex + j + 1]
+                    );
+            }
+            return bernsteinPolygonLengthNoClip;
+        }
+
+        private static double[,] FillBernsteinCoordinatesArray(IList<Point3D> controlPoints, int degree, int i)
         {
             var bernsteinCoordinates = new double[degree + 1, 3];
             for (var j = 0; j < degree + 1; ++j)
             {
-                bernsteinCoordinates[j, 0] = ControlPoints[i + j].X;
-                bernsteinCoordinates[j, 1] = ControlPoints[i + j].Y;
-                bernsteinCoordinates[j, 2] = ControlPoints[i + j].Z;
+                bernsteinCoordinates[j, 0] = controlPoints[i + j].X;
+                bernsteinCoordinates[j, 1] = controlPoints[i + j].Y;
+                bernsteinCoordinates[j, 2] = controlPoints[i + j].Z;
             }
             return bernsteinCoordinates;
         }

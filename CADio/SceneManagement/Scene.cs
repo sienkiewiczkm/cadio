@@ -12,7 +12,7 @@ namespace CADio.SceneManagement
 {
     public class Scene : INotifyPropertyChanged
     {
-        private WorldObject _grabbedObject;
+        private ISceneSelectable _grabbedObject;
         private WorldObject _manipulator;
         private ObservableCollection<WorldObject> _objects;
         private ICamera _camera = new FreeCamera();
@@ -71,7 +71,7 @@ namespace CADio.SceneManagement
             set { _manipulator = value; OnPropertyChanged(); }
         }
 
-        public WorldObject GrabbedObject
+        public ISceneSelectable GrabbedObject
         {
             get { return _grabbedObject; }
             set
@@ -107,13 +107,14 @@ namespace CADio.SceneManagement
             Objects.Add(worldObject);
         }
 
-        public void DetachObject(WorldObject worldObject)
+        public void DetachObject(IWorldObject worldObject)
         {
             if (worldObject?.SceneManager != this) return;
             if (GrabbedObject == worldObject)
                 GrabbedObject = null;
             worldObject.DetachFromCompositors();
-            Objects.Remove(worldObject);
+            // todo: fix hack
+            Objects.Remove((WorldObject)worldObject);
             worldObject.SceneManager = null;
             worldObject.PropertyChanged -= OnWorldObjectChange;
         }

@@ -17,9 +17,9 @@ namespace CADio.Geometry.Shapes.Dynamic
     {
         [Description("Bernstein")]
         Bernstein,
-        
+
         [Description("B-Spline")]
-        BSpline,    
+        BSpline,
     }
 
     public class BezierCurveC2 : IDynamicShape
@@ -28,89 +28,108 @@ namespace CADio.Geometry.Shapes.Dynamic
 
         public IList<Vertex> Vertices { get; private set; }
         public IList<IndexedLine> Lines { get; private set; }
-        public IList<Vertex> MarkerPoints => new List<Vertex>();
+        public IList<Vertex> MarkerPoints { get; private set; } = new List<Vertex>();
         public IList<Vertex> RawPoints { get; private set; }
         public bool IsPolygonRenderingEnabled { get; set; }
 
         public Control GetEditorControl() => new BezierCurveC2Editor() {DataContext = this};
 
         public IList<Point3D> ControlPoints = new List<Point3D>();
-        private CurveBasis _basis = CurveBasis.Bernstein;
 
-        public CurveBasis Basis
-        {
-            get { return _basis; }
-            set { _basis = value; }
-        }
+        public CurveBasis Basis { get; set; } = CurveBasis.BSpline;
 
         public void UpdateGeometry(Func<Point3D, Point3D, double> estimateScreenSpaceDistanceWithoutClip,
             Predicate<Point3D> isInsideProjectiveCubePredicate)
         {
-            // todo: change to real c2
+            IList<Point3D> chosenControlPoints;
+            var controlPointsColor = Colors.White;
+            IList<Vertex> rawPointsList = new List<Vertex>();
 
-            const int targetDegree = 3;
-
-            var rawPointsList = new List<Vertex>();
-            for (var i = 0; i + 1 < ControlPoints.Count; i += targetDegree)
+            switch (Basis)
             {
-                var controlPointsLeft = ControlPoints.Count - i;
-                var degree = Math.Min(controlPointsLeft - 1, targetDegree);
-
-                var bernsteinCoordinates = FillBernsteinCoordinatesArray(degree, i);
-                var solver = new DeCastlejauSolver(bernsteinCoordinates);
-
-                var bernsteinPolygonLengthNoClip = 0.0;
-                for (var j = 0; j < degree; ++j)
-                {
-                    bernsteinPolygonLengthNoClip += estimateScreenSpaceDistanceWithoutClip(
-                        ControlPoints[i + j], 
-                        ControlPoints[i + j + 1]
+                case CurveBasis.Bernstein:
+                    chosenControlPoints = BSplineToBernsteinConverter.ConvertAssumingEquidistantKnots(
+                        ControlPoints
                     );
-                }
 
-                var controlPointsWithin = (int)Math.Ceiling(bernsteinPolygonLengthNoClip);
-                for (var j = 0; j < controlPointsWithin; ++j)
-                {
-                    var t = (double)j/controlPointsWithin;
-                    var lerped = MathHelpers.MakePoint3D(solver.Evaluate(t));
-                    rawPointsList.Add(new Vertex() {Position = lerped, Color = Colors.White});
-                }
+                    rawPointsList = BezierCurveC0.SampleBezierCurveC0(
+                        chosenControlPoints,
+                        estimateScreenSpaceDistanceWithoutClip, 
+                        3
+                    );
+
+                    controlPointsColor = Colors.Red;
+                    break;
+                case CurveBasis.BSpline:
+                    chosenControlPoints = ControlPoints;
+                    rawPointsList = SampleBSplineCurve(ControlPoints, estimateScreenSpaceDistanceWithoutClip);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
+
 
             RawPoints = new List<Vertex>();
             Vertices = new List<Vertex>();
+            MarkerPoints = new List<Vertex>();
             Lines = new List<IndexedLine>();
 
             if (rawPointsList.Count > 0)
             {
                 Vertices = rawPointsList;
-                Lines = Enumerable.Range(0, rawPointsList.Count - 1)
-                    .Select(t => new IndexedLine(t, t + 1))
-                    .ToList();
+                Lines = Enumerable.Range(0, rawPointsList.Count - 1).Select(t => new IndexedLine(t, t + 1)).ToList();
             }
 
             if (IsPolygonRenderingEnabled && ControlPoints.Count >= 2)
             {
                 var additionalVertices = ControlPoints.Select(t => new Vertex(t, Colors.Gray)).ToList();
-                var additionalLines = Enumerable.Range(Vertices.Count, ControlPoints.Count - 1)
-                    .Select(t => new IndexedLine(t, t + 1))
-                    .ToList();
+                var additionalLines = Enumerable.Range(Vertices.Count, ControlPoints.Count - 1).Select(t => new IndexedLine(t, t + 1)).ToList();
 
                 Vertices = Vertices.Concat(additionalVertices).ToList();
                 Lines = Lines.Concat(additionalLines).ToList();
             }
+
+            if (!ReferenceEquals(chosenControlPoints, ControlPoints))
+                MarkerPoints = chosenControlPoints.Select(t => new Vertex(t, controlPointsColor)).ToList();
+
+            // display bernstein points
+            /*
+            MarkerPoints = new List<Vertex>();
+            if (ControlPoints.Count > 3)
+            {
+                var bernsteinVertices =
+                    BSplineToBernsteinConverter.ConvertAssumingEquidistantKnots(ControlPoints);
+                MarkerPoints = bernsteinVertices
+            }
+            */
+            // *** 
         }
 
-        private double[,] FillBernsteinCoordinatesArray(int degree, int i)
+        public static List<Vertex> SampleBSplineCurve(IList<Point3D> controlPoints, Func<Point3D, Point3D, double> estimateScreenSpaceDistanceWithoutClip)
         {
-            var bernsteinCoordinates = new double[degree + 1, 3];
-            for (var j = 0; j < degree + 1; ++j)
+            var rawPointsList = new List<Vertex>();
+            var solver = new DeBoorSolver3D(controlPoints);
+
+            if (controlPoints.Count <= 3)
+                return rawPointsList;
+
+            var bernsteinPolygonLengthNoClip = BezierCurveC0.EstimateScreenSpacePolygonLength(
+                controlPoints, 
+                estimateScreenSpaceDistanceWithoutClip, 
+                controlPoints.Count - 1, 
+                0
+            );
+
+            var generatedPointsBetween = (int)Math.Ceiling(bernsteinPolygonLengthNoClip);
+
+            for (var j = 0; j < generatedPointsBetween; ++j)
             {
-                bernsteinCoordinates[j, 0] = ControlPoints[i + j].X;
-                bernsteinCoordinates[j, 1] = ControlPoints[i + j].Y;
-                bernsteinCoordinates[j, 2] = ControlPoints[i + j].Z;
+                var t = (double) j/generatedPointsBetween;
+                var lerped = solver.Evaluate(t);
+                rawPointsList.Add(new Vertex() {Position = lerped, Color = Colors.White});
             }
-            return bernsteinCoordinates;
+
+            return rawPointsList;
         }
     }
 }

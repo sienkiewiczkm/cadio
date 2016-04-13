@@ -106,6 +106,9 @@ namespace CADio.Rendering
             foreach (var worldObject in Scene.Objects)
                 worldObject.PrerenderUpdate();
 
+            if (Scene.GrabbedObject != null)
+                Scene.Manipulator.Position = Scene.GrabbedObject.Position;
+
             foreach (var worldObject in Scene.Objects)
             {
                 var shape = worldObject.Shape;
@@ -174,8 +177,8 @@ namespace CADio.Rendering
 
                 // todo: renderer probably should not check scene like that
                 Color? colorOverride = null;
-                if (worldObject == Scene.GrabbedObject)
-                    colorOverride = Colors.Orange;
+                //if (worldObject == Scene.GrabbedObject)
+                //    colorOverride = Colors.Orange;
 
                 var vertexCollection = vertexExtractorFunc(shape);
                 foreach (var point in vertexCollection)

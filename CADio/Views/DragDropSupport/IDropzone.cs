@@ -2,6 +2,6 @@
 {
     public interface IDropzone
     {
-        void Drop(IDragable dragable);
+        void Drop(IUIDragable dragable);
     }
 }

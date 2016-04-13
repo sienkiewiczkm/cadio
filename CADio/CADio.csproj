@@ -78,6 +78,9 @@
     <Compile Include="Helpers\MVVM\RelayCommand.cs" />
     <Compile Include="Mathematics\MathHelpers.cs" />
     <Compile Include="Mathematics\Matrix4x4.cs" />
+    <Compile Include="Mathematics\Numerical\DeBoorSolver1D.cs" />
+    <Compile Include="Mathematics\Numerical\DeBoorSolver3D.cs" />
+    <Compile Include="Mathematics\Numerical\BSplineToBernsteinConverter.cs" />
     <Compile Include="Mathematics\Numerical\DeCastlejauSolver.cs" />
     <Compile Include="Mathematics\Transformations3D.cs" />
     <Compile Include="Mathematics\Vector3DExtensions.cs" />
@@ -101,9 +104,13 @@
       <DependentUpon>DesignSceneListData.xaml</DependentUpon>
     </Compile>
     <Compile Include="SceneManagement\BezierC2WorldObject.cs" />
+    <Compile Include="SceneManagement\BsplineBernsteinVirtualPoint.cs" />
     <Compile Include="SceneManagement\ControlPoint.cs" />
     <Compile Include="SceneManagement\IControlPointDependent.cs" />
+    <Compile Include="SceneManagement\ISceneSelectable.cs" />
     <Compile Include="SceneManagement\ISmartEditTarget.cs" />
+    <Compile Include="SceneManagement\IWorldObject.cs" />
+    <Compile Include="SceneManagement\MarkerPointObject.cs" />
     <Compile Include="SceneManagement\Scene.cs" />
     <Compile Include="SceneManagement\BezierC0WorldObject.cs" />
     <Compile Include="SceneManagement\WorldObject.cs" />
@@ -117,7 +124,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Views\DragDropSupport\IDragable.cs" />
+    <Compile Include="Views\DragDropSupport\IUIDragable.cs" />
     <Compile Include="Views\DragDropSupport\IDropzone.cs" />
     <Compile Include="Views\DropDownButton.cs" />
     <Compile Include="Views\Extensions\EnumerationExtension.cs" />

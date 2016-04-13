@@ -3,12 +3,13 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Media.Media3D;
 using CADio.Geometry.Shapes;
+using CADio.Geometry.Shapes.Static;
 using CADio.Mathematics;
 using CADio.Views.DragDropSupport;
 
 namespace CADio.SceneManagement
 {
-    public class WorldObject : IDragable, INotifyPropertyChanged
+    public class WorldObject : IWorldObject, IUIDragable, INotifyPropertyChanged, ISceneSelectable
     {
         private string _name;
         private bool _isSelected;
@@ -69,6 +70,11 @@ namespace CADio.SceneManagement
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        public virtual ICollection<ISceneSelectable> GetSelectableChildren()
+        {
+            return new List<ISceneSelectable>();
+        }
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {

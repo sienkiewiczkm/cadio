@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Media.Media3D;
 
 namespace CADio.Geometry.Shapes.Static
@@ -9,6 +10,7 @@ namespace CADio.Geometry.Shapes.Static
         private List<Vertex> _markerPointsCache;
          
         public string Name { get; set; } = "Point";
+        public Color Color { get; set; } = Colors.White;
 
         public IList<Vertex> Vertices => new List<Vertex>();
         public IList<IndexedLine> Lines => new List<IndexedLine>();
@@ -33,7 +35,7 @@ namespace CADio.Geometry.Shapes.Static
         {
             _markerPointsCache = new List<Vertex>
             {
-                new Vertex(new Point3D(0, 0, 0)),
+                new Vertex(new Point3D(0, 0, 0), Color),
             };
         }
     }

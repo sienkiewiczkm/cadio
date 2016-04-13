@@ -1,10 +1,12 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
 using System.Windows.Media.Media3D;
 using CADio.Geometry.Shapes.Dynamic;
 using CADio.Geometry.Shapes.Static;
 using CADio.Helpers.MVVM;
+using CADio.Mathematics.Numerical;
 using CADio.Views.DragDropSupport;
 
 namespace CADio.SceneManagement
@@ -14,6 +16,8 @@ namespace CADio.SceneManagement
         private ICommand _requestSmartEditCommand;
         private ICommand _togglePolygonRenderingCommand;
         private bool _isPolygonRenderingEnabled;
+
+        private List<BSplineBernsteinVirtualPoint> _virtualPoints = new List<BSplineBernsteinVirtualPoint>(); 
 
         public ObservableCollection<ControlPoint> Objects { get; set; } 
             = new ObservableCollection<ControlPoint>();
@@ -80,11 +84,29 @@ namespace CADio.SceneManagement
 
         public override void PrerenderUpdate()
         {
-            var bezier = Shape as BezierCurveC0;
+            var bezier = Shape as BezierCurveC2;
             if (bezier == null)
                 return;
 
             bezier.ControlPoints = Objects.Select(t => t.Reference.Position).ToList();
+
+            if (bezier.ControlPoints.Count > 3)
+            {
+                var bernstein = BSplineToBernsteinConverter.ConvertAssumingEquidistantKnots(bezier.ControlPoints);
+
+                if (_virtualPoints.Count == bernstein.Count)
+                {
+                    for (var i = 0; i < _virtualPoints.Count; ++i)
+                        _virtualPoints[i].Position = bernstein[i];
+                }
+                else
+                {
+                    _virtualPoints =
+                        bernstein.Select(t => new BSplineBernsteinVirtualPoint(this) {Position = t}).ToList();
+                }
+            }
+            else
+                _virtualPoints.Clear();
         }
 
         public override void Translate(Vector3D translation)
@@ -105,13 +127,47 @@ namespace CADio.SceneManagement
             OnPropertyChanged(nameof(IsSmartEditEnabled));
         }
 
-        public void Drop(IDragable dragable)
+        public void Drop(IUIDragable dragable)
         {
             var markerPoint = dragable as WorldObject;
             if (markerPoint?.Shape is MarkerPoint)
                 AttachObject(markerPoint);
         }
 
-        
+        public override ICollection<ISceneSelectable> GetSelectableChildren()
+        {
+            var bezierCurveC2 = ((BezierCurveC2)Shape);
+            if (bezierCurveC2.Basis == CurveBasis.BSpline)
+                return new List<ISceneSelectable>();
+
+            return _virtualPoints.Cast<ISceneSelectable>().ToList();
+        }
+
+        public void RequestMovement(BSplineBernsteinVirtualPoint bSplineBernsteinVirtualPoint, Vector3D translation)
+        {
+            var index = _virtualPoints.IndexOf(bSplineBernsteinVirtualPoint);
+            if (index == -1)
+                return;
+
+            var shape = (BezierCurveC2) Shape;
+            if (shape.Basis == CurveBasis.BSpline)
+                return;
+
+            var segmentId = index/3; // common node is included to previous
+
+            if (index%3 == 0)
+            {
+                Objects[segmentId + 1].Reference.Position += translation;
+            }
+            else
+            {
+                var left = Objects[segmentId + 1].Reference;
+                var right = Objects[segmentId + 2].Reference;
+
+                var i = index%3;
+                var newBernsteinPos = bSplineBernsteinVirtualPoint.Position + translation;
+                right.Position = (Point3D)((3.0/i)*(Vector3D)(newBernsteinPos - (1.0-i/3.0)*(Vector3D)left.Position));
+            }
+        }
     }
 }

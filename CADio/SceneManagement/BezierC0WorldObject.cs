@@ -104,7 +104,7 @@ namespace CADio.SceneManagement
             OnPropertyChanged(nameof(IsSmartEditEnabled));
         }
 
-        public void Drop(IDragable dragable)
+        public void Drop(IUIDragable dragable)
         {
             var markerPoint = dragable as WorldObject;
             if (markerPoint?.Shape is MarkerPoint)

@@ -25,8 +25,10 @@ namespace CADio.Views
         {
             // todo: viewmodel
             var viewModel = DataContext as SceneTreeViewModel;
-            if (viewModel == null) return;
-            viewModel.Scene.GrabbedObject = viewModel.SelectedObject;
+
+            var selectable = viewModel?.SelectedObject as ISceneSelectable;
+            if (selectable != null)
+                viewModel.Scene.GrabbedObject = selectable;
         }
 
         private void OnTreeViewPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -50,7 +52,7 @@ namespace CADio.Views
                     if (senderTreeView == null || treeViewItem == null)
                         return;
 
-                    var sceneObject = senderTreeView.SelectedItem as IDragable;
+                    var sceneObject = senderTreeView.SelectedItem as IUIDragable;
                     if (sceneObject == null)
                         return;
 
@@ -67,7 +69,7 @@ namespace CADio.Views
 
             if (dropzone != null && e.Data.GetDataPresent(DragDropFormat))
             {
-                var dragable = e.Data.GetData(DragDropFormat) as IDragable;
+                var dragable = e.Data.GetData(DragDropFormat) as IUIDragable;
                 if (dragable != null)
                     dropzone.Drop(dragable);
             }

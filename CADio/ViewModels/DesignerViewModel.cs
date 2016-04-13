@@ -25,23 +25,25 @@ namespace CADio.ViewModels
             var manipulator = new WorldObject() {Shape = new Cursor3D(0.1), IsGrabable = false};
 
             // todo: move bezier into appropriate place and fix dynamic behaviour
-            var pt1 = new WorldObject {Position = new Point3D(-1, 0, 0), Shape = new MarkerPoint()};
-            var pt2 = new WorldObject {Position = new Point3D(0, 0, +1), Shape = new MarkerPoint()};
-            var pt3 = new WorldObject {Position = new Point3D(+1, 0, 0), Shape = new MarkerPoint()};
-            var pt4 = new WorldObject {Position = new Point3D(0, 0, -1), Shape = new MarkerPoint()};
+            var pt1 = new WorldObject {Position = new Point3D(-1, 0.2, 0), Shape = new MarkerPoint()};
+            var pt2 = new WorldObject {Position = new Point3D(-0.5, 0.1, 0), Shape = new MarkerPoint()};
+            var pt3 = new WorldObject {Position = new Point3D(0, 0, 0), Shape = new MarkerPoint()};
+            var pt4 = new WorldObject {Position = new Point3D(0.5, 0.3, 0), Shape = new MarkerPoint()};
+            var pt5 = new WorldObject { Position = new Point3D(1, 0, 0), Shape = new MarkerPoint() };
 
-            var bezier = new BezierC0WorldObject() {Shape = new BezierCurveC0()};
+            var bezier = new BezierC2WorldObject() {Shape = new BezierCurveC2()};
             bezier.AttachObject(pt1);
             bezier.AttachObject(pt2);
             bezier.AttachObject(pt3);
             bezier.AttachObject(pt4);
+            bezier.AttachObject(pt5);
 
             _scene.AttachObject(pt1);
             _scene.AttachObject(pt2);
             _scene.AttachObject(pt3);
             _scene.AttachObject(pt4);
+            _scene.AttachObject(pt5);
 
-            _scene.AttachObject(new WorldObject() {Shape = new MarkerPoint()});
             _scene.AttachObject(bezier);
             _scene.AttachObject(manipulator);
             _scene.Manipulator = manipulator;
@@ -132,19 +134,21 @@ namespace CADio.ViewModels
 
         public void GrabUsingMouse(Point screenSpaceClick, double limit = 0.2)
         {
-            var markerPoints = _scene.Objects.Where(t => t.Shape is MarkerPoint).ToList();
-            if (markerPoints.Count == 0) return;
+            var selectables = GetSceneSelectables();
 
-            WorldObject closestObject = null;
+            if (selectables.Count == 0)
+                return;
+
+            ISceneSelectable closestObject = null;
             double closestDistance = double.MaxValue;
 
-            foreach (var markerPt in markerPoints)
+            foreach (var selectable in selectables)
             {
-                var screenSpacePosition = ActiveRenderer.GetStandardScreenSpacePosition(markerPt.Position);
+                var screenSpacePosition = ActiveRenderer.GetStandardScreenSpacePosition(selectable.Position);
                 if (!screenSpacePosition.HasValue) continue;
                 var candidateLength = (screenSpacePosition.Value - screenSpaceClick).Length;
                 if (candidateLength >= closestDistance) continue;
-                closestObject = markerPt;
+                closestObject = selectable;
                 closestDistance = candidateLength;
             }
 
@@ -155,7 +159,8 @@ namespace CADio.ViewModels
 
         public void GrabNearestPointOrUngrab(double limit = 1.0)
         {
-            var markerPoints = _scene.Objects.Where(t => t.Shape is MarkerPoint).ToList();
+            var markerPoints = GetSceneSelectables();
+
             var closestPoint = markerPoints.Count > 0 ? markerPoints[0] : null;
             var closestDistance = closestPoint != null
                 ? (closestPoint.Position - _scene.Manipulator.Position).Length
@@ -178,7 +183,21 @@ namespace CADio.ViewModels
             TryToggleGrabbedObject(closestPoint);
         }
 
-        private void TryToggleGrabbedObject(WorldObject closestPoint)
+        private IList<ISceneSelectable> GetSceneSelectables()
+        {
+            var markerPoints = _scene.Objects
+                .Where(t => t.Shape is MarkerPoint)
+                .Cast<ISceneSelectable>()
+                .ToList();
+
+            var selectableChildren = _scene.Objects
+                .SelectMany(t => t.GetSelectableChildren())
+                .ToList();
+
+            return markerPoints.Union(selectableChildren).ToList();
+        }
+
+        private void TryToggleGrabbedObject(ISceneSelectable closestPoint)
         {
             var grabbedObject = _scene.GrabbedObject != closestPoint ? closestPoint : null;
             if (grabbedObject != null)
