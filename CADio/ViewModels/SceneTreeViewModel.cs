@@ -25,6 +25,7 @@ namespace CADio.ViewModels
         private ICommand _removeSelectedObjectCommand;
         private ICommand _createBezierCurveC0Command;
         private ICommand _createBezierCurveC2Command;
+        private ICommand _createInterpolatingBSplineCommand;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -62,6 +63,12 @@ namespace CADio.ViewModels
         {
             get { return _createBezierCurveC2Command ?? (_createBezierCurveC2Command = new RelayCommand(CreateBezierCurveC2)); }
             set { _createBezierCurveC2Command = value; OnPropertyChanged(); }
+        }
+
+        public ICommand CreateInterpolatingBSplineCommand
+        {
+            get { return _createInterpolatingBSplineCommand ?? (_createInterpolatingBSplineCommand = new RelayCommand(CreateInterpolatingBSpline)); }
+            set { _createInterpolatingBSplineCommand = value; OnPropertyChanged(); }
         }
 
         public ICommand RemoveSelectedObjectCommand
@@ -109,6 +116,18 @@ namespace CADio.ViewModels
             var bezier = new BezierC2WorldObject()
             {
                 Name = "Bezier Curve C2 #" + _sessionBezierId++,
+                Shape = new BezierCurveC2(),
+            };
+
+            _scene.SmartEditTarget?.RegisterNewObject(bezier);
+            _scene.AttachObject(bezier);
+        }
+
+        private void CreateInterpolatingBSpline()
+        {
+            var bezier = new InterpolatingBSplineObject()
+            {
+                Name = "InterpolatingBSplineObject #" + _sessionBezierId++,
                 Shape = new BezierCurveC2(),
             };
 

@@ -1,54 +1,62 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace CADio.Mathematics.Numerical
 {
     public class DeBoorSolver1D
     {
-        private readonly double[] _deBoorPointsValues;
-        private double[] _knotPositions;
+        private readonly IList<double> _deBoorPointsValues;
+        private IList<double> _knotPositions;
 
-        public DeBoorSolver1D(double[] deBoorPointsValues, double[] knotPositions = null)
+        public DeBoorSolver1D(IList<double> deBoorPointsValues, IList<double> knotPositions = null)
         {
             _deBoorPointsValues = deBoorPointsValues;
             _knotPositions = knotPositions;
         }
 
-        public double Evaluate(double t)
+        public double Evaluate(double t, bool applyParameterCorrection = true)
         {
-            if (_deBoorPointsValues.Length < 2)
+            if (_deBoorPointsValues.Count < 2)
                 throw new ApplicationException("Too few de Boor points passed.");
 
             if (_knotPositions == null)
                 EvaluateEquidistantKnotPositions();
 
-            t = CorrectTParameter(t, 3);
+            if (applyParameterCorrection)
+                t = CorrectTParameter(t, 3);
 
             return _deBoorPointsValues
-                .Select((value, i) => EvaluateBsplineFunctionRecursively(3, i, t)*value)
+                .Select((value, i) => EvaluateBsplineFunctionRecursively(3, i, t, _knotPositions)*value)
                 .Sum();
         }
 
         private double CorrectTParameter(double t, int degree)
         {
-            var m = degree + _deBoorPointsValues.Length;
+            var m = degree + _deBoorPointsValues.Count;
             var fixedInterval = _knotPositions[m - degree] - _knotPositions[degree];
             return (double) degree/m + t*fixedInterval;
         }
 
-        public double EvaluateBsplineFunctionRecursively(int n, int i, double t)
+        public static double EvaluateBsplineFunctionRecursively(int n, int i, double t, IList<double> knots)
         {
             if (n == 0)
             {
-                if (t >= _knotPositions[i] && t < _knotPositions[i + 1])
+                if (t >= knots[i] && t < knots[i + 1])
                     return 1;
                 return 0;
             }
 
-            var left = (t - _knotPositions[i])/(_knotPositions[i + n] - _knotPositions[i])
-                       *EvaluateBsplineFunctionRecursively(n - 1, i, t);
-            var right = (_knotPositions[i + n + 1] - t)/(_knotPositions[i + n + 1] - _knotPositions[i + 1])
-                        *EvaluateBsplineFunctionRecursively(n - 1, i + 1, t);
+            const double eps = 0.00001;
+            var leftDenominator = knots[i + n] - knots[i];
+            var left = 0.0;
+            if (Math.Abs(leftDenominator) >= eps)
+                left = (t - knots[i])/leftDenominator*EvaluateBsplineFunctionRecursively(n - 1, i, t, knots);
+
+            var rightDenominator = knots[i + n + 1] - knots[i + 1];
+            var right = 0.0;
+            if (Math.Abs(rightDenominator) >= eps)
+                right = (knots[i + n + 1] - t)/rightDenominator*EvaluateBsplineFunctionRecursively(n - 1, i + 1, t, knots);
 
             return left + right;
         }
@@ -56,7 +64,7 @@ namespace CADio.Mathematics.Numerical
         private void EvaluateEquidistantKnotPositions()
         {
             const int degree = 3;
-            var intervals = _deBoorPointsValues.Length + degree;
+            var intervals = _deBoorPointsValues.Count + degree;
             var knotPositions = new double[intervals + 1];
             var dt = 1.0/intervals;
 

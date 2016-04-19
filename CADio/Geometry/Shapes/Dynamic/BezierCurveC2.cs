@@ -35,6 +35,8 @@ namespace CADio.Geometry.Shapes.Dynamic
         public Control GetEditorControl() => new BezierCurveC2Editor() {DataContext = this};
 
         public IList<Point3D> ControlPoints = new List<Point3D>();
+        public IList<double> CustomKnots;
+        public bool ApplyParameterCorrection { get; set; } = true;
 
         public CurveBasis Basis { get; set; } = CurveBasis.BSpline;
 
@@ -62,7 +64,7 @@ namespace CADio.Geometry.Shapes.Dynamic
                     break;
                 case CurveBasis.BSpline:
                     chosenControlPoints = ControlPoints;
-                    rawPointsList = SampleBSplineCurve(ControlPoints, estimateScreenSpaceDistanceWithoutClip);
+                    rawPointsList = SampleBSplineCurve(ControlPoints, CustomKnots, ApplyParameterCorrection, estimateScreenSpaceDistanceWithoutClip);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -105,10 +107,11 @@ namespace CADio.Geometry.Shapes.Dynamic
             // *** 
         }
 
-        public static List<Vertex> SampleBSplineCurve(IList<Point3D> controlPoints, Func<Point3D, Point3D, double> estimateScreenSpaceDistanceWithoutClip)
+        public static List<Vertex> SampleBSplineCurve(IList<Point3D> controlPoints, IList<double> knots, bool parameterCorrection,
+            Func<Point3D, Point3D, double> estimateScreenSpaceDistanceWithoutClip)
         {
             var rawPointsList = new List<Vertex>();
-            var solver = new DeBoorSolver3D(controlPoints);
+            var solver = new DeBoorSolver3D(controlPoints, knots);
 
             if (controlPoints.Count <= 3)
                 return rawPointsList;
@@ -125,7 +128,7 @@ namespace CADio.Geometry.Shapes.Dynamic
             for (var j = 0; j < generatedPointsBetween; ++j)
             {
                 var t = (double) j/generatedPointsBetween;
-                var lerped = solver.Evaluate(t);
+                var lerped = solver.Evaluate(t, parameterCorrection);
                 rawPointsList.Add(new Vertex() {Position = lerped, Color = Colors.White});
             }
 
