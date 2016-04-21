@@ -16,7 +16,7 @@ namespace CADio.Mathematics.Numerical
 
     public static class BSplineInterpolation3D
     {
-        public static BSplineInterpolationOutcome Interpolate(IList<Point3D> interpolationPoints, double a = 0.01, double b = 0.99, int degree = 3)
+        public static BSplineInterpolationOutcome Interpolate(IList<Point3D> interpolationPoints, double a = 0.0001, double b = 0.9999, int degree = 3)
         {
             // coeff computing: http://www.cs.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/B-spline/bspline-curve-coef.html
             // knot vector generation: http://www.cs.mtu.edu/~shene/COURSES/cs3621/NOTES/INT-APP/PARA-knot-generation.html
@@ -28,12 +28,21 @@ namespace CADio.Mathematics.Numerical
             var t = CalculateParameters(interpolationPoints, a, b, d);
             var u = CalculateKnots(interpolationPoints, degree, t);
 
-            var N = new double[interpolationPoints.Count, interpolationPoints.Count];
+            var m1 = 2;
+            var m2 = 2;
+            var N = new double[interpolationPoints.Count, m1+m2+1];
+
             for (var row = 0; row < interpolationPoints.Count; ++row)
             {
-                for (var col = 0; col < interpolationPoints.Count; ++col)
+                var realstart = Math.Max(0, row - m1);
+                var count = 1 + m2 + row - realstart;
+                var maxcount = m1 + m2 + 1;
+                var fixer = maxcount - count;
+
+                for (var i = 0; i < count && realstart+i < interpolationPoints.Count; ++i)
                 {
-                    N[row, col] = DeBoorSolver1D.EvaluateBsplineFunctionRecursively(degree, col, t[row], u);
+                    var col = realstart + i;
+                    N[row, fixer+i] = DeBoorSolver1D.EvaluateBsplineFunctionRecursively(degree, col, t[row], u);
                 }
             }
 
@@ -44,13 +53,23 @@ namespace CADio.Mathematics.Numerical
 
             for (var i = 0; i < 3; ++i)
             {
-                Matrix<double> matN = DenseMatrix.OfArray(N);
-                Vector<double> D = DenseVector.OfArray(coords[i]);
-                var P = matN.Solve(D);
-                outPointsCoords[i] = P.ToArray();
+                var mat = (double[,])N.Clone();
+                double[,] up;
+                int[] indx;
+                double sign;
+
+                var v = (double[])coords[i].Clone();
+                LinearEquationSolver.bandec(mat, interpolationPoints.Count, m1, m2, out up, out indx, out sign);
+                LinearEquationSolver.banbks(mat, interpolationPoints.Count, m1, m2, up, indx, v);
+                outPointsCoords[i] = v;
+
+                //Matrix<double> matN = DenseMatrix.OfArray(N);
+                //Vector<double> D = DenseVector.OfArray(coords[i]);
+                //var P = matN.Solve(D);
+                //outPointsCoords[i] = P.ToArray();
 
                 // approximation by tridiagonal is not enough
-                // outPointsCoords[i] = TridiagonalLinearEquationSolver.SolveTDMA(N, coords[i]).ToArray();
+                // outPointsCoords[i] = LinearEquationSolver.SolveTDMA(N, coords[i]).ToArray();
             }
 
             var outPoints = new Point3D[interpolationPoints.Count];

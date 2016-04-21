@@ -31,7 +31,7 @@ namespace CADio.ViewModels
             var pt4 = new WorldObject {Position = new Point3D(0.5, 0.3, 0), Shape = new MarkerPoint()};
             var pt5 = new WorldObject { Position = new Point3D(1, 0, 0), Shape = new MarkerPoint() };
 
-            var bezier = new BezierC2WorldObject() {Shape = new BezierCurveC2()};
+            var bezier = new InterpolatingBSplineObject() {Shape = new BezierCurveC2()};
             bezier.AttachObject(pt1);
             bezier.AttachObject(pt2);
             bezier.AttachObject(pt3);

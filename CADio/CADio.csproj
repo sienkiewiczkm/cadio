@@ -88,7 +88,7 @@
     <Compile Include="Mathematics\Numerical\DeBoorSolver3D.cs" />
     <Compile Include="Mathematics\Numerical\BSplineToBernsteinConverter.cs" />
     <Compile Include="Mathematics\Numerical\DeCastlejauSolver.cs" />
-    <Compile Include="Mathematics\Numerical\TridiagonalLinearEquationSolver.cs" />
+    <Compile Include="Mathematics\Numerical\LinearEquationSolver.cs" />
     <Compile Include="Mathematics\Transformations3D.cs" />
     <Compile Include="Mathematics\Vector3DExtensions.cs" />
     <Compile Include="Mathematics\Vector4D.cs" />
