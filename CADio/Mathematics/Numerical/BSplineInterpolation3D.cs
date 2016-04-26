@@ -26,6 +26,17 @@ namespace CADio.Mathematics.Numerical
             var m = interpolationPoints.Count + degree;
             var d = CalculateChordLenghts(interpolationPoints);
             var t = CalculateParameters(interpolationPoints, a, b, d);
+
+            for (var i = 0; i < t.Length - 1; ++i)
+            {
+                if (t[i] + double.Epsilon >= t[i + 1])
+                    return new BSplineInterpolationOutcome
+                    {
+                        ControlPoints = new List<Point3D>(),
+                        Knots = new List<double>(),
+                    };
+            }
+
             var u = CalculateKnots(interpolationPoints, degree, t);
 
             var m1 = 2;
@@ -62,14 +73,6 @@ namespace CADio.Mathematics.Numerical
                 LinearEquationSolver.bandec(mat, interpolationPoints.Count, m1, m2, out up, out indx, out sign);
                 LinearEquationSolver.banbks(mat, interpolationPoints.Count, m1, m2, up, indx, v);
                 outPointsCoords[i] = v;
-
-                //Matrix<double> matN = DenseMatrix.OfArray(N);
-                //Vector<double> D = DenseVector.OfArray(coords[i]);
-                //var P = matN.Solve(D);
-                //outPointsCoords[i] = P.ToArray();
-
-                // approximation by tridiagonal is not enough
-                // outPointsCoords[i] = LinearEquationSolver.SolveTDMA(N, coords[i]).ToArray();
             }
 
             var outPoints = new Point3D[interpolationPoints.Count];

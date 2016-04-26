@@ -10,12 +10,12 @@ namespace CADio.Mathematics
         {
             return new Matrix4X4
             {
-                Cells = new [,]
+                Cells = new[,]
                 {
-                    {    1,    0,    0,  v.X },
-                    {    0,    1,    0,  v.Y },
-                    {    0,    0,    1,  v.Z },
-                    {    0,    0,    0,    1 },
+                    {1, 0, 0, v.X},
+                    {0, 1, 0, v.Y},
+                    {0, 0, 1, v.Z},
+                    {0, 0, 0, 1},
                 }
             };
         }
@@ -29,12 +29,12 @@ namespace CADio.Mathematics
         {
             return new Matrix4X4
             {
-                Cells = new [,]
+                Cells = new[,]
                 {
-                    { scale.X,       0,       0,       0 },
-                    {       0, scale.Y,       0,       0 },
-                    {       0,       0, scale.Z,       0 },
-                    {       0,       0,       0,       1 },
+                    {scale.X, 0, 0, 0},
+                    {0, scale.Y, 0, 0},
+                    {0, 0, scale.Z, 0},
+                    {0, 0, 0, 1},
                 }
             };
         }
@@ -46,12 +46,12 @@ namespace CADio.Mathematics
 
             return new Matrix4X4
             {
-                Cells = new [,]
+                Cells = new[,]
                 {
-                    {    1,    0,    0,    0 },
-                    {    0,  cos, -sin,    0 },
-                    {    0,  sin,  cos,    0 },
-                    {    0,    0,    0,    1 },
+                    {1, 0, 0, 0},
+                    {0, cos, -sin, 0},
+                    {0, sin, cos, 0},
+                    {0, 0, 0, 1},
                 }
             };
         }
@@ -63,12 +63,12 @@ namespace CADio.Mathematics
 
             return new Matrix4X4
             {
-                Cells = new [,]
+                Cells = new[,]
                 {
-                    {  cos,    0,  sin,    0 },
-                    {    0,    1,    0,    0 },
-                    { -sin,    0,  cos,    0 },
-                    {    0,    0,    0,    1 },
+                    {cos, 0, sin, 0},
+                    {0, 1, 0, 0},
+                    {-sin, 0, cos, 0},
+                    {0, 0, 0, 1},
                 }
             };
         }
@@ -82,10 +82,10 @@ namespace CADio.Mathematics
             {
                 Cells = new[,]
                 {
-                    {  cos, -sin,    0,    0 },
-                    {  sin,  cos,    0,    0 },
-                    {    0,    0,    1,    0 },
-                    {    0,    0,    0,    1 },
+                    {cos, -sin, 0, 0},
+                    {sin, cos, 0, 0},
+                    {0, 0, 1, 0},
+                    {0, 0, 0, 1},
                 }
             };
         }
@@ -96,7 +96,7 @@ namespace CADio.Mathematics
 
             return new Matrix4X4
             {
-                Cells = new [,]
+                Cells = new[,]
                 {
                     {1, 0, 0, 0},
                     {0, 1, 0, 0},
@@ -109,7 +109,7 @@ namespace CADio.Mathematics
         public static Matrix4X4 SimplePerspectiveWithEyeShift(double r, double eyeShift)
         {
             var p = eyeShift/(2*r);
-            var q = 1 / r;
+            var q = 1/r;
 
             return new Matrix4X4
             {
@@ -119,6 +119,32 @@ namespace CADio.Mathematics
                     {0, 1, 0, 0},
                     {0, 0, 0, 0},
                     {0, 0, q, 1},
+                }
+            };
+        }
+
+        public static Matrix4X4 LookAt(Point3D eye, Point3D look, Vector3D up)
+        {
+            var n = look - eye;
+            n.Normalize();
+
+            var u = Vector3D.CrossProduct(up, n);
+            u.Normalize();
+            
+            var v = Vector3D.CrossProduct(n, u);
+
+            var en = -Vector3D.DotProduct((Vector3D)eye, n);
+            var eu = -Vector3D.DotProduct((Vector3D)eye, u);
+            var ev = -Vector3D.DotProduct((Vector3D)eye, v);
+
+            return new Matrix4X4
+            {
+                Cells = new[,]
+                {
+                    {u.X, u.Y, u.Z, eu },
+                    {v.X, v.Y, v.Z, ev },
+                    {n.X, n.Y, n.Z, en },
+                    {0,     0,   0,  1 },
                 }
             };
         }

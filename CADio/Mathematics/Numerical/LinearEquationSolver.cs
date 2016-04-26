@@ -42,14 +42,6 @@ namespace CADio.Mathematics.Numerical
             return x;
         }
 
-        // void bandec(float **a, unsigned long n, int m1, int m2, float **al, unsigned long indx[], float* d)
-        // a - compact input array
-        // n - rows 
-        // upper replaces a
-        // lower al
-        // index permutations
-        // d free
-        // a[n][m1+m2]
         public static void bandec(double[,] a, int n, int m1, int m2, out double[,] al, out int[] indx, out double d)
         {
             al = new double[a.GetLength(0), a.GetLength(1)];

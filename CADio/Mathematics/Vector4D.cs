@@ -82,6 +82,11 @@ namespace CADio.Mathematics
             return new Point(vector.X, vector.Y);
         }
 
+        public static explicit operator Point3D(Vector4D vector)
+        {
+            return new Point3D(vector.X, vector.Y, vector.Z);
+        }
+
         public static Vector4D operator -(Vector4D a, Vector4D b)
         {
             return new Vector4D(a.X - b.X, a.Y - b.Y, a.Z - b.Z, a.W - b.W);

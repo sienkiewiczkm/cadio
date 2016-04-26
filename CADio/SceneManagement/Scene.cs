@@ -15,7 +15,7 @@ namespace CADio.SceneManagement
         private ISceneSelectable _grabbedObject;
         private WorldObject _manipulator;
         private ObservableCollection<WorldObject> _objects;
-        private ICamera _camera = new FreeCamera();
+        private ICamera _camera = new ArcBallCamera();
         private ICollectionView _manageableObjects;
         private WorldObject _firstSelectedObject;
         private ISmartEditTarget _smartEditTarget;
