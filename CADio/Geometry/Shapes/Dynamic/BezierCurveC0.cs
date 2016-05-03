@@ -70,7 +70,7 @@ namespace CADio.Geometry.Shapes.Dynamic
 
                 var bernsteinPolygonLengthNoClip = EstimateScreenSpacePolygonLength(controlPoints, estimateScreenSpaceDistanceWithoutClip, degree, i);
 
-                var controlPointsWithin = (int) Math.Ceiling(bernsteinPolygonLengthNoClip);
+                var controlPointsWithin = Math.Min((int) Math.Ceiling(bernsteinPolygonLengthNoClip), 10000);
                 for (var j = 0; j < controlPointsWithin; ++j)
                 {
                     var t = (double) j/controlPointsWithin;
@@ -96,7 +96,7 @@ namespace CADio.Geometry.Shapes.Dynamic
             return bernsteinPolygonLengthNoClip;
         }
 
-        private static double[,] FillBernsteinCoordinatesArray(IList<Point3D> controlPoints, int degree, int i)
+        public static double[,] FillBernsteinCoordinatesArray(IList<Point3D> controlPoints, int degree, int i)
         {
             var bernsteinCoordinates = new double[degree + 1, 3];
             for (var j = 0; j < degree + 1; ++j)

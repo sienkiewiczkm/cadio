@@ -26,6 +26,7 @@ namespace CADio.ViewModels
         private ICommand _createBezierCurveC0Command;
         private ICommand _createBezierCurveC2Command;
         private ICommand _createInterpolatingBSplineCommand;
+        private ICommand _createBezierSurfaceCommand;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -69,6 +70,12 @@ namespace CADio.ViewModels
         {
             get { return _createInterpolatingBSplineCommand ?? (_createInterpolatingBSplineCommand = new RelayCommand(CreateInterpolatingBSpline)); }
             set { _createInterpolatingBSplineCommand = value; OnPropertyChanged(); }
+        }
+
+        public ICommand CreateBezierSurfaceCommand
+        {
+            get { return _createBezierSurfaceCommand ?? (_createBezierSurfaceCommand = new RelayCommand(CreateBezierSurface)); }
+            set { _createBezierSurfaceCommand = value; OnPropertyChanged(); }
         }
 
         public ICommand RemoveSelectedObjectCommand
@@ -133,6 +140,22 @@ namespace CADio.ViewModels
 
             _scene.SmartEditTarget?.RegisterNewObject(bezier);
             _scene.AttachObject(bezier);
+        }
+
+        private void CreateBezierSurface()
+        {
+            var viewModel = BezierSurfaceCreationViewModel.ShowDialog();
+            if (viewModel == null)
+                return;
+
+            var surface = new BezierSurfaceWorldObject(viewModel.SegmentsX, viewModel.SegmentsY)
+            {
+                Name = "Bezier Surface",
+                Shape = new BezierPatchGroup(),
+            };
+
+            _scene.SmartEditTarget?.RegisterNewObject(surface);
+            _scene.AttachObject(surface);
         }
 
         private void RemoveSelectedObject()

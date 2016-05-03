@@ -72,6 +72,8 @@
     <Compile Include="Geometry\IndexedLine.cs" />
     <Compile Include="Geometry\Shapes\Dynamic\BezierCurveC2.cs" />
     <Compile Include="Geometry\Shapes\Dynamic\BezierCurveC0.cs" />
+    <Compile Include="Geometry\Shapes\Dynamic\BezierPatch.cs" />
+    <Compile Include="Geometry\Shapes\Dynamic\BezierPatchGroup.cs" />
     <Compile Include="Geometry\Shapes\IDynamicShape.cs" />
     <Compile Include="Geometry\Shapes\IShape.cs" />
     <Compile Include="Geometry\Shapes\Static\Cursor3D.cs" />
@@ -111,6 +113,7 @@
       <DependentUpon>DesignSceneListData.xaml</DependentUpon>
     </Compile>
     <Compile Include="SceneManagement\BezierC2WorldObject.cs" />
+    <Compile Include="SceneManagement\BezierSurfaceWorldObject.cs" />
     <Compile Include="SceneManagement\InterpolatingBSplineObject.cs" />
     <Compile Include="SceneManagement\BsplineBernsteinVirtualPoint.cs" />
     <Compile Include="SceneManagement\ControlPoint.cs" />
@@ -121,9 +124,14 @@
     <Compile Include="SceneManagement\MarkerPointObject.cs" />
     <Compile Include="SceneManagement\Scene.cs" />
     <Compile Include="SceneManagement\BezierC0WorldObject.cs" />
+    <Compile Include="SceneManagement\VirtualPoint.cs" />
     <Compile Include="SceneManagement\WorldObject.cs" />
+    <Compile Include="ViewModels\BezierSurfaceCreationViewModel.cs" />
     <Compile Include="ViewModels\DesignerViewModel.cs" />
     <Compile Include="ViewModels\SceneTreeViewModel.cs" />
+    <Compile Include="Views\BezierSurfaceC0Creator.xaml.cs">
+      <DependentUpon>BezierSurfaceC0Creator.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Converters\BoolToActiveColorConverter.cs" />
     <Compile Include="Views\DesignerWindow.xaml.cs">
       <DependentUpon>DesignerWindow.xaml</DependentUpon>
@@ -148,6 +156,10 @@
     <Page Include="SampleData\DesignSceneListData\DesignSceneListData.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\BezierSurfaceC0Creator.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\DesignerWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

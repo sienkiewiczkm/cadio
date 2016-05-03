@@ -25,6 +25,7 @@
                             <MenuItem Header="Segmented Bezier C0 (max 3rd degree)" Command="{Binding CreateBezierCurveC0Command}"/>
                             <MenuItem Header="BSpline (max 3rd degree)" Command="{Binding CreateBezierCurveC2Command}"/>
                             <MenuItem Header="Interpolating BSpline" Command="{Binding CreateInterpolatingBSplineCommand}"/>
+                            <MenuItem Header="Bezier Surface" Command="{Binding CreateBezierSurfaceCommand}"/>
                         </ContextMenu>
                     </local:DropDownButton.DropDown>
                     <StackPanel Orientation="Horizontal">

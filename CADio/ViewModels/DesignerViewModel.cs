@@ -25,7 +25,7 @@ namespace CADio.ViewModels
             var manipulator = new WorldObject() {Shape = new Cursor3D(0.1), IsGrabable = false};
 
             // todo: move bezier into appropriate place and fix dynamic behaviour
-            var pt1 = new WorldObject {Position = new Point3D(-1, 0.2, 0), Shape = new MarkerPoint()};
+            /*var pt1 = new WorldObject {Position = new Point3D(-1, 0.2, 0), Shape = new MarkerPoint()};
             var pt2 = new WorldObject {Position = new Point3D(-0.5, 0.1, 0), Shape = new MarkerPoint()};
             var pt3 = new WorldObject {Position = new Point3D(0, 0, 0), Shape = new MarkerPoint()};
             var pt4 = new WorldObject {Position = new Point3D(0.5, 0.3, 0), Shape = new MarkerPoint()};
@@ -44,7 +44,7 @@ namespace CADio.ViewModels
             _scene.AttachObject(pt4);
             _scene.AttachObject(pt5);
 
-            _scene.AttachObject(bezier);
+            _scene.AttachObject(bezier);*/
             _scene.AttachObject(manipulator);
             _scene.Manipulator = manipulator;
             _scene.PropertyChanged += SceneChanged;

@@ -1,0 +1,19 @@
+﻿<Window x:Class="CADio.Views.BezierSurfaceC0Creator"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:CADio.Views"
+        mc:Ignorable="d"
+        Title="Bezier Surface C0 Creator" ResizeMode="NoResize" Width="300" SizeToContent="Height">
+    <StackPanel>
+        <StackPanel>
+            <Label>Segments X:</Label>
+            <TextBox Text="{Binding SegmentsX}"/>
+            <Label>Segments Y:</Label>
+            <TextBox Text="{Binding SegmentsY}"/>
+            <CheckBox IsChecked="{Binding CylindricalFold}" IsEnabled="false">Cylindrical fold</CheckBox>
+            <Button Click="CreateButtonClick">Create</Button>
+        </StackPanel>
+    </StackPanel>
+</Window>
