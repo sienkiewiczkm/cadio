@@ -41,18 +41,17 @@ namespace CADio.Geometry.Shapes.Dynamic
             var lines = new List<IndexedLine>();
 
             Func<int, int, Tuple<int,int>> mapping = (i, j) => new Tuple<int, int>(i, j);
-            var subdivisions = 8;
 
             CreateDirectionalSurfaceSampling(
                 estimateScreenSpaceDistanceWithoutClip, 
                 (i, j) => new Tuple<int, int>(i, j), 
-                subdivisions, vertices, lines
+                GlobalSettings.QualitySettingsViewModel.SurfaceWSubdivisions, vertices, lines
             );
 
             CreateDirectionalSurfaceSampling(
                 estimateScreenSpaceDistanceWithoutClip,
                 (i, j) => new Tuple<int, int>(j, i),
-                subdivisions, vertices, lines
+                GlobalSettings.QualitySettingsViewModel.SurfaceHSubdivisions, vertices, lines
             );
 
             var additionalVertices = ControlPoints.Select(t => new Vertex(t, Colors.Gray)).ToList();

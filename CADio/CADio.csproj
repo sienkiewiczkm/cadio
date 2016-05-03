@@ -81,6 +81,7 @@
     <Compile Include="Geometry\Shapes\Static\Sphere.cs" />
     <Compile Include="Geometry\Shapes\Static\Torus.cs" />
     <Compile Include="Geometry\Vertex.cs" />
+    <Compile Include="GlobalSettings.cs" />
     <Compile Include="Helpers\ColorHelpers.cs" />
     <Compile Include="Helpers\MVVM\RelayCommand.cs" />
     <Compile Include="Mathematics\MathHelpers.cs" />
@@ -128,6 +129,7 @@
     <Compile Include="SceneManagement\WorldObject.cs" />
     <Compile Include="ViewModels\BezierSurfaceCreationViewModel.cs" />
     <Compile Include="ViewModels\DesignerViewModel.cs" />
+    <Compile Include="ViewModels\QualitySettingsViewModel.cs" />
     <Compile Include="ViewModels\SceneTreeViewModel.cs" />
     <Compile Include="Views\BezierSurfaceC0Creator.xaml.cs">
       <DependentUpon>BezierSurfaceC0Creator.xaml</DependentUpon>

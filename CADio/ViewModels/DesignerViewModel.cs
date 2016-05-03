@@ -19,9 +19,19 @@ namespace CADio.ViewModels
         private readonly Scene _scene = new Scene();
         private Renderer _renderer;
         private string _cursorInfo;
+        private QualitySettingsViewModel _qualitySettingsViewModel = new QualitySettingsViewModel();
+
+        public QualitySettingsViewModel QualitySettingsViewModel
+        {
+            get { return _qualitySettingsViewModel; }
+            set { _qualitySettingsViewModel = value; OnPropertyChanged(); }
+        }
 
         public DesignerViewModel()
         {
+            QualitySettingsViewModel.PropertyChanged += RedrawOnPropertyChanged;
+            GlobalSettings.QualitySettingsViewModel = QualitySettingsViewModel;
+
             var manipulator = new WorldObject() {Shape = new Cursor3D(0.1), IsGrabable = false};
 
             // todo: move bezier into appropriate place and fix dynamic behaviour
@@ -54,6 +64,11 @@ namespace CADio.ViewModels
             SceneTreeViewModel = new SceneTreeViewModel() {Scene = _scene};
 
             UpdateManipulatorInfo();
+        }
+
+        private void RedrawOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            ActiveRenderer.ForceRedraw();
         }
 
         private void SceneChanged(object sender, PropertyChangedEventArgs e)
