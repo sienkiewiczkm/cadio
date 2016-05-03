@@ -148,11 +148,13 @@ namespace CADio.ViewModels
             if (viewModel == null)
                 return;
 
-            var surface = new BezierSurfaceWorldObject(viewModel.SegmentsX, viewModel.SegmentsY)
-            {
-                Name = "Bezier Surface",
-                Shape = new BezierPatchGroup(),
-            };
+            BezierSurfaceWorldObject surface;
+            if (viewModel.CylindricalFold)
+                surface = BezierSurfaceWorldObject.CreateCylindrical(viewModel.SegmentsX, viewModel.SegmentsY, 
+                    viewModel.Radius, viewModel.Height);
+            else surface = BezierSurfaceWorldObject.CreateFlatGrid(viewModel.SegmentsX, viewModel.SegmentsY);
+
+            surface.Name = "Bezier surface";
 
             _scene.SmartEditTarget?.RegisterNewObject(surface);
             _scene.AttachObject(surface);

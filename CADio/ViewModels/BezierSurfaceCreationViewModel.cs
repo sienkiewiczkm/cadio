@@ -9,6 +9,8 @@ namespace CADio.ViewModels
         private int _segmentsX = 2;
         private int _segmentsY = 2;
         private bool _cylindricalFold;
+        private double _radius;
+        private double _height;
 
         public int SegmentsX
         {
@@ -26,6 +28,18 @@ namespace CADio.ViewModels
         {
             get { return _cylindricalFold; }
             set { _cylindricalFold = value; OnPropertyChanged(); }
+        }
+
+        public double Radius
+        {
+            get { return _radius; }
+            set { _radius = value; OnPropertyChanged(); }
+        }
+
+        public double Height
+        {
+            get { return _height; }
+            set { _height = value; OnPropertyChanged(); }
         }
 
         public static BezierSurfaceCreationViewModel ShowDialog()

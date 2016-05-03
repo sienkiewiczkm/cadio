@@ -21,6 +21,7 @@ namespace CADio.Geometry.Shapes.Dynamic
         public int SegmentsX { get; set; }
         public int SegmentsY { get; set; }
         public List<Point3D> ControlPoints { get; set; }
+        public int ControlPointsRowLength { get; set; }
 
         public void UpdateGeometry(Func<Point3D, Point3D, double> estimateScreenSpaceDistanceWithoutClip, Predicate<Point3D> isInsideProjectiveCubePredicate)
         {
@@ -32,7 +33,7 @@ namespace CADio.Geometry.Shapes.Dynamic
             {
                 for (var j = 0; j < SegmentsY; ++j)
                 {
-                    var patchControlPoints = GetList2DSubRect(ControlPoints, 3*SegmentsX + 1, 3*i, 3*j, 4, 4);
+                    var patchControlPoints = GetList2DSubRect(ControlPoints, ControlPointsRowLength, 3*i, 3*j, 4, 4);
                     var patch = new BezierPatch
                     {
                         ControlPoints = patchControlPoints,
@@ -62,7 +63,7 @@ namespace CADio.Geometry.Shapes.Dynamic
             var points = new List<T>();
             for (var i = 0; i < w; ++i)
                 for (var j = 0; j < h; ++j)
-                    points.Add(input[(y + j)*rowLength + (x + i)]);
+                    points.Add(input[((y + j))*rowLength + (x + i)%rowLength]);
 
             return points;
         }

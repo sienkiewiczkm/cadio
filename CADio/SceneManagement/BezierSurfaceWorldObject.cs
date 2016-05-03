@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Media.Media3D;
 using CADio.Geometry.Shapes.Dynamic;
@@ -7,8 +8,9 @@ namespace CADio.SceneManagement
 {
     public class BezierSurfaceWorldObject : WorldObject
     {
-        private readonly int _segmentsX;
-        private readonly int _segmentsY;
+        private int _segmentsX;
+        private int _segmentsY;
+        private int _rowLength;
         private bool _isPolygonRenderingEnabled;
         private readonly List<VirtualPoint> _virtualPoints = new List<VirtualPoint>();
 
@@ -23,11 +25,36 @@ namespace CADio.SceneManagement
             }
         }
 
-        public BezierSurfaceWorldObject(int segmentsX, int segmentsY)
+        public BezierSurfaceWorldObject()
         {
-            _segmentsX = segmentsX;
-            _segmentsY = segmentsY;
-            SetupVirtualPointsGrid(3*segmentsX+1, 3*segmentsY+1);
+            Shape = new BezierPatchGroup();
+        }
+
+        public static BezierSurfaceWorldObject CreateFlatGrid(int segmentsX, int segmentsY)
+        {
+            var surface = new BezierSurfaceWorldObject
+            {
+                _segmentsX = segmentsX,
+                _segmentsY = segmentsY,
+                _rowLength = 3*segmentsX+1,
+            };
+
+            surface.SetupVirtualPointsGrid(3*segmentsX+1, 3*segmentsY+1);
+            return surface;
+        }
+
+        public static BezierSurfaceWorldObject CreateCylindrical(int segmentsX, int segmentsY,
+            double radius, double height)
+        {
+            var surface = new BezierSurfaceWorldObject
+            {
+                _segmentsX = segmentsX,
+                _segmentsY = segmentsY,
+                _rowLength = 3*segmentsX,
+            };
+
+            surface.SetupVirtualPointsCylinder(3*segmentsX, 3*segmentsY+1, radius, height);
+            return surface;
         }
 
         public override void PrerenderUpdate()
@@ -38,6 +65,7 @@ namespace CADio.SceneManagement
 
             patch.SegmentsX = _segmentsX;
             patch.SegmentsY = _segmentsY;
+            patch.ControlPointsRowLength = _rowLength;
             patch.ControlPoints = _virtualPoints.Select(t => t.Position).ToList();
         }
 
@@ -69,6 +97,24 @@ namespace CADio.SceneManagement
                     _virtualPoints.Add(new VirtualPoint()
                     {
                         Position = new Point3D(x*spacingX - totalX*0.5, 0, y*spacingY - totalY*0.5)
+                    });
+                }
+            }
+        }
+
+        private void SetupVirtualPointsCylinder(int onCrossSectionPoints, int onLengthPoints, double radius, double height)
+        {
+            _virtualPoints.Clear();
+
+            for (var i = 0; i < onLengthPoints; ++i)
+            {
+                var h = height*i/onLengthPoints;
+                for (var j = 0; j < onCrossSectionPoints; ++j)
+                {
+                    var angle = 2*Math.PI*j/onCrossSectionPoints;
+                    _virtualPoints.Add(new VirtualPoint()
+                    {
+                        Position = new Point3D(Math.Sin(angle), h, Math.Cos(angle)),
                     });
                 }
             }

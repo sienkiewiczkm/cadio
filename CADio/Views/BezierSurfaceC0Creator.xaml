@@ -12,7 +12,11 @@
             <TextBox Text="{Binding SegmentsX}"/>
             <Label>Segments Y:</Label>
             <TextBox Text="{Binding SegmentsY}"/>
-            <CheckBox IsChecked="{Binding CylindricalFold}" IsEnabled="false">Cylindrical fold</CheckBox>
+            <CheckBox IsChecked="{Binding CylindricalFold}">Cylindrical fold</CheckBox>
+            <Label>Radius:</Label>
+            <TextBox Text="{Binding Radius}" IsEnabled="{Binding CylindricalFold}"/>
+            <Label>Height:</Label>
+            <TextBox Text="{Binding Height}" IsEnabled="{Binding CylindricalFold}"/>
             <Button Click="CreateButtonClick">Create</Button>
         </StackPanel>
     </StackPanel>
