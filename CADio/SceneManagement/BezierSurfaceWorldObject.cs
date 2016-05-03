@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Input;
 using System.Windows.Media.Media3D;
 using CADio.Geometry.Shapes.Dynamic;
+using CADio.Helpers.MVVM;
 
 namespace CADio.SceneManagement
 {
@@ -12,6 +14,7 @@ namespace CADio.SceneManagement
         private int _segmentsY;
         private int _rowLength;
         private bool _isPolygonRenderingEnabled;
+        private ICommand _togglePolygonRenderingCommand;
         private readonly List<VirtualPoint> _virtualPoints = new List<VirtualPoint>();
 
         public bool IsPolygonRenderingEnabled
@@ -23,6 +26,17 @@ namespace CADio.SceneManagement
                 SetupPolygonRendering();
                 OnPropertyChanged();
             }
+        }
+
+        public ICommand TogglePolygonRenderingCommand
+        {
+            get { return _togglePolygonRenderingCommand ?? (_togglePolygonRenderingCommand = new RelayCommand(TogglePolygonRendering)); }
+            set { _togglePolygonRenderingCommand = value; OnPropertyChanged(); }
+        }
+
+        private void TogglePolygonRendering()
+        {
+            IsPolygonRenderingEnabled = !IsPolygonRenderingEnabled;
         }
 
         public BezierSurfaceWorldObject()
@@ -76,9 +90,9 @@ namespace CADio.SceneManagement
 
         private void SetupPolygonRendering()
         {
-            if (!(Shape is BezierPatch))
+            if (!(Shape is BezierPatchGroup))
                 return;
-            ((BezierPatch)Shape).IsPolygonRenderingEnabled = IsPolygonRenderingEnabled;
+            ((BezierPatchGroup)Shape).IsPolygonRenderingEnabled = IsPolygonRenderingEnabled;
         }
 
         private void SetupVirtualPointsGrid(int cols, int rows)

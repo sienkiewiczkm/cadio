@@ -40,8 +40,6 @@ namespace CADio.Geometry.Shapes.Dynamic
             var vertices = new List<Vertex>();
             var lines = new List<IndexedLine>();
 
-            Func<int, int, Tuple<int,int>> mapping = (i, j) => new Tuple<int, int>(i, j);
-
             CreateDirectionalSurfaceSampling(
                 estimateScreenSpaceDistanceWithoutClip, 
                 (i, j) => new Tuple<int, int>(i, j), 
@@ -54,27 +52,30 @@ namespace CADio.Geometry.Shapes.Dynamic
                 GlobalSettings.QualitySettingsViewModel.SurfaceHSubdivisions, vertices, lines
             );
 
-            var additionalVertices = ControlPoints.Select(t => new Vertex(t, Colors.Gray)).ToList();
-            var additionalLines = new List<IndexedLine>();
-            var baseVertex = vertices.Count;
-
-            for (var x = 0; x < 4; ++x)
+            if (IsPolygonRenderingEnabled)
             {
-                for (var y = 0; y < 4; ++y)
+                var additionalVertices = ControlPoints.Select(t => new Vertex(t, Colors.Gray)).ToList();
+                var additionalLines = new List<IndexedLine>();
+                var baseVertex = vertices.Count;
+
+                for (var x = 0; x < 4; ++x)
                 {
-                    if (x < 3)
+                    for (var y = 0; y < 4; ++y)
                     {
-                        additionalLines.Add(new IndexedLine(baseVertex + (4*y + x), baseVertex + (4*y + x + 1)));
-                    }
-                    if (y < 3)
-                    {
-                        additionalLines.Add(new IndexedLine(baseVertex + (4*y + x), baseVertex + (4*(y + 1) + x)));
+                        if (x < 3)
+                        {
+                            additionalLines.Add(new IndexedLine(baseVertex + (4*y + x), baseVertex + (4*y + x + 1)));
+                        }
+                        if (y < 3)
+                        {
+                            additionalLines.Add(new IndexedLine(baseVertex + (4*y + x), baseVertex + (4*(y + 1) + x)));
+                        }
                     }
                 }
-            }
 
-            vertices.AddRange(additionalVertices);
-            lines.AddRange(additionalLines);
+                vertices.AddRange(additionalVertices);
+                lines.AddRange(additionalLines);
+            }
 
             MarkerPoints = ControlPoints.Select(t => new Vertex(t, Colors.White)).ToList();
             Vertices = vertices;//Vertices.Concat(additionalVertices).ToList();

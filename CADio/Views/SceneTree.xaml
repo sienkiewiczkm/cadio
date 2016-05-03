@@ -114,6 +114,15 @@
                             </Button>
                         </StackPanel>
                     </HierarchicalDataTemplate>
+                    <DataTemplate DataType="{x:Type sceneManagement:BezierSurfaceWorldObject}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Name}" Margin="0 0 4 0"/>
+                            <Button Command="{Binding TogglePolygonRenderingCommand}" Width="14" Height="14" BorderThickness="1"
+                                    Background="{Binding Path=IsPolygonRenderingEnabled, Converter={StaticResource BoolToActiveColor}}">
+                                <Image Source="../Resources/visibility2.ico"/>
+                            </Button>
+                        </StackPanel>
+                    </DataTemplate>
                     <DataTemplate DataType="{x:Type sceneManagement:ControlPoint}">
                         <StackPanel Orientation="Horizontal">
                             <StackPanel.ContextMenu>
