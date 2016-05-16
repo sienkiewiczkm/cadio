@@ -7,14 +7,12 @@ using CADio.Mathematics.Numerical;
 
 namespace CADio.Geometry.Shapes.Dynamic
 {
-    public class BezierPatch : SurfacePatch
+    public class BSplinePatch : SurfacePatch
     {
-        public override string Name => "Bezier Patch";
-
         protected override void CreateDirectionalSurfaceSampling(Func<Point3D, Point3D, double> estimateScreenSpaceDistanceWithoutClip, 
             Func<int, int, Tuple<int, int>> mapping, int subdivisions, List<Vertex> vertices, List<IndexedLine> lines)
         {
-            var solvers = new DeCastlejauSolver[4];
+            var solvers = new DeBoorSolver3D[4];
             for (var i = 0; i < 4; ++i)
             {
                 var subcontrolPoints = new List<Point3D>();
@@ -25,7 +23,7 @@ namespace CADio.Geometry.Shapes.Dynamic
                     subcontrolPoints.Add(ControlPoints[mapped.Item1 + mapped.Item2 * 4]);
                 }
 
-                solvers[i] = new DeCastlejauSolver(BezierCurveC0.FillBernsteinCoordinatesArray(subcontrolPoints, 3, 0));
+                solvers[i] = new DeBoorSolver3D(subcontrolPoints);
             }
 
             for (var i = 0; i < subdivisions; ++i)
@@ -34,11 +32,11 @@ namespace CADio.Geometry.Shapes.Dynamic
                 var subdivisionControlPoints = new List<Point3D>();
                 for (var j = 0; j < 4; ++j)
                 {
-                    subdivisionControlPoints.Add(MathHelpers.MakePoint3D(solvers[j].Evaluate(t)));
+                    subdivisionControlPoints.Add(solvers[j].Evaluate(t, true));
                 }
 
-                var sampled = BezierCurveC0.SampleBezierCurveC0(subdivisionControlPoints,
-                    estimateScreenSpaceDistanceWithoutClip, 3);
+                var sampled = BezierCurveC2.SampleBSplineCurve(subdivisionControlPoints, null, true,
+                    estimateScreenSpaceDistanceWithoutClip);
                 if (sampled.Count <= 1) continue;
 
                 var sampledLines = Enumerable.Range(vertices.Count, sampled.Count - 1)

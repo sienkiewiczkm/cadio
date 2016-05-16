@@ -8,7 +8,7 @@ using CADio.Helpers.MVVM;
 
 namespace CADio.SceneManagement
 {
-    public class BezierSurfaceWorldObject : WorldObject
+    public class BSplineSurfaceWorldObject : WorldObject
     {
         private int _segmentsX;
         private int _segmentsY;
@@ -39,41 +39,41 @@ namespace CADio.SceneManagement
             IsPolygonRenderingEnabled = !IsPolygonRenderingEnabled;
         }
 
-        public BezierSurfaceWorldObject()
+        public BSplineSurfaceWorldObject()
         {
-            Shape = new BezierPatchGroup();
+            Shape = new BSplinePatchGroup();
         }
 
-        public static BezierSurfaceWorldObject CreateFlatGrid(int segmentsX, int segmentsY, double width, double height)
+        public static BSplineSurfaceWorldObject CreateFlatGrid(int segmentsX, int segmentsY, double width, double height)
         {
-            var surface = new BezierSurfaceWorldObject
+            var surface = new BSplineSurfaceWorldObject
             {
                 _segmentsX = segmentsX,
                 _segmentsY = segmentsY,
-                _rowLength = 3*segmentsX+1,
+                _rowLength = 3+segmentsX,
             };
 
-            surface.SetupVirtualPointsGrid(3*segmentsX+1, 3*segmentsY+1, width, height);
+            surface.SetupVirtualPointsGrid(3 + segmentsX, 3 + segmentsY, width, height);
             return surface;
         }
 
-        public static BezierSurfaceWorldObject CreateCylindrical(int segmentsX, int segmentsY,
+        public static BSplineSurfaceWorldObject CreateCylindrical(int segmentsX, int segmentsY,
             double radius, double height)
         {
-            var surface = new BezierSurfaceWorldObject
+            var surface = new BSplineSurfaceWorldObject
             {
                 _segmentsX = segmentsX,
                 _segmentsY = segmentsY,
-                _rowLength = 3*segmentsX,
+                _rowLength = 3+segmentsX-3, // todo: min segments = 4 <= 3+segmentsX-3 ==> segmentsX >= 4 
             };
 
-            surface.SetupVirtualPointsCylinder(3*segmentsX, 3*segmentsY+1, radius, height);
+            surface.SetupVirtualPointsCylinder(surface._rowLength, 3+segmentsY, radius, height);
             return surface;
         }
 
         public override void PrerenderUpdate()
         {
-            var patch = Shape as BezierPatchGroup;
+            var patch = Shape as BSplinePatchGroup;
             if (patch == null)
                 return;
 
@@ -90,17 +90,17 @@ namespace CADio.SceneManagement
 
         private void SetupPolygonRendering()
         {
-            if (!(Shape is BezierPatchGroup))
+            if (!(Shape is BSplinePatchGroup))
                 return;
-            ((BezierPatchGroup)Shape).IsPolygonRenderingEnabled = IsPolygonRenderingEnabled;
+            ((BSplinePatchGroup)Shape).IsPolygonRenderingEnabled = IsPolygonRenderingEnabled;
         }
 
         private void SetupVirtualPointsGrid(int cols, int rows, double width = 1, double height = 1)
         {
-            var spacingX = 1.0/(cols - 1);
-            var spacingY = 1.0/(rows - 1);
-            var totalX = spacingX*(cols-1);
-            var totalY = spacingY*(rows-1);
+            var spacingX = 1.0 / (cols - 1);
+            var spacingY = 1.0 / (rows - 1);
+            var totalX = spacingX * (cols - 1);
+            var totalY = spacingY * (rows - 1);
 
             _virtualPoints.Clear();
 
@@ -110,7 +110,7 @@ namespace CADio.SceneManagement
                 {
                     _virtualPoints.Add(new VirtualPoint()
                     {
-                        Position = new Point3D(width*(x*spacingX - totalX*0.5), 0, height*(y*spacingY - totalY*0.5))
+                        Position = new Point3D(width * (x * spacingX - totalX * 0.5), 0, height * (y * spacingY - totalY * 0.5))
                     });
                 }
             }

@@ -107,6 +107,13 @@ namespace CADio.Geometry.Shapes.Dynamic
             // *** 
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="controlPoints"></param>
+        /// <param name="knots">If null equidistant nodes will be generated.</param>
+        /// <param name="parameterCorrection"></param>
+        /// <param name="estimateScreenSpaceDistanceWithoutClip"></param>
+        /// <returns></returns>
         public static List<Vertex> SampleBSplineCurve(IList<Point3D> controlPoints, IList<double> knots, bool parameterCorrection,
             Func<Point3D, Point3D, double> estimateScreenSpaceDistanceWithoutClip)
         {

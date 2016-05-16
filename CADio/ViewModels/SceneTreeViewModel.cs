@@ -27,6 +27,7 @@ namespace CADio.ViewModels
         private ICommand _createBezierCurveC2Command;
         private ICommand _createInterpolatingBSplineCommand;
         private ICommand _createBezierSurfaceCommand;
+        private ICommand _createBSplineSurfaceCommand;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -76,6 +77,12 @@ namespace CADio.ViewModels
         {
             get { return _createBezierSurfaceCommand ?? (_createBezierSurfaceCommand = new RelayCommand(CreateBezierSurface)); }
             set { _createBezierSurfaceCommand = value; OnPropertyChanged(); }
+        }
+
+        public ICommand CreateBSplineSurfaceCommand
+        {
+            get { return _createBSplineSurfaceCommand ?? (_createBSplineSurfaceCommand = new RelayCommand(CreateBSplineSurface)); }
+            set { _createBSplineSurfaceCommand = value; OnPropertyChanged(); }
         }
 
         public ICommand RemoveSelectedObjectCommand
@@ -152,9 +159,27 @@ namespace CADio.ViewModels
             if (viewModel.CylindricalFold)
                 surface = BezierSurfaceWorldObject.CreateCylindrical(viewModel.SegmentsX, viewModel.SegmentsY, 
                     viewModel.Radius, viewModel.Height);
-            else surface = BezierSurfaceWorldObject.CreateFlatGrid(viewModel.SegmentsX, viewModel.SegmentsY);
+            else surface = BezierSurfaceWorldObject.CreateFlatGrid(viewModel.SegmentsX, viewModel.SegmentsY, viewModel.PlaneWidth, viewModel.PlaneHeight);
 
             surface.Name = "Bezier surface";
+
+            _scene.SmartEditTarget?.RegisterNewObject(surface);
+            _scene.AttachObject(surface);
+        }
+
+        private void CreateBSplineSurface()
+        {
+            var viewModel = BezierSurfaceCreationViewModel.ShowDialog();
+            if (viewModel == null)
+                return;
+
+            BSplineSurfaceWorldObject surface;
+            if (viewModel.CylindricalFold)
+                surface = BSplineSurfaceWorldObject.CreateCylindrical(viewModel.SegmentsX, viewModel.SegmentsY,
+                    viewModel.Radius, viewModel.Height);
+            else surface = BSplineSurfaceWorldObject.CreateFlatGrid(viewModel.SegmentsX, viewModel.SegmentsY, viewModel.PlaneWidth, viewModel.PlaneHeight);
+
+            surface.Name = "BSpline surface";
 
             _scene.SmartEditTarget?.RegisterNewObject(surface);
             _scene.AttachObject(surface);

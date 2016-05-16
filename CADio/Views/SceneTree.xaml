@@ -26,6 +26,7 @@
                             <MenuItem Header="BSpline (max 3rd degree)" Command="{Binding CreateBezierCurveC2Command}"/>
                             <MenuItem Header="Interpolating BSpline" Command="{Binding CreateInterpolatingBSplineCommand}"/>
                             <MenuItem Header="Bezier Surface" Command="{Binding CreateBezierSurfaceCommand}"/>
+                            <MenuItem Header="BSpline Surface" Command="{Binding CreateBSplineSurfaceCommand}"/>
                         </ContextMenu>
                     </local:DropDownButton.DropDown>
                     <StackPanel Orientation="Horizontal">
@@ -115,6 +116,15 @@
                         </StackPanel>
                     </HierarchicalDataTemplate>
                     <DataTemplate DataType="{x:Type sceneManagement:BezierSurfaceWorldObject}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Name}" Margin="0 0 4 0"/>
+                            <Button Command="{Binding TogglePolygonRenderingCommand}" Width="14" Height="14" BorderThickness="1"
+                                    Background="{Binding Path=IsPolygonRenderingEnabled, Converter={StaticResource BoolToActiveColor}}">
+                                <Image Source="../Resources/visibility2.ico"/>
+                            </Button>
+                        </StackPanel>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type sceneManagement:BSplineSurfaceWorldObject}">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="{Binding Name}" Margin="0 0 4 0"/>
                             <Button Command="{Binding TogglePolygonRenderingCommand}" Width="14" Height="14" BorderThickness="1"

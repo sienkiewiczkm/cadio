@@ -13,6 +13,10 @@
             <Label>Segments Y:</Label>
             <TextBox Text="{Binding SegmentsY}"/>
             <CheckBox IsChecked="{Binding CylindricalFold}">Cylindrical fold</CheckBox>
+            <Label>Width:</Label>
+            <TextBox Text="{Binding PlaneWidth}" IsEnabled="{Binding NonCylindricalFold}"/>
+            <Label>Height:</Label>
+            <TextBox Text="{Binding PlaneHeight}" IsEnabled="{Binding NonCylindricalFold}"/>
             <Label>Radius:</Label>
             <TextBox Text="{Binding Radius}" IsEnabled="{Binding CylindricalFold}"/>
             <Label>Height:</Label>

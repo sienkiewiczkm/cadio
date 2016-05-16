@@ -45,8 +45,8 @@ namespace CADio.Rendering
         {
             var vec = new Vector3D(0, 0, -1);
             var transform = Transformations3D.Scaling(Zoom)
-                *Transformations3D.RotationX(XRotation)
-                *Transformations3D.RotationY(YRotation);
+                            *Transformations3D.RotationY(YRotation)
+                            *Transformations3D.RotationX(XRotation);
             var eye = (Point3D) (vec.ExtendTo4D().Transform(transform));
 
             return Transformations3D.LookAt(

@@ -74,6 +74,9 @@
     <Compile Include="Geometry\Shapes\Dynamic\BezierCurveC0.cs" />
     <Compile Include="Geometry\Shapes\Dynamic\BezierPatch.cs" />
     <Compile Include="Geometry\Shapes\Dynamic\BezierPatchGroup.cs" />
+    <Compile Include="Geometry\Shapes\Dynamic\BSplinePatch.cs" />
+    <Compile Include="Geometry\Shapes\Dynamic\BSplinePatchGroup.cs" />
+    <Compile Include="Geometry\Shapes\Dynamic\SurfacePatch.cs" />
     <Compile Include="Geometry\Shapes\IDynamicShape.cs" />
     <Compile Include="Geometry\Shapes\IShape.cs" />
     <Compile Include="Geometry\Shapes\Static\Cursor3D.cs" />
@@ -114,6 +117,7 @@
       <DependentUpon>DesignSceneListData.xaml</DependentUpon>
     </Compile>
     <Compile Include="SceneManagement\BezierC2WorldObject.cs" />
+    <Compile Include="SceneManagement\BSplineSurfaceWorldObject.cs" />
     <Compile Include="SceneManagement\BezierSurfaceWorldObject.cs" />
     <Compile Include="SceneManagement\InterpolatingBSplineObject.cs" />
     <Compile Include="SceneManagement\BsplineBernsteinVirtualPoint.cs" />
