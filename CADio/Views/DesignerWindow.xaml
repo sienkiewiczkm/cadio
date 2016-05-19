@@ -23,6 +23,11 @@
     <DockPanel LastChildFill="True">
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="File">
+                <MenuItem Header="New scene" Command="{Binding NewSceneCommand}" InputGestureText="Ctrl+N"/>
+                <MenuItem Header="Load scene" Command="{Binding LoadSceneCommand}" InputGestureText="Ctrl+L"/>
+                <MenuItem Header="Save scene" Command="{Binding SaveSceneCommand}" InputGestureText="Ctrl+S"/>
+                <MenuItem Header="Save scene as..." Command="{Binding SaveSceneAsCommand}"/>
+                <Separator/>
                 <MenuItem Header="Exit" InputGestureText="Alt+F4" />
             </MenuItem>
             <MenuItem Header="Help" />

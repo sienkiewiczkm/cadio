@@ -11,7 +11,7 @@ using CADio.Views.DragDropSupport;
 
 namespace CADio.SceneManagement
 {
-    public class InterpolatingBSplineObject : WorldObject, IDropzone, IControlPointDependent, ISmartEditTarget
+    public class InterpolatingBSplineObject : WorldObject, IDropzone, IControlPointDependent, ISmartEditTarget, ISaveable
     {
         private ICommand _requestSmartEditCommand;
         private ICommand _togglePolygonRenderingCommand;
@@ -121,6 +121,19 @@ namespace CADio.SceneManagement
         public override ICollection<ISceneSelectable> GetSelectableChildren()
         {
             return new List<ISceneSelectable>();
+        }
+
+        public void Save(Scene.SceneDataGatherer gatherer)
+        {
+            gatherer.EmitObjectInfo(Scene.WorldObjectType.Interpolation, Name);
+
+            foreach (var cp in Objects)
+            {
+                var id = gatherer.GetWorldObjectId(cp.Reference);
+                gatherer.EmitInt(id);
+            }
+
+            gatherer.EmitObjectDataEnd();
         }
     }
 }

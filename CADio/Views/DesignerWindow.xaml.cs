@@ -7,13 +7,15 @@ namespace CADio.Views
 {
     public partial class DesignerWindow : Window
     {
-        private readonly DesignerViewModel _viewModel = new DesignerViewModel();
+        private readonly DesignerViewModel _viewModel;
         private bool _leftMouseButtonDown;
         private Point _lastMousePosition;
 
         public DesignerWindow()
         {
             InitializeComponent();
+
+            _viewModel = new DesignerViewModel(this);
             DataContext = _viewModel;
         }
 

@@ -11,7 +11,7 @@ using CADio.Views.DragDropSupport;
 
 namespace CADio.SceneManagement
 {
-    public class BezierC2WorldObject : WorldObject, IDropzone, IControlPointDependent, ISmartEditTarget
+    public class BezierC2WorldObject : WorldObject, IDropzone, IControlPointDependent, ISmartEditTarget, ISaveable
     {
         private ICommand _requestSmartEditCommand;
         private ICommand _togglePolygonRenderingCommand;
@@ -168,6 +168,20 @@ namespace CADio.SceneManagement
                 var newBernsteinPos = bSplineBernsteinVirtualPoint.Position + translation;
                 right.Position = (Point3D)((3.0/i)*(Vector3D)(newBernsteinPos - (1.0-i/3.0)*(Vector3D)left.Position));
             }
+        }
+
+        public void Save(Scene.SceneDataGatherer gatherer)
+        {
+            gatherer.EmitObjectInfo(Scene.WorldObjectType.BSplineCurve, Name);
+            gatherer.EmitInt(Objects.Count);
+
+            foreach (var cp in Objects)
+            {
+                var id = gatherer.GetWorldObjectId(cp.Reference);
+                gatherer.EmitInt(id);
+            }
+
+            gatherer.EmitObjectDataEnd();
         }
     }
 }

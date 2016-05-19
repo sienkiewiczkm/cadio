@@ -86,6 +86,7 @@
     <Compile Include="Geometry\Vertex.cs" />
     <Compile Include="GlobalSettings.cs" />
     <Compile Include="Helpers\ColorHelpers.cs" />
+    <Compile Include="Helpers\LINQExtensions.cs" />
     <Compile Include="Helpers\MVVM\RelayCommand.cs" />
     <Compile Include="Mathematics\MathHelpers.cs" />
     <Compile Include="Mathematics\Matrix4x4.cs" />
@@ -119,10 +120,12 @@
     <Compile Include="SceneManagement\BezierC2WorldObject.cs" />
     <Compile Include="SceneManagement\BSplineSurfaceWorldObject.cs" />
     <Compile Include="SceneManagement\BezierSurfaceWorldObject.cs" />
+    <Compile Include="SceneManagement\IImportable.cs" />
     <Compile Include="SceneManagement\InterpolatingBSplineObject.cs" />
     <Compile Include="SceneManagement\BsplineBernsteinVirtualPoint.cs" />
     <Compile Include="SceneManagement\ControlPoint.cs" />
     <Compile Include="SceneManagement\IControlPointDependent.cs" />
+    <Compile Include="SceneManagement\ISaveable.cs" />
     <Compile Include="SceneManagement\ISceneSelectable.cs" />
     <Compile Include="SceneManagement\ISmartEditTarget.cs" />
     <Compile Include="SceneManagement\IWorldObject.cs" />

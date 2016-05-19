@@ -132,6 +132,8 @@ namespace CADio.Rendering
 
         private void OnRenderOutputChanged(object sender, EventArgs e)
         {
+            if (GlobalSettings.FreezeDrawing)
+                return;
             RequestRedraw();
         }
 

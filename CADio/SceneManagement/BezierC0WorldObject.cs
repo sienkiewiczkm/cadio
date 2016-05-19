@@ -9,7 +9,12 @@ using CADio.Views.DragDropSupport;
 
 namespace CADio.SceneManagement
 {
-    public class BezierC0WorldObject : WorldObject, IDropzone, ISmartEditTarget, IControlPointDependent
+    public class BezierC0WorldObject : 
+        WorldObject, 
+        IDropzone, 
+        ISmartEditTarget, 
+        IControlPointDependent, 
+        ISaveable
     {
         private ICommand _requestSmartEditCommand;
         private ICommand _togglePolygonRenderingCommand;
@@ -109,6 +114,21 @@ namespace CADio.SceneManagement
             var markerPoint = dragable as WorldObject;
             if (markerPoint?.Shape is MarkerPoint)
                 AttachObject(markerPoint);
+        }
+
+        public void Save(Scene.SceneDataGatherer gatherer)
+        {
+            gatherer.EmitObjectInfo(Scene.WorldObjectType.BezierCurve, Name);
+            gatherer.EmitInt(Objects.Count);
+            gatherer.EmitEOL();
+
+            foreach (var cp in Objects)
+            {
+                var id = gatherer.GetWorldObjectId(cp.Reference);
+                gatherer.EmitInt(id);
+            }
+
+            gatherer.EmitObjectDataEnd();
         }
     }
 }

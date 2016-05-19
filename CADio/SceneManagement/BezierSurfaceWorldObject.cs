@@ -8,7 +8,7 @@ using CADio.Helpers.MVVM;
 
 namespace CADio.SceneManagement
 {
-    public class BezierSurfaceWorldObject : WorldObject
+    public class BezierSurfaceWorldObject : WorldObject, ISaveable
     {
         private int _segmentsX;
         private int _segmentsY;
@@ -16,6 +16,7 @@ namespace CADio.SceneManagement
         private bool _isPolygonRenderingEnabled;
         private ICommand _togglePolygonRenderingCommand;
         private readonly List<VirtualPoint> _virtualPoints = new List<VirtualPoint>();
+        private bool _folded;
 
         public bool IsPolygonRenderingEnabled
         {
@@ -66,6 +67,8 @@ namespace CADio.SceneManagement
                 _segmentsY = segmentsY,
                 _rowLength = 3*segmentsX,
             };
+
+            surface._folded = true;
 
             surface.SetupVirtualPointsCylinder(3*segmentsX, 3*segmentsY+1, radius, height);
             return surface;
@@ -128,7 +131,63 @@ namespace CADio.SceneManagement
                     var angle = 2*Math.PI*j/onCrossSectionPoints;
                     _virtualPoints.Add(new VirtualPoint()
                     {
-                        Position = new Point3D(Math.Sin(angle), h, Math.Cos(angle)),
+                        Position = new Point3D(radius*Math.Sin(angle), h, radius*Math.Cos(angle)),
+                    });
+                }
+            }
+        }
+
+        public void Save(Scene.SceneDataGatherer gatherer)
+        {
+            var totalRows = _virtualPoints.Count / _rowLength;
+
+            gatherer.EmitObjectInfo(Scene.WorldObjectType.BezierSurface, Name);
+            gatherer.EmitInt(totalRows);
+            gatherer.EmitInt(_rowLength);
+            gatherer.EmitChar(_folded ? 'C' : 'R');
+            gatherer.EmitChar('V');
+            gatherer.EmitEOL();
+
+            for (var row = 0; row < totalRows; ++row)
+            {
+                for (var column = 0; column < _rowLength; ++column)
+                {
+                    var dataRow = row;
+                    var dataColumn = column;
+                    var pos = _virtualPoints[dataColumn + dataRow*_rowLength].Position;
+                    gatherer.EmitInt(gatherer.CreateReferencePoint(pos));
+                }
+            }
+
+            gatherer.EmitObjectDataEnd();
+        }
+
+        public void BuildFromExternalData(Point3D[,] data, bool folded)
+        {
+            var rows = data.GetLength(0);
+            _rowLength = data.GetLength(1);
+            _folded = folded;
+
+            if (!folded)
+            {
+                _segmentsX = (_rowLength - 1) / 3;
+                _segmentsY = (rows - 1)/3;
+            }
+            else
+            {
+                _segmentsX = _rowLength/3;
+                _segmentsY = (rows - 1)/3;
+            }
+
+            _virtualPoints.Clear();
+
+            for (var y = 0; y < rows; y++)
+            {
+                for (var x = 0; x < _rowLength; x++)
+                {
+                    _virtualPoints.Add(new VirtualPoint()
+                    {
+                        Position = data[y, x]
                     });
                 }
             }

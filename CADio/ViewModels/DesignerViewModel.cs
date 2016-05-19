@@ -5,21 +5,30 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media.Media3D;
 using CADio.Geometry.Shapes;
 using CADio.Geometry.Shapes.Dynamic;
 using CADio.Geometry.Shapes.Static;
+using CADio.Helpers.MVVM;
 using CADio.Rendering;
 using CADio.SceneManagement;
+using Microsoft.Win32;
 
 namespace CADio.ViewModels
 {
     internal class DesignerViewModel : INotifyPropertyChanged
     {
-        private readonly Scene _scene = new Scene();
+        private Scene _scene = new Scene();
         private Renderer _renderer;
         private string _cursorInfo;
         private QualitySettingsViewModel _qualitySettingsViewModel = new QualitySettingsViewModel();
+        private readonly Window _ownerWindow;
+
+        private ICommand _newSceneCommand;
+        private ICommand _loadSceneCommand;
+        private ICommand _saveSceneCommand;
+        private ICommand _saveSceneAsCommand;
 
         public QualitySettingsViewModel QualitySettingsViewModel
         {
@@ -27,42 +36,101 @@ namespace CADio.ViewModels
             set { _qualitySettingsViewModel = value; OnPropertyChanged(); }
         }
 
-        public DesignerViewModel()
+        public ICommand NewSceneCommand
         {
+            get { return _newSceneCommand ?? (_newSceneCommand = new RelayCommand(RequestNewScene)); }
+            set { _newSceneCommand = value; OnPropertyChanged(); }
+        }
+
+        public ICommand LoadSceneCommand
+        {
+            get { return _loadSceneCommand ?? (_loadSceneCommand = new RelayCommand(LoadScene)); }
+            set { _loadSceneCommand = value; OnPropertyChanged(); }
+        }
+
+        public ICommand SaveSceneCommand
+        {
+            get { return _saveSceneCommand ?? (_saveSceneCommand = new RelayCommand(SaveScene)); }
+            set { _saveSceneCommand = value; OnPropertyChanged(); }
+        }
+
+        public ICommand SaveSceneAsCommand
+        {
+            get { return _saveSceneAsCommand ?? (_saveSceneAsCommand = new RelayCommand(SaveSceneAs)); }
+            set { _saveSceneAsCommand = value; OnPropertyChanged(); }
+        }
+
+        private void RequestNewScene()
+        {
+            var result = MessageBox.Show(_ownerWindow, "Creating new scene will clear this one. Are you sure?", "New scene confirmation",
+                MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (result == MessageBoxResult.No)
+                return;
+
+            CreateNewScene();
+        }
+
+        private void LoadScene()
+        {
+            var result = MessageBox.Show(_ownerWindow, "Loading a scene will clear this one. Are you sure?", "New scene confirmation",
+                MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (result == MessageBoxResult.No)
+                return;
+
+            var ofd = new OpenFileDialog();
+            var fileResult = ofd.ShowDialog();
+            if (fileResult == false)
+                return;
+
+            CreateNewScene();
+            _scene.Import(ofd.FileName);
+            ActiveRenderer.ForceRedraw();
+        }
+
+        private void SaveScene()
+        {
+            if (_scene.Filename == null)
+            {
+                SaveSceneAs();
+                return;
+            }
+
+            _scene.Save();
+        }
+
+        private void SaveSceneAs()
+        {
+            var sfd = new SaveFileDialog();
+            var fileResult = sfd.ShowDialog();
+            if (fileResult == false)
+                return;
+
+            _scene.Filename = sfd.FileName;
+            _scene.Save();
+        }
+
+        public DesignerViewModel(Window ownerWindow)
+        {
+            _ownerWindow = ownerWindow;
             QualitySettingsViewModel.PropertyChanged += RedrawOnPropertyChanged;
             GlobalSettings.QualitySettingsViewModel = QualitySettingsViewModel;
 
+            ActiveRenderer = new Renderer();
+            SceneTreeViewModel = new SceneTreeViewModel();
+
+            CreateNewScene();
+        }
+
+        private void CreateNewScene()
+        {
+            _scene = new Scene();
             var manipulator = new WorldObject() {Shape = new Cursor3D(0.1), IsGrabable = false};
-
-            // todo: move bezier into appropriate place and fix dynamic behaviour
-            /*var pt1 = new WorldObject {Position = new Point3D(-1, 0.2, 0), Shape = new MarkerPoint()};
-            var pt2 = new WorldObject {Position = new Point3D(-0.5, 0.1, 0), Shape = new MarkerPoint()};
-            var pt3 = new WorldObject {Position = new Point3D(0, 0, 0), Shape = new MarkerPoint()};
-            var pt4 = new WorldObject {Position = new Point3D(0.5, 0.3, 0), Shape = new MarkerPoint()};
-            var pt5 = new WorldObject { Position = new Point3D(1, 0, 0), Shape = new MarkerPoint() };
-
-            var bezier = new InterpolatingBSplineObject() {Shape = new BezierCurveC2()};
-            bezier.AttachObject(pt1);
-            bezier.AttachObject(pt2);
-            bezier.AttachObject(pt3);
-            bezier.AttachObject(pt4);
-            bezier.AttachObject(pt5);
-
-            _scene.AttachObject(pt1);
-            _scene.AttachObject(pt2);
-            _scene.AttachObject(pt3);
-            _scene.AttachObject(pt4);
-            _scene.AttachObject(pt5);
-
-            _scene.AttachObject(bezier);*/
             _scene.AttachObject(manipulator);
             _scene.Manipulator = manipulator;
             _scene.PropertyChanged += SceneChanged;
             _scene.Objects.CollectionChanged += SceneCollectionChanged;
-
-            ActiveRenderer = new Renderer {Scene = _scene};
-            SceneTreeViewModel = new SceneTreeViewModel() {Scene = _scene};
-
+            ActiveRenderer.Scene = _scene;
+            SceneTreeViewModel.Scene = _scene;
             UpdateManipulatorInfo();
         }
 
