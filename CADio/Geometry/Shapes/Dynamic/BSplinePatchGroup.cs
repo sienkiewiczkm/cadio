@@ -50,6 +50,37 @@ namespace CADio.Geometry.Shapes.Dynamic
                 vertices, lines
             );
 
+            if (IsPolygonRenderingEnabled)
+            {
+                var additionalVertices = ControlPoints.Select(t => new Vertex(t, Colors.GreenYellow)).ToList();
+                var additionalLines = new List<IndexedLine>();
+                var baseVertex = vertices.Count;
+
+                for (var x = 0; x < 3 + SegmentsX; ++x)
+                {
+                    for (var y = 0; y < 3 + SegmentsY; ++y)
+                    {
+                        if (x < 2 + SegmentsX)
+                        {
+                            additionalLines.Add(new IndexedLine(
+                                baseVertex + (ControlPointsRowLength*y + (x%ControlPointsRowLength)),
+                                baseVertex + (ControlPointsRowLength*y + ((x + 1)%ControlPointsRowLength))
+                            ));
+                        }
+                        if (y < 2 + SegmentsY)
+                        {
+                            additionalLines.Add(new IndexedLine(
+                                baseVertex + (ControlPointsRowLength * y + (x % ControlPointsRowLength)),
+                                baseVertex + (ControlPointsRowLength * (y + 1) + (x % ControlPointsRowLength))
+                            ));
+                        }
+                    }
+                }
+
+                vertices = vertices.Concat(additionalVertices).ToList();
+                lines = lines.Concat(additionalLines).ToList();
+            }
+
             Vertices = vertices;
             Lines = lines;
             MarkerPoints = ControlPoints.Select(t => new Vertex(t, Colors.White)).ToList();
@@ -60,7 +91,7 @@ namespace CADio.Geometry.Shapes.Dynamic
             Func<int, int, Tuple<int, int>> mapping, Func<int, int, int> indexMap,  int rows, int cols, int subdivisions, 
             List<Vertex> vertices, List<IndexedLine> lines)
         {
-            var solvers = new DeBoorSolver3D[rows];
+            var solvers = new DeBoorSolverRecursive3D[rows];
             for (var i = 0; i < rows; ++i)
             {
                 var subcontrolPoints = new List<Point3D>();
@@ -71,7 +102,7 @@ namespace CADio.Geometry.Shapes.Dynamic
                     subcontrolPoints.Add(ControlPoints[indexMap(mapped.Item1, mapped.Item2)]);
                 }
 
-                solvers[i] = new DeBoorSolver3D(subcontrolPoints);
+                solvers[i] = new DeBoorSolverRecursive3D(subcontrolPoints);
             }
 
             for (var i = 0; i < subdivisions; ++i)

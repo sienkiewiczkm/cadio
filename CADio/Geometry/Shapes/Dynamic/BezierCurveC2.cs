@@ -118,7 +118,7 @@ namespace CADio.Geometry.Shapes.Dynamic
             Func<Point3D, Point3D, double> estimateScreenSpaceDistanceWithoutClip)
         {
             var rawPointsList = new List<Vertex>();
-            var solver = new DeBoorSolver3D(controlPoints, knots);
+            var solver = new DeBoorSolverRecursive3D(controlPoints, knots);
 
             if (controlPoints.Count <= 3)
                 return rawPointsList;

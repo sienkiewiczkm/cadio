@@ -53,7 +53,7 @@ namespace CADio.Mathematics.Numerical
                 for (var i = 0; i < count && realstart+i < interpolationPoints.Count; ++i)
                 {
                     var col = realstart + i;
-                    N[row, fixer+i] = DeBoorSolver1D.EvaluateBsplineFunctionRecursively(degree, col, t[row], u);
+                    N[row, fixer+i] = DeBoorSolverRecursive1D.EvaluateBsplineFunctionRecursively(degree, col, t[row], u);
                 }
             }
 

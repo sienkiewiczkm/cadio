@@ -90,9 +90,11 @@
     <Compile Include="Helpers\MVVM\RelayCommand.cs" />
     <Compile Include="Mathematics\MathHelpers.cs" />
     <Compile Include="Mathematics\Matrix4x4.cs" />
+    <Compile Include="Mathematics\Numerical\Bspline.cs" />
+    <Compile Include="Mathematics\Numerical\BsplineDynamicSolver3D.cs" />
     <Compile Include="Mathematics\Numerical\BSplineInterpolation3D.cs" />
-    <Compile Include="Mathematics\Numerical\DeBoorSolver1D.cs" />
-    <Compile Include="Mathematics\Numerical\DeBoorSolver3D.cs" />
+    <Compile Include="Mathematics\Numerical\DeBoorSolverRecursive1D.cs" />
+    <Compile Include="Mathematics\Numerical\DeBoorSolverRecursive3D.cs" />
     <Compile Include="Mathematics\Numerical\BSplineToBernsteinConverter.cs" />
     <Compile Include="Mathematics\Numerical\DeCastlejauSolver.cs" />
     <Compile Include="Mathematics\Numerical\LinearEquationSolver.cs" />

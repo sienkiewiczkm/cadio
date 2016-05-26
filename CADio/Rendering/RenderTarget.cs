@@ -202,7 +202,7 @@ namespace CADio.Rendering
                     targetBitmap.FillEllipseCentered(
                         (int) point.Position.X, 
                         (int) point.Position.Y, 
-                        3, 3, 
+                        2, 2, 
                         point.Color
                     );
                 }

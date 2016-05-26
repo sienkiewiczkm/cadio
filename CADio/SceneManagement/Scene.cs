@@ -438,7 +438,7 @@ namespace CADio.SceneManagement
                     var rows = ReadInt();
                     var columns = ReadInt();
                     var folded = GetTextSegment()[0] == 'C';
-                    var flipDirection = GetTextSegment()[0] == 'H';
+                    var flipDirection = GetTextSegment()[0] == 'H' && false;
 
                     var dataRows = !flipDirection ? rows : columns;
                     var dataColumns = !flipDirection ? columns : rows;

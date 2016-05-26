@@ -3,11 +3,11 @@ using System.Windows.Media.Media3D;
 
 namespace CADio.Mathematics.Numerical
 {
-    public class DeBoorSolver3D
+    public class DeBoorSolverRecursive3D
     {
-        private readonly DeBoorSolver1D[] _solvers;
+        private readonly DeBoorSolverRecursive1D[] _solvers;
 
-        public DeBoorSolver3D(IList<Point3D> controlPoints, IList<double> knotPositions = null)
+        public DeBoorSolverRecursive3D(IList<Point3D> controlPoints, IList<double> knotPositions = null)
         {
             var solverData = new[]
             {
@@ -26,9 +26,9 @@ namespace CADio.Mathematics.Numerical
 
             _solvers = new[]
             {
-                new DeBoorSolver1D(solverData[0], knotPositions),
-                new DeBoorSolver1D(solverData[1], knotPositions),
-                new DeBoorSolver1D(solverData[2], knotPositions),
+                new DeBoorSolverRecursive1D(solverData[0], knotPositions),
+                new DeBoorSolverRecursive1D(solverData[1], knotPositions),
+                new DeBoorSolverRecursive1D(solverData[2], knotPositions),
             };
         }
 

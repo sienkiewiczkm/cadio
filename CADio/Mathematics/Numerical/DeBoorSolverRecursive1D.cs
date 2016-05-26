@@ -4,12 +4,12 @@ using System.Linq;
 
 namespace CADio.Mathematics.Numerical
 {
-    public class DeBoorSolver1D
+    public class DeBoorSolverRecursive1D
     {
         private readonly IList<double> _deBoorPointsValues;
         private IList<double> _knotPositions;
 
-        public DeBoorSolver1D(IList<double> deBoorPointsValues, IList<double> knotPositions = null)
+        public DeBoorSolverRecursive1D(IList<double> deBoorPointsValues, IList<double> knotPositions = null)
         {
             _deBoorPointsValues = deBoorPointsValues;
             _knotPositions = knotPositions;
@@ -26,9 +26,10 @@ namespace CADio.Mathematics.Numerical
             if (applyParameterCorrection)
                 t = CorrectTParameter(t, 3);
 
-            return _deBoorPointsValues
-                .Select((value, i) => EvaluateBsplineFunctionRecursively(3, i, t, _knotPositions)*value)
-                .Sum();
+            return Bspline.EvaluateBspline(_deBoorPointsValues, _knotPositions, 3, t);
+            //return _deBoorPointsValues
+            //.Select((value, i) => EvaluateBsplineFunctionRecursively(3, i, t, _knotPositions)*value)
+            //.Sum();
         }
 
         private double CorrectTParameter(double t, int degree)
@@ -66,7 +67,6 @@ namespace CADio.Mathematics.Numerical
             const int degree = 3;
             var intervals = _deBoorPointsValues.Count + degree;
             var knotPositions = new double[intervals + 1];
-            var dt = 1.0/intervals;
 
             for (var i = 0; i < knotPositions.Length; ++i)
                 knotPositions[i] = (double)i/intervals;

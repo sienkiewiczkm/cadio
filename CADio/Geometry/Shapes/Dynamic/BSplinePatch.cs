@@ -12,7 +12,7 @@ namespace CADio.Geometry.Shapes.Dynamic
         protected override void CreateDirectionalSurfaceSampling(Func<Point3D, Point3D, double> estimateScreenSpaceDistanceWithoutClip, 
             Func<int, int, Tuple<int, int>> mapping, int subdivisions, List<Vertex> vertices, List<IndexedLine> lines)
         {
-            var solvers = new DeBoorSolver3D[4];
+            var solvers = new DeBoorSolverRecursive3D[4];
             for (var i = 0; i < 4; ++i)
             {
                 var subcontrolPoints = new List<Point3D>();
@@ -23,7 +23,7 @@ namespace CADio.Geometry.Shapes.Dynamic
                     subcontrolPoints.Add(ControlPoints[mapped.Item1 + mapped.Item2 * 4]);
                 }
 
-                solvers[i] = new DeBoorSolver3D(subcontrolPoints);
+                solvers[i] = new DeBoorSolverRecursive3D(subcontrolPoints);
             }
 
             for (var i = 0; i < subdivisions; ++i)
