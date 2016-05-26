@@ -20,17 +20,18 @@ namespace CADio.Mathematics.Numerical
         public static double EvaluateBspline(IList<double> controlPoints, 
             IList<double> knots, int degree, double t)
         {
-            var d = new double[degree + 1, degree + 1];
-
             var interval = knots.Count - 2;
-            for (; t < knots[interval]; --interval);
-            
+            for (; t < knots[interval]; --interval) ;
+
             var currentMultiplicity = 0;
-            while (interval - currentMultiplicity > 0 && 
+            while (interval - currentMultiplicity > 0 &&
                 Math.Abs(
                     t - knots[interval - currentMultiplicity]
                 ) < 0.00001f)
                 ++currentMultiplicity;
+
+            var d = new double[degree - currentMultiplicity + 1, 
+                degree - currentMultiplicity + 1];
 
             for (var i = 0; i <= degree - currentMultiplicity; ++i)
                 d[0, i] = controlPoints[interval - degree + i];
