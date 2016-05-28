@@ -1,4 +1,5 @@
-﻿using System.Windows.Media.Media3D;
+﻿using System.Collections.Generic;
+using System.Windows.Media.Media3D;
 
 namespace CADio.SceneManagement.Interfaces
 {
@@ -6,5 +7,6 @@ namespace CADio.SceneManagement.Interfaces
     {
         Point3D Position { get; set; }
         ICollapsable Tracked { get; set; }
+        List<ICollapsable> Trackers { get; }
     }
 }

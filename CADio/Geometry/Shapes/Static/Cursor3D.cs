@@ -67,11 +67,11 @@ namespace CADio.Geometry.Shapes.Static
             _verticesCache = new List<Vertex>
             {
                 new Vertex(new Point3D(0, +Size, 0), Colors.Red),
-                new Vertex(new Point3D(0, -Size, 0), Colors.Red),
+                new Vertex(new Point3D(0, 0, 0), Colors.Red),
                 new Vertex(new Point3D(+Size, 0, 0), Colors.Green),
-                new Vertex(new Point3D(-Size, 0, 0), Colors.Green),
+                new Vertex(new Point3D(0, 0, 0), Colors.Green),
                 new Vertex(new Point3D(0, 0, +Size), Colors.Blue),
-                new Vertex(new Point3D(0, 0, -Size), Colors.Blue),
+                new Vertex(new Point3D(0, 0, 0), Colors.Blue),
             };
 
             _indexedSegmentsCache = new List<IndexedLine>

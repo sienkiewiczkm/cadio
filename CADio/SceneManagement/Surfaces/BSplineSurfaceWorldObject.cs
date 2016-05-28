@@ -35,7 +35,12 @@ namespace CADio.SceneManagement.Surfaces
 
         public ICommand TogglePolygonRenderingCommand
         {
-            get { return _togglePolygonRenderingCommand ?? (_togglePolygonRenderingCommand = new RelayCommand(TogglePolygonRendering)); }
+            get
+            {
+                return _togglePolygonRenderingCommand ?? 
+                    (_togglePolygonRenderingCommand = 
+                        new RelayCommand(TogglePolygonRendering));
+            }
             set { _togglePolygonRenderingCommand = value; OnPropertyChanged(); }
         }
 
@@ -49,7 +54,12 @@ namespace CADio.SceneManagement.Surfaces
             Shape = new BSplinePatchGroup();
         }
 
-        public static BSplineSurfaceWorldObject CreateFlatGrid(int segmentsX, int segmentsY, double width, double height)
+        public static BSplineSurfaceWorldObject CreateFlatGrid(
+            int segmentsX, 
+            int segmentsY, 
+            double width, 
+            double height
+            )
         {
             var surface = new BSplineSurfaceWorldObject
             {
@@ -59,22 +69,39 @@ namespace CADio.SceneManagement.Surfaces
                 _folded = false,
             };
 
-            surface.SetupVirtualPointsGrid(3 + segmentsX, 3 + segmentsY, width, height);
+            surface.SetupVirtualPointsGrid(
+                3 + segmentsX, 
+                3 + segmentsY, 
+                width, 
+                height
+            );
+
             return surface;
         }
 
-        public static BSplineSurfaceWorldObject CreateCylindrical(int segmentsX, int segmentsY,
-            double radius, double height)
+        public static BSplineSurfaceWorldObject CreateCylindrical(
+            int segmentsX, 
+            int segmentsY,
+            double radius, 
+            double height
+            )
         {
             var surface = new BSplineSurfaceWorldObject
             {
                 _segmentsX = segmentsX,
                 _segmentsY = segmentsY,
-                _rowLength = 3+segmentsX-3, // todo: min segments = 4 <= 3+segmentsX-3 ==> segmentsX >= 4 
+                // todo: min segments = 4 <= 3+segmentsX-3 ==> segmentsX >= 4 
+                _rowLength = 3+segmentsX-3, 
                 _folded = true,
             };
 
-            surface.SetupVirtualPointsCylinder(surface._rowLength, 3+segmentsY, radius, height);
+            surface.SetupVirtualPointsCylinder(
+                surface._rowLength, 
+                3+segmentsY, 
+                radius, 
+                height
+            );
+
             return surface;
         }
 
@@ -105,10 +132,16 @@ namespace CADio.SceneManagement.Surfaces
         {
             if (!(Shape is BSplinePatchGroup))
                 return;
-            ((BSplinePatchGroup)Shape).IsPolygonRenderingEnabled = IsPolygonRenderingEnabled;
+            ((BSplinePatchGroup)Shape).IsPolygonRenderingEnabled = 
+                IsPolygonRenderingEnabled;
         }
 
-        private void SetupVirtualPointsGrid(int cols, int rows, double width = 1, double height = 1)
+        private void SetupVirtualPointsGrid(
+            int cols, 
+            int rows, 
+            double width = 1, 
+            double height = 1
+            )
         {
             var spacingX = 1.0 / (cols - 1);
             var spacingY = 1.0 / (rows - 1);
@@ -134,7 +167,12 @@ namespace CADio.SceneManagement.Surfaces
             }
         }
 
-        private void SetupVirtualPointsCylinder(int onCrossSectionPoints, int onLengthPoints, double radius, double height)
+        private void SetupVirtualPointsCylinder(
+            int onCrossSectionPoints, 
+            int onLengthPoints, 
+            double radius, 
+            double height
+            )
         {
             _virtualPoints.Clear();
 
@@ -146,7 +184,11 @@ namespace CADio.SceneManagement.Surfaces
                     var angle = 2*Math.PI*j/onCrossSectionPoints;
                     _virtualPoints.Add(new VirtualPoint()
                     {
-                        Position = new Point3D(radius*Math.Sin(angle), h, radius*Math.Cos(angle)),
+                        Position = new Point3D(
+                            radius*Math.Sin(angle), 
+                            h, 
+                            radius*Math.Cos(angle)
+                        ),
                         ParentObject = this,
                     });
                 }
@@ -170,7 +212,8 @@ namespace CADio.SceneManagement.Surfaces
                 {
                     var dataRow = row;
                     var dataColumn = column;
-                    var pos = _virtualPoints[dataColumn + dataRow * _rowLength].Position;
+                    var pos = _virtualPoints[dataColumn 
+                        + dataRow * _rowLength].Position;
                     gatherer.EmitInt(gatherer.CreateReferencePoint(pos));
                 }
             }

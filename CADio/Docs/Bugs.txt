@@ -1,0 +1,5 @@
+﻿Problem: Virtual points references after surface deletion.
+
+Problem: Transformations of higher order objects are causing errors
+         in coordinate calculation when referencing another object 
+         eg. with collapse

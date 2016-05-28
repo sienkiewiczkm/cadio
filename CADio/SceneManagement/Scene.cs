@@ -554,6 +554,7 @@ namespace CADio.SceneManagement
             {
                 resultantPosition += (Vector3D)collapsable.Position;
                 collapsable.Tracked = firstCollapsable;
+                firstCollapsable.Trackers.Add(collapsable);
             }
 
             firstCollapsable.Position =

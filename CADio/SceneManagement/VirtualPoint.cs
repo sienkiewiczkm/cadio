@@ -1,4 +1,5 @@
-﻿using System.Windows.Media.Media3D;
+﻿using System.Collections.Generic;
+using System.Windows.Media.Media3D;
 using CADio.SceneManagement.Interfaces;
 
 namespace CADio.SceneManagement
@@ -31,6 +32,9 @@ namespace CADio.SceneManagement
         }
 
         public ICollapsable Tracked { get; set; }
+
+        public List<ICollapsable> Trackers { get; } = new List<ICollapsable>();
+
         public bool IsGrabbed { get; set; }
         public IWorldObject ParentObject { get; set; }
 
