@@ -14,6 +14,7 @@ using CADio.Geometry.Shapes.Static;
 using CADio.Helpers.MVVM;
 using CADio.Rendering;
 using CADio.SceneManagement;
+using CADio.SceneManagement.Interfaces;
 using Microsoft.Win32;
 
 namespace CADio.ViewModels

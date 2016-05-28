@@ -4,7 +4,7 @@ using System.Windows.Media.Media3D;
 using CADio.Geometry.Shapes;
 using CADio.Mathematics;
 
-namespace CADio.SceneManagement
+namespace CADio.SceneManagement.Interfaces
 {
     public interface IWorldObject
     {

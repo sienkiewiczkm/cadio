@@ -1,6 +1,6 @@
 ﻿using System.Windows.Media.Media3D;
 
-namespace CADio.SceneManagement
+namespace CADio.SceneManagement.Interfaces
 {
     public interface ISceneSelectable
     {

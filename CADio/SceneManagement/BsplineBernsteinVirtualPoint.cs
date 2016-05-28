@@ -1,4 +1,5 @@
 ﻿using System.Windows.Media.Media3D;
+using CADio.SceneManagement.Interfaces;
 
 namespace CADio.SceneManagement
 {

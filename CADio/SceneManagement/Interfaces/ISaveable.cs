@@ -1,4 +1,4 @@
-﻿namespace CADio.SceneManagement
+﻿namespace CADio.SceneManagement.Interfaces
 {
     public interface ISaveable
     {

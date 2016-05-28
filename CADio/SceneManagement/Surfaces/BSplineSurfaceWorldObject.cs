@@ -7,6 +7,7 @@ using System.Windows.Media.Media3D;
 using CADio.Configuration;
 using CADio.Geometry.Shapes.Dynamic;
 using CADio.Helpers.MVVM;
+using CADio.SceneManagement.Interfaces;
 
 namespace CADio.SceneManagement.Surfaces
 {

@@ -3,7 +3,7 @@ using CADio.SceneManagement.Interfaces;
 
 namespace CADio.SceneManagement
 {
-    public class VirtualPoint : ISceneSelectable, ICollapsable
+    public class VirtualPoint : ISceneSelectable, ICollapsable 
     {
         private Point3D _position;
 

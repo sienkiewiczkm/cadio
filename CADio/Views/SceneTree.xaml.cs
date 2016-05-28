@@ -5,6 +5,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using CADio.Geometry.Shapes.Static;
 using CADio.SceneManagement;
+using CADio.SceneManagement.Interfaces;
 using CADio.ViewModels;
 using CADio.Views.DragDropSupport;
 

@@ -6,6 +6,7 @@ using System.Windows.Media.Media3D;
 using CADio.Geometry.Shapes;
 using CADio.Geometry.Shapes.Static;
 using CADio.Mathematics;
+using CADio.SceneManagement.Interfaces;
 using CADio.Views.DragDropSupport;
 
 namespace CADio.SceneManagement

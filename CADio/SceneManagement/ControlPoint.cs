@@ -2,6 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using CADio.Helpers.MVVM;
+using CADio.SceneManagement.Interfaces;
 
 namespace CADio.SceneManagement
 {

@@ -132,6 +132,7 @@ namespace CADio.SceneManagement
             if (selectable.IsGrabbed) return;
             selectable.IsGrabbed = true;
             _grabbedObjects.Add(selectable);
+            OnPropertyChanged(nameof(GrabbedObjects));
         }
 
         public void UngrabObject(ISceneSelectable selectable)
@@ -139,6 +140,7 @@ namespace CADio.SceneManagement
             if (!selectable.IsGrabbed) return;
             selectable.IsGrabbed = false;
             _grabbedObjects.Remove(selectable);
+            OnPropertyChanged(nameof(GrabbedObjects));
         }
 
         public void UngrabAllObjects()
@@ -558,6 +560,9 @@ namespace CADio.SceneManagement
                 (Point3D) (resultantPosition/collapsables.Count);
 
             SetObjectGrab(firstCollapsable as ISceneSelectable);
+
+            // todo: Rework screen refreshing
+            OnPropertyChanged(nameof(GrabbedObjects));
         }
     }
 }

@@ -121,16 +121,16 @@
       <DependentUpon>DesignSceneListData.xaml</DependentUpon>
     </Compile>
     <Compile Include="SceneManagement\BezierC2WorldObject.cs" />
-    <Compile Include="SceneManagement\IImportable.cs" />
     <Compile Include="SceneManagement\Interfaces\ICollapsable.cs" />
+    <Compile Include="SceneManagement\Interfaces\IControlPointDependent.cs" />
+    <Compile Include="SceneManagement\Interfaces\IImportable.cs" />
+    <Compile Include="SceneManagement\Interfaces\ISaveable.cs" />
+    <Compile Include="SceneManagement\Interfaces\ISceneSelectable.cs" />
+    <Compile Include="SceneManagement\Interfaces\ISmartEditTarget.cs" />
+    <Compile Include="SceneManagement\Interfaces\IWorldObject.cs" />
     <Compile Include="SceneManagement\InterpolatingBSplineObject.cs" />
     <Compile Include="SceneManagement\BsplineBernsteinVirtualPoint.cs" />
     <Compile Include="SceneManagement\ControlPoint.cs" />
-    <Compile Include="SceneManagement\IControlPointDependent.cs" />
-    <Compile Include="SceneManagement\ISaveable.cs" />
-    <Compile Include="SceneManagement\ISceneSelectable.cs" />
-    <Compile Include="SceneManagement\ISmartEditTarget.cs" />
-    <Compile Include="SceneManagement\IWorldObject.cs" />
     <Compile Include="SceneManagement\MarkerPointObject.cs" />
     <Compile Include="SceneManagement\Scene.cs" />
     <Compile Include="SceneManagement\BezierC0WorldObject.cs" />
