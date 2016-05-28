@@ -9,6 +9,7 @@
              xmlns:static="clr-namespace:CADio.Geometry.Shapes.Static"
              xmlns:dynamic="clr-namespace:CADio.Geometry.Shapes.Dynamic"
              xmlns:converters="clr-namespace:CADio.Views.Converters"
+             xmlns:surfaces="clr-namespace:CADio.SceneManagement.Surfaces"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="200" d:DataContext="{d:DesignData /SampleData/DesignSceneListData/DesignSceneListData.xaml}">
     <UserControl.Resources>
@@ -115,7 +116,7 @@
                             </Button>
                         </StackPanel>
                     </HierarchicalDataTemplate>
-                    <DataTemplate DataType="{x:Type sceneManagement:BezierSurfaceWorldObject}">
+                    <DataTemplate DataType="{x:Type surfaces:BezierSurfaceWorldObject}">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="{Binding Name}" Margin="0 0 4 0"/>
                             <Button Command="{Binding TogglePolygonRenderingCommand}" Width="14" Height="14" BorderThickness="1"
@@ -124,7 +125,7 @@
                             </Button>
                         </StackPanel>
                     </DataTemplate>
-                    <DataTemplate DataType="{x:Type sceneManagement:BSplineSurfaceWorldObject}">
+                    <DataTemplate DataType="{x:Type surfaces:BSplineSurfaceWorldObject}">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="{Binding Name}" Margin="0 0 4 0"/>
                             <Button Command="{Binding TogglePolygonRenderingCommand}" Width="14" Height="14" BorderThickness="1"

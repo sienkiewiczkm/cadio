@@ -106,8 +106,8 @@ namespace CADio.Rendering
             foreach (var worldObject in Scene.Objects)
                 worldObject.PrerenderUpdate();
 
-            if (Scene.GrabbedObject != null)
-                Scene.Manipulator.Position = Scene.GrabbedObject.Position;
+            if (Scene.GrabbedObjects.Count > 0)
+                Scene.Manipulator.Position = Scene.GrabbedObjects.First().Position;
 
             foreach (var worldObject in Scene.Objects)
             {
@@ -176,7 +176,7 @@ namespace CADio.Rendering
                 var transformation = viewProj*worldObject.GetWorldMatrix();
 
                 // todo: renderer probably should not check scene like that
-                Color? colorOverride = null;
+                var colorOverride = worldObject.ColorOverride;
                 //if (worldObject == Scene.GrabbedObject)
                 //    colorOverride = Colors.Orange;
 

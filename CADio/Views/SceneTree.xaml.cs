@@ -28,7 +28,7 @@ namespace CADio.Views
 
             var selectable = viewModel?.SelectedObject as ISceneSelectable;
             if (selectable != null)
-                viewModel.Scene.GrabbedObject = selectable;
+                viewModel.Scene.GrabObject(selectable);
         }
 
         private void OnTreeViewPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)

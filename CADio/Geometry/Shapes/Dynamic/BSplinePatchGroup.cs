@@ -4,7 +4,9 @@ using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
+using CADio.Configuration;
 using CADio.Mathematics.Numerical;
+using CADio.SceneManagement.Surfaces;
 
 namespace CADio.Geometry.Shapes.Dynamic
 {
@@ -21,18 +23,22 @@ namespace CADio.Geometry.Shapes.Dynamic
 
         public int SegmentsX { get; set; }
         public int SegmentsY { get; set; }
-        public List<Point3D> ControlPoints { get; set; }
+        public List<SurfaceControlPoint> ControlPoints { get; set; }
         public int ControlPointsRowLength { get; set; }
 
-        public void UpdateGeometry(Func<Point3D, Point3D, double> estimateScreenSpaceDistanceWithoutClip, Predicate<Point3D> isInsideProjectiveCubePredicate)
+        public void UpdateGeometry(
+            Func<Point3D, Point3D, double> estimateScreenDistanceWithoutClip, 
+            Predicate<Point3D> isInsideProjectiveCubePredicate
+            )
         {
             var vertices = new List<Vertex>();
             var lines = new List<IndexedLine>();
-            var markerPoints = new List<Vertex>();
 
-            Func<int, int, int> idMapping = (i, j) => (j)*(ControlPointsRowLength) + (i%(ControlPointsRowLength)); 
+            Func<int, int, int> idMapping = (i, j) => 
+                (j)*(ControlPointsRowLength) + (i%(ControlPointsRowLength)); 
                 
-            CreateDirectionalSurfaceSampling(estimateScreenSpaceDistanceWithoutClip,
+            CreateDirectionalSurfaceSampling(
+                estimateScreenDistanceWithoutClip,
                 (i, j) => new Tuple<int, int>(i, j),
                 idMapping,
                 3 + SegmentsX, 
@@ -41,7 +47,8 @@ namespace CADio.Geometry.Shapes.Dynamic
                 vertices, lines
             );
 
-            CreateDirectionalSurfaceSampling(estimateScreenSpaceDistanceWithoutClip,
+            CreateDirectionalSurfaceSampling(
+                estimateScreenDistanceWithoutClip,
                 (i, j) => new Tuple<int, int>(j, i),
                 idMapping,
                 3 + SegmentsY,
@@ -52,7 +59,12 @@ namespace CADio.Geometry.Shapes.Dynamic
 
             if (IsPolygonRenderingEnabled)
             {
-                var additionalVertices = ControlPoints.Select(t => new Vertex(t, Colors.GreenYellow)).ToList();
+                var additionalVertices = ControlPoints
+                        .Select(t => new Vertex(
+                            t.Position, 
+                            Colors.GreenYellow
+                        )).ToList();
+
                 var additionalLines = new List<IndexedLine>();
                 var baseVertex = vertices.Count;
 
@@ -63,15 +75,19 @@ namespace CADio.Geometry.Shapes.Dynamic
                         if (x < 2 + SegmentsX)
                         {
                             additionalLines.Add(new IndexedLine(
-                                baseVertex + (ControlPointsRowLength*y + (x%ControlPointsRowLength)),
-                                baseVertex + (ControlPointsRowLength*y + ((x + 1)%ControlPointsRowLength))
+                                baseVertex + (ControlPointsRowLength*y 
+                                    + (x%ControlPointsRowLength)),
+                                baseVertex + (ControlPointsRowLength*y 
+                                    + ((x + 1)%ControlPointsRowLength))
                             ));
                         }
                         if (y < 2 + SegmentsY)
                         {
                             additionalLines.Add(new IndexedLine(
-                                baseVertex + (ControlPointsRowLength * y + (x % ControlPointsRowLength)),
-                                baseVertex + (ControlPointsRowLength * (y + 1) + (x % ControlPointsRowLength))
+                                baseVertex + (ControlPointsRowLength * y 
+                                    + (x % ControlPointsRowLength)),
+                                baseVertex + (ControlPointsRowLength * (y + 1) 
+                                    + (x % ControlPointsRowLength))
                             ));
                         }
                     }
@@ -83,13 +99,25 @@ namespace CADio.Geometry.Shapes.Dynamic
 
             Vertices = vertices;
             Lines = lines;
-            MarkerPoints = ControlPoints.Select(t => new Vertex(t, Colors.White)).ToList();
+            MarkerPoints = ControlPoints
+                .Select(t => new Vertex(
+                    t.Position, 
+                    t.ColorOverride ?? Colors.White
+                )).ToList();
+
             RawPoints = new List<Vertex>();
         }
 
-        protected void CreateDirectionalSurfaceSampling(Func<Point3D, Point3D, double> estimateScreenSpaceDistanceWithoutClip,
-            Func<int, int, Tuple<int, int>> mapping, Func<int, int, int> indexMap,  int rows, int cols, int subdivisions, 
-            List<Vertex> vertices, List<IndexedLine> lines)
+        protected void CreateDirectionalSurfaceSampling(
+            Func<Point3D, Point3D, double> estimateScreenDistanceWithoutClip,
+            Func<int, int, Tuple<int, int>> mapping, 
+            Func<int, int, int> indexMap,  
+            int rows, 
+            int cols, 
+            int subdivisions, 
+            List<Vertex> vertices, 
+            List<IndexedLine> lines
+            )
         {
             var solvers = new DeBoorSolverRecursive3D[rows];
             for (var i = 0; i < rows; ++i)
@@ -99,7 +127,10 @@ namespace CADio.Geometry.Shapes.Dynamic
                 for (var j = 0; j < cols; ++j)
                 {
                     var mapped = mapping(i, j);
-                    subcontrolPoints.Add(ControlPoints[indexMap(mapped.Item1, mapped.Item2)]);
+                    var indexMapped = indexMap(mapped.Item1, mapped.Item2);
+                    subcontrolPoints.Add(
+                        ControlPoints[indexMapped].Position
+                    );
                 }
 
                 solvers[i] = new DeBoorSolverRecursive3D(subcontrolPoints);
@@ -114,11 +145,17 @@ namespace CADio.Geometry.Shapes.Dynamic
                     subdivisionControlPoints.Add(solvers[j].Evaluate(t, true));
                 }
 
-                var sampled = BezierCurveC2.SampleBSplineCurve(subdivisionControlPoints, null, true,
-                    estimateScreenSpaceDistanceWithoutClip);
+                var sampled = BezierCurveC2.SampleBSplineCurve(
+                    subdivisionControlPoints, 
+                    null, 
+                    true,
+                    estimateScreenDistanceWithoutClip
+                );
+
                 if (sampled.Count <= 1) continue;
 
-                var sampledLines = Enumerable.Range(vertices.Count, sampled.Count - 1)
+                var sampledLines = Enumerable
+                    .Range(vertices.Count, sampled.Count - 1)
                     .Select(idx => new IndexedLine(idx, idx + 1))
                     .ToList();
 

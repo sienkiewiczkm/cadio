@@ -29,13 +29,14 @@ namespace CADio.Views
 
             if (e.RightButton == MouseButtonState.Pressed)
             {
+                var multigrab = (Keyboard.GetKeyStates(Key.LeftShift) & KeyStates.Down) != 0;
                 var aspect = RT.ActualWidth/RT.ActualHeight;
                 var pixelPosition = e.GetPosition(RT);
                 var xf = pixelPosition.X/RT.ActualWidth;
                 var yf = pixelPosition.Y/RT.ActualHeight;
                 aspect = 1.0;
                 var screenSpaceClick = new Point(2*aspect*xf-aspect, -(2*yf-1));
-                _viewModel.GrabUsingMouse(screenSpaceClick);
+                _viewModel.GrabUsingMouse(screenSpaceClick, multigrab);
             }
         }
 
@@ -93,7 +94,11 @@ namespace CADio.Views
                 case Key.D: --cursorMovementZ; break;
             }
 
-            if (e.Key == Key.F) _viewModel.GrabNearestPointOrUngrab();
+            if (e.Key == Key.F)
+                _viewModel.GrabNearestPoint(false);
+
+            if (e.Key == Key.Escape)
+                _viewModel.UngrabSelection();
 
             var moveStep = 0.05;
             _viewModel.MoveManipulator(moveStep * cursorMovementX, 

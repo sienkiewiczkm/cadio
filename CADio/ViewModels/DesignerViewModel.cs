@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Media3D;
+using CADio.Configuration;
 using CADio.Geometry.Shapes;
 using CADio.Geometry.Shapes.Dynamic;
 using CADio.Geometry.Shapes.Static;
@@ -209,13 +210,14 @@ namespace CADio.ViewModels
         {
             var shift = new Vector3D(dx, dy, dz);
             _scene.Manipulator.Translate(shift);
-            _scene.GrabbedObject?.Translate(shift);
+            foreach (var obj in _scene.GrabbedObjects)
+                obj.Translate(shift);
 
             UpdateManipulatorInfo();
             ActiveRenderer.ForceRedraw();
         }
 
-        public void GrabUsingMouse(Point screenSpaceClick, double limit = 0.2)
+        public void GrabUsingMouse(Point screenSpaceClick, bool allowMultigrab, double limit = 0.2)
         {
             var selectables = GetSceneSelectables();
 
@@ -223,7 +225,7 @@ namespace CADio.ViewModels
                 return;
 
             ISceneSelectable closestObject = null;
-            double closestDistance = double.MaxValue;
+            var closestDistance = double.MaxValue;
 
             foreach (var selectable in selectables)
             {
@@ -235,35 +237,34 @@ namespace CADio.ViewModels
                 closestDistance = candidateLength;
             }
 
-            if (closestDistance > limit) return;
+            if (closestObject == null || closestDistance > limit)
+                return;
 
-            TryToggleGrabbedObject(closestObject);
+            if (allowMultigrab) _scene.ToggleObjectGrab(closestObject);
+            else _scene.SetObjectGrab(closestObject);
         }
 
-        public void GrabNearestPointOrUngrab(double limit = 1.0)
+        public void GrabNearestPoint(bool allowMultigrab, double limit = 1.0)
         {
-            var markerPoints = GetSceneSelectables();
+            var selectables = GetSceneSelectables();
 
-            var closestPoint = markerPoints.Count > 0 ? markerPoints[0] : null;
-            var closestDistance = closestPoint != null
-                ? (closestPoint.Position - _scene.Manipulator.Position).Length
-                : 0.0;
+            ISceneSelectable closestSelectable = null;
+            var closestDistance = double.MaxValue;
 
-            for (var i = 1; i < markerPoints.Count; ++i)
+            foreach (var t in selectables)
             {
-                var candidateDistance = (markerPoints[i].Position - _scene.Manipulator.Position).Length;
+                if (t.IsGrabbed && allowMultigrab) continue;
+                var candidateDistance = (t.Position - _scene.Manipulator.Position).Length;
                 if (candidateDistance >= closestDistance) continue;
-                closestPoint = markerPoints[i];
+                closestSelectable = t;
                 closestDistance = candidateDistance;
             }
 
-            if (closestDistance > limit)
-            {
-                _scene.GrabbedObject = null;
+            if (closestSelectable == null || closestDistance > limit)
                 return;
-            }
 
-            TryToggleGrabbedObject(closestPoint);
+            if (allowMultigrab) _scene.ToggleObjectGrab(closestSelectable);
+            else _scene.SetObjectGrab(closestSelectable);
         }
 
         private IList<ISceneSelectable> GetSceneSelectables()
@@ -278,14 +279,6 @@ namespace CADio.ViewModels
                 .ToList();
 
             return markerPoints.Union(selectableChildren).ToList();
-        }
-
-        private void TryToggleGrabbedObject(ISceneSelectable closestPoint)
-        {
-            var grabbedObject = _scene.GrabbedObject != closestPoint ? closestPoint : null;
-            if (grabbedObject != null)
-                _scene.Manipulator.Position = grabbedObject.Position;
-            _scene.GrabbedObject = grabbedObject;
         }
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -304,6 +297,11 @@ namespace CADio.ViewModels
             CursorReadableInfo = String.Format("Cursor world position: ({0:0.##} ; {1:0.##} ; {2:0.##}) {3}",
                 _scene.Manipulator.Position.X, _scene.Manipulator.Position.Y, _scene.Manipulator.Position.Z,
                 cursorViewPosInfo);
+        }
+
+        public void UngrabSelection()
+        {
+            _scene.UngrabAllObjects();
         }
     }
 }

@@ -2,20 +2,23 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Media3D;
+using CADio.Configuration;
 using CADio.Geometry.Shapes.Dynamic;
 using CADio.Helpers.MVVM;
 
-namespace CADio.SceneManagement
+namespace CADio.SceneManagement.Surfaces
 {
-    public class BSplineSurfaceWorldObject : WorldObject, ISaveable
+    public class BezierSurfaceWorldObject : WorldObject, ISaveable
     {
         private int _segmentsX;
         private int _segmentsY;
         private int _rowLength;
         private bool _isPolygonRenderingEnabled;
         private ICommand _togglePolygonRenderingCommand;
-        private readonly List<VirtualPoint> _virtualPoints = new List<VirtualPoint>();
+        private readonly List<VirtualPoint> _virtualPoints 
+            = new List<VirtualPoint>();
         private bool _folded;
 
         public bool IsPolygonRenderingEnabled
@@ -40,50 +43,66 @@ namespace CADio.SceneManagement
             IsPolygonRenderingEnabled = !IsPolygonRenderingEnabled;
         }
 
-        public BSplineSurfaceWorldObject()
+        public BezierSurfaceWorldObject()
         {
-            Shape = new BSplinePatchGroup();
+            Shape = new BezierPatchGroup();
         }
 
-        public static BSplineSurfaceWorldObject CreateFlatGrid(int segmentsX, int segmentsY, double width, double height)
+        public static BezierSurfaceWorldObject CreateFlatGrid(int segmentsX, int segmentsY, double width, double height)
         {
-            var surface = new BSplineSurfaceWorldObject
+            var surface = new BezierSurfaceWorldObject
             {
                 _segmentsX = segmentsX,
                 _segmentsY = segmentsY,
-                _rowLength = 3+segmentsX,
-                _folded = false,
+                _rowLength = 3*segmentsX+1,
             };
 
-            surface.SetupVirtualPointsGrid(3 + segmentsX, 3 + segmentsY, width, height);
+            surface.SetupVirtualPointsGrid(3*segmentsX+1, 3*segmentsY+1, width, height);
             return surface;
         }
 
-        public static BSplineSurfaceWorldObject CreateCylindrical(int segmentsX, int segmentsY,
-            double radius, double height)
+        public static BezierSurfaceWorldObject CreateCylindrical(
+            int segmentsX, 
+            int segmentsY,
+            double radius, 
+            double height
+            )
         {
-            var surface = new BSplineSurfaceWorldObject
+            var surface = new BezierSurfaceWorldObject
             {
                 _segmentsX = segmentsX,
                 _segmentsY = segmentsY,
-                _rowLength = 3+segmentsX-3, // todo: min segments = 4 <= 3+segmentsX-3 ==> segmentsX >= 4 
-                _folded = true,
+                _rowLength = 3*segmentsX,
             };
 
-            surface.SetupVirtualPointsCylinder(surface._rowLength, 3+segmentsY, radius, height);
+            surface._folded = true;
+
+            surface.SetupVirtualPointsCylinder(
+                3*segmentsX, 
+                3*segmentsY+1, 
+                radius, 
+                height
+            );
+
             return surface;
         }
 
         public override void PrerenderUpdate()
         {
-            var patch = Shape as BSplinePatchGroup;
+            var patch = Shape as BezierPatchGroup;
             if (patch == null)
                 return;
 
             patch.SegmentsX = _segmentsX;
             patch.SegmentsY = _segmentsY;
             patch.ControlPointsRowLength = _rowLength;
-            patch.ControlPoints = _virtualPoints.Select(t => t.Position).ToList();
+            patch.ControlPoints = _virtualPoints
+                .Select(t => new SurfaceControlPoint() {
+                    Position = t.Position,
+                    ColorOverride = t.IsGrabbed
+                        ? ColorSettings.SceneSelection
+                        : (Color?) null
+                }).ToList();
         }
 
         public override ICollection<ISceneSelectable> GetSelectableChildren()
@@ -93,17 +112,17 @@ namespace CADio.SceneManagement
 
         private void SetupPolygonRendering()
         {
-            if (!(Shape is BSplinePatchGroup))
+            if (!(Shape is BezierPatchGroup))
                 return;
-            ((BSplinePatchGroup)Shape).IsPolygonRenderingEnabled = IsPolygonRenderingEnabled;
+            ((BezierPatchGroup)Shape).IsPolygonRenderingEnabled = IsPolygonRenderingEnabled;
         }
 
         private void SetupVirtualPointsGrid(int cols, int rows, double width = 1, double height = 1)
         {
-            var spacingX = 1.0 / (cols - 1);
-            var spacingY = 1.0 / (rows - 1);
-            var totalX = spacingX * (cols - 1);
-            var totalY = spacingY * (rows - 1);
+            var spacingX = 1.0/(cols - 1);
+            var spacingY = 1.0/(rows - 1);
+            var totalX = spacingX*(cols-1);
+            var totalY = spacingY*(rows-1);
 
             _virtualPoints.Clear();
 
@@ -113,7 +132,7 @@ namespace CADio.SceneManagement
                 {
                     _virtualPoints.Add(new VirtualPoint()
                     {
-                        Position = new Point3D(width * (x * spacingX - totalX * 0.5), 0, height * (y * spacingY - totalY * 0.5))
+                        Position = new Point3D(width*(x*spacingX - totalX*0.5), 0, height*(y*spacingY - totalY*0.5))
                     });
                 }
             }
@@ -141,7 +160,7 @@ namespace CADio.SceneManagement
         {
             var totalRows = _virtualPoints.Count / _rowLength;
 
-            gatherer.EmitObjectInfo(Scene.WorldObjectType.BSplineSurface, Name);
+            gatherer.EmitObjectInfo(Scene.WorldObjectType.BezierSurface, Name);
             gatherer.EmitInt(totalRows);
             gatherer.EmitInt(_rowLength);
             gatherer.EmitChar(_folded ? 'C' : 'R');
@@ -154,7 +173,7 @@ namespace CADio.SceneManagement
                 {
                     var dataRow = row;
                     var dataColumn = column;
-                    var pos = _virtualPoints[dataColumn + dataRow * _rowLength].Position;
+                    var pos = _virtualPoints[dataColumn + dataRow*_rowLength].Position;
                     gatherer.EmitInt(gatherer.CreateReferencePoint(pos));
                 }
             }
@@ -170,15 +189,13 @@ namespace CADio.SceneManagement
 
             if (!folded)
             {
-                // 3 + segmentsX, 3 + segmentsY
-                _segmentsX = _rowLength - 3;
-                _segmentsY = rows - 3;
+                _segmentsX = (_rowLength - 1) / 3;
+                _segmentsY = (rows - 1)/3;
             }
             else
             {
-                // surface._rowLength, 3+segmentsY
-                _segmentsX = _rowLength;
-                _segmentsY = rows - 3;
+                _segmentsX = _rowLength/3;
+                _segmentsY = (rows - 1)/3;
             }
 
             _virtualPoints.Clear();

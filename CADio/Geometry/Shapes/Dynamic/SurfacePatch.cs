@@ -4,6 +4,8 @@ using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
+using CADio.Configuration;
+using CADio.SceneManagement.Surfaces;
 
 namespace CADio.Geometry.Shapes.Dynamic
 {
@@ -22,9 +24,9 @@ namespace CADio.Geometry.Shapes.Dynamic
         /// <summary>
         /// 16 Control Points
         /// </summary>
-        public List<Point3D> ControlPoints { get; set; }
+        public List<SurfaceControlPoint> ControlPoints { get; set; }
 
-        public void UpdateGeometry(Func<Point3D, Point3D, double> estimateScreenSpaceDistanceWithoutClip, Predicate<Point3D> isInsideProjectiveCubePredicate)
+        public void UpdateGeometry(Func<Point3D, Point3D, double> estimateScreenDistanceWithoutClip, Predicate<Point3D> isInsideProjectiveCubePredicate)
         {
             RawPoints = new List<Vertex>();
             MarkerPoints = new List<Vertex>();
@@ -39,20 +41,26 @@ namespace CADio.Geometry.Shapes.Dynamic
             var lines = new List<IndexedLine>();
 
             CreateDirectionalSurfaceSampling(
-                estimateScreenSpaceDistanceWithoutClip, 
+                estimateScreenDistanceWithoutClip, 
                 (i, j) => new Tuple<int, int>(i, j), 
-                GlobalSettings.QualitySettingsViewModel.SurfaceWSubdivisions, vertices, lines
-                );
+                GlobalSettings.QualitySettingsViewModel.SurfaceWSubdivisions, 
+                vertices, 
+                lines
+            );
 
             CreateDirectionalSurfaceSampling(
-                estimateScreenSpaceDistanceWithoutClip,
+                estimateScreenDistanceWithoutClip,
                 (i, j) => new Tuple<int, int>(j, i),
-                GlobalSettings.QualitySettingsViewModel.SurfaceHSubdivisions, vertices, lines
-                );
+                GlobalSettings.QualitySettingsViewModel.SurfaceHSubdivisions, 
+                vertices, 
+                lines
+            );
 
             if (IsPolygonRenderingEnabled)
             {
-                var additionalVertices = ControlPoints.Select(t => new Vertex(t, Colors.Gray)).ToList();
+                var additionalVertices = ControlPoints
+                    .Select(t => new Vertex(t.Position, Colors.Gray))
+                    .ToList();
                 var additionalLines = new List<IndexedLine>();
                 var baseVertex = vertices.Count;
 
@@ -75,13 +83,16 @@ namespace CADio.Geometry.Shapes.Dynamic
                 lines.AddRange(additionalLines);
             }
 
-            MarkerPoints = ControlPoints.Select(t => new Vertex(t, Colors.White)).ToList();
+            MarkerPoints = ControlPoints.Select(t => new Vertex(
+                    t.Position, 
+                    t.ColorOverride ?? Colors.White
+                )).ToList();
             Vertices = vertices;//Vertices.Concat(additionalVertices).ToList();
             Lines = lines; //Lines.Concat(additionalLines).ToList();
         }
 
         protected abstract void CreateDirectionalSurfaceSampling(
-            Func<Point3D, Point3D, double> estimateScreenSpaceDistanceWithoutClip,
+            Func<Point3D, Point3D, double> estimateScreenDistanceWithoutClip,
             Func<int, int, Tuple<int, int>> mapping,
             int subdivisions, List<Vertex> vertices, List<IndexedLine> lines);
     }

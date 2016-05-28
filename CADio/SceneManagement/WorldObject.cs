@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using CADio.Geometry.Shapes;
 using CADio.Geometry.Shapes.Static;
@@ -42,6 +43,8 @@ namespace CADio.SceneManagement
             get { return _isGrabbed; }
             set { _isGrabbed = value; OnPropertyChanged(); }
         }
+
+        public Color? ColorOverride => _isGrabbed ? Colors.OrangeRed : (Color?) null;
 
         public Matrix4X4 GetWorldMatrix()
         {

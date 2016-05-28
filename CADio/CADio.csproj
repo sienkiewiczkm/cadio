@@ -68,6 +68,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Configuration\ColorSettings.cs" />
+    <Compile Include="Configuration\GlobalSettings.cs" />
     <Compile Include="Geometry\Mesh.cs" />
     <Compile Include="Geometry\IndexedLine.cs" />
     <Compile Include="Geometry\Shapes\Dynamic\BezierCurveC2.cs" />
@@ -84,7 +86,6 @@
     <Compile Include="Geometry\Shapes\Static\Sphere.cs" />
     <Compile Include="Geometry\Shapes\Static\Torus.cs" />
     <Compile Include="Geometry\Vertex.cs" />
-    <Compile Include="GlobalSettings.cs" />
     <Compile Include="Helpers\ColorHelpers.cs" />
     <Compile Include="Helpers\LINQExtensions.cs" />
     <Compile Include="Helpers\MVVM\RelayCommand.cs" />
@@ -120,8 +121,6 @@
       <DependentUpon>DesignSceneListData.xaml</DependentUpon>
     </Compile>
     <Compile Include="SceneManagement\BezierC2WorldObject.cs" />
-    <Compile Include="SceneManagement\BSplineSurfaceWorldObject.cs" />
-    <Compile Include="SceneManagement\BezierSurfaceWorldObject.cs" />
     <Compile Include="SceneManagement\IImportable.cs" />
     <Compile Include="SceneManagement\InterpolatingBSplineObject.cs" />
     <Compile Include="SceneManagement\BsplineBernsteinVirtualPoint.cs" />
@@ -134,6 +133,9 @@
     <Compile Include="SceneManagement\MarkerPointObject.cs" />
     <Compile Include="SceneManagement\Scene.cs" />
     <Compile Include="SceneManagement\BezierC0WorldObject.cs" />
+    <Compile Include="SceneManagement\Surfaces\BezierSurfaceWorldObject.cs" />
+    <Compile Include="SceneManagement\Surfaces\BSplineSurfaceWorldObject.cs" />
+    <Compile Include="SceneManagement\Surfaces\SurfaceControlPoint.cs" />
     <Compile Include="SceneManagement\VirtualPoint.cs" />
     <Compile Include="SceneManagement\WorldObject.cs" />
     <Compile Include="ViewModels\BezierSurfaceCreationViewModel.cs" />

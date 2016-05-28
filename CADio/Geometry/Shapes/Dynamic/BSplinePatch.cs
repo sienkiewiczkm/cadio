@@ -9,7 +9,7 @@ namespace CADio.Geometry.Shapes.Dynamic
 {
     public class BSplinePatch : SurfacePatch
     {
-        protected override void CreateDirectionalSurfaceSampling(Func<Point3D, Point3D, double> estimateScreenSpaceDistanceWithoutClip, 
+        protected override void CreateDirectionalSurfaceSampling(Func<Point3D, Point3D, double> estimateScreenDistanceWithoutClip, 
             Func<int, int, Tuple<int, int>> mapping, int subdivisions, List<Vertex> vertices, List<IndexedLine> lines)
         {
             var solvers = new DeBoorSolverRecursive3D[4];
@@ -20,7 +20,7 @@ namespace CADio.Geometry.Shapes.Dynamic
                 for (var j = 0; j < 4; ++j)
                 {
                     var mapped = mapping(i, j);
-                    subcontrolPoints.Add(ControlPoints[mapped.Item1 + mapped.Item2 * 4]);
+                    subcontrolPoints.Add(ControlPoints[mapped.Item1 + mapped.Item2 * 4].Position);
                 }
 
                 solvers[i] = new DeBoorSolverRecursive3D(subcontrolPoints);
@@ -36,7 +36,7 @@ namespace CADio.Geometry.Shapes.Dynamic
                 }
 
                 var sampled = BezierCurveC2.SampleBSplineCurve(subdivisionControlPoints, null, true,
-                    estimateScreenSpaceDistanceWithoutClip);
+                    estimateScreenDistanceWithoutClip);
                 if (sampled.Count <= 1) continue;
 
                 var sampledLines = Enumerable.Range(vertices.Count, sampled.Count - 1)

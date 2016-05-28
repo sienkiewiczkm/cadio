@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
+using CADio.SceneManagement.Surfaces;
 
 namespace CADio.Geometry.Shapes.Dynamic
 {
@@ -20,10 +21,13 @@ namespace CADio.Geometry.Shapes.Dynamic
 
         public int SegmentsX { get; set; }
         public int SegmentsY { get; set; }
-        public List<Point3D> ControlPoints { get; set; }
+        public List<SurfaceControlPoint> ControlPoints { get; set; }
         public int ControlPointsRowLength { get; set; }
 
-        public void UpdateGeometry(Func<Point3D, Point3D, double> estimateScreenSpaceDistanceWithoutClip, Predicate<Point3D> isInsideProjectiveCubePredicate)
+        public void UpdateGeometry(
+            Func<Point3D, Point3D, double> estimateScreenDistanceWithoutClip, 
+            Predicate<Point3D> isInsideProjectiveCubePredicate
+            )
         {
             var vertices = new List<Vertex>();
             var lines = new List<IndexedLine>();
@@ -40,7 +44,7 @@ namespace CADio.Geometry.Shapes.Dynamic
                         IsPolygonRenderingEnabled = IsPolygonRenderingEnabled
                     };
 
-                    patch.UpdateGeometry(estimateScreenSpaceDistanceWithoutClip, isInsideProjectiveCubePredicate);
+                    patch.UpdateGeometry(estimateScreenDistanceWithoutClip, isInsideProjectiveCubePredicate);
 
                     lines.AddRange(patch.Lines
                         .Select(t => new IndexedLine(t.First + vertices.Count, t.Second + vertices.Count))

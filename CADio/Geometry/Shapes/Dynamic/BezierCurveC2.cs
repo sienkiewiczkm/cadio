@@ -40,7 +40,7 @@ namespace CADio.Geometry.Shapes.Dynamic
 
         public CurveBasis Basis { get; set; } = CurveBasis.BSpline;
 
-        public void UpdateGeometry(Func<Point3D, Point3D, double> estimateScreenSpaceDistanceWithoutClip,
+        public void UpdateGeometry(Func<Point3D, Point3D, double> estimateScreenDistanceWithoutClip,
             Predicate<Point3D> isInsideProjectiveCubePredicate)
         {
             IList<Point3D> chosenControlPoints;
@@ -56,7 +56,7 @@ namespace CADio.Geometry.Shapes.Dynamic
 
                     rawPointsList = BezierCurveC0.SampleBezierCurveC0(
                         chosenControlPoints,
-                        estimateScreenSpaceDistanceWithoutClip, 
+                        estimateScreenDistanceWithoutClip, 
                         3
                     );
 
@@ -64,7 +64,7 @@ namespace CADio.Geometry.Shapes.Dynamic
                     break;
                 case CurveBasis.BSpline:
                     chosenControlPoints = ControlPoints;
-                    rawPointsList = SampleBSplineCurve(ControlPoints, CustomKnots, ApplyParameterCorrection, estimateScreenSpaceDistanceWithoutClip);
+                    rawPointsList = SampleBSplineCurve(ControlPoints, CustomKnots, ApplyParameterCorrection, estimateScreenDistanceWithoutClip);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

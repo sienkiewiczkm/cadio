@@ -1,6 +1,6 @@
 ﻿using CADio.ViewModels;
 
-namespace CADio
+namespace CADio.Configuration
 {
     public static class GlobalSettings
     {

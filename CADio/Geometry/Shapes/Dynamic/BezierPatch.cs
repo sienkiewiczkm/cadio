@@ -11,8 +11,13 @@ namespace CADio.Geometry.Shapes.Dynamic
     {
         public override string Name => "Bezier Patch";
 
-        protected override void CreateDirectionalSurfaceSampling(Func<Point3D, Point3D, double> estimateScreenSpaceDistanceWithoutClip, 
-            Func<int, int, Tuple<int, int>> mapping, int subdivisions, List<Vertex> vertices, List<IndexedLine> lines)
+        protected override void CreateDirectionalSurfaceSampling(
+            Func<Point3D, Point3D, double> estimateScreenDistanceWithoutClip, 
+            Func<int, int, Tuple<int, int>> mapping, 
+            int subdivisions, 
+            List<Vertex> vertices, 
+            List<IndexedLine> lines
+            )
         {
             var solvers = new DeCastlejauSolver[4];
             for (var i = 0; i < 4; ++i)
@@ -22,7 +27,7 @@ namespace CADio.Geometry.Shapes.Dynamic
                 for (var j = 0; j < 4; ++j)
                 {
                     var mapped = mapping(i, j);
-                    subcontrolPoints.Add(ControlPoints[mapped.Item1 + mapped.Item2 * 4]);
+                    subcontrolPoints.Add(ControlPoints[mapped.Item1 + mapped.Item2 * 4].Position);
                 }
 
                 solvers[i] = new DeCastlejauSolver(BezierCurveC0.FillBernsteinCoordinatesArray(subcontrolPoints, 3, 0));
@@ -38,7 +43,7 @@ namespace CADio.Geometry.Shapes.Dynamic
                 }
 
                 var sampled = BezierCurveC0.SampleBezierCurveC0(subdivisionControlPoints,
-                    estimateScreenSpaceDistanceWithoutClip, 3);
+                    estimateScreenDistanceWithoutClip, 3);
                 if (sampled.Count <= 1) continue;
 
                 var sampledLines = Enumerable.Range(vertices.Count, sampled.Count - 1)

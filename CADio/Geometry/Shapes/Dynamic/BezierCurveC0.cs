@@ -25,12 +25,12 @@ namespace CADio.Geometry.Shapes.Dynamic
 
         public IList<Point3D> ControlPoints = new List<Point3D>(); 
 
-        public void UpdateGeometry(Func<Point3D, Point3D, double> estimateScreenSpaceDistanceWithoutClip,
+        public void UpdateGeometry(Func<Point3D, Point3D, double> estimateScreenDistanceWithoutClip,
             Predicate<Point3D> isInsideProjectiveCubePredicate)
         {
             const int targetDegree = 3;
 
-            var rawPointsList = SampleBezierCurveC0(ControlPoints, estimateScreenSpaceDistanceWithoutClip, targetDegree);
+            var rawPointsList = SampleBezierCurveC0(ControlPoints, estimateScreenDistanceWithoutClip, targetDegree);
 
             RawPoints = new List<Vertex>();
             Vertices = new List<Vertex>();

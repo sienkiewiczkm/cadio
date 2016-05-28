@@ -10,23 +10,25 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows.Data;
 using System.Windows.Media.Media3D;
+using CADio.Configuration;
 using CADio.Geometry.Shapes;
 using CADio.Geometry.Shapes.Dynamic;
 using CADio.Geometry.Shapes.Static;
 using CADio.Mathematics;
 using CADio.Rendering;
+using CADio.SceneManagement.Surfaces;
 
 namespace CADio.SceneManagement
 {
     public class Scene : INotifyPropertyChanged
     {
-        private ISceneSelectable _grabbedObject;
         private WorldObject _manipulator;
         private ObservableCollection<WorldObject> _objects;
         private ICamera _camera = new ArcBallCamera();
         private ICollectionView _manageableObjects;
         private WorldObject _firstSelectedObject;
         private ISmartEditTarget _smartEditTarget;
+        private readonly List<ISceneSelectable> _grabbedObjects = new List<ISceneSelectable>();
 
         public ICamera Camera
         {
@@ -60,6 +62,8 @@ namespace CADio.SceneManagement
             }
         }
 
+        public IReadOnlyList<ISceneSelectable> GrabbedObjects => _grabbedObjects;
+
         private void CreateObjectCollectionView()
         {
             var collectionView = CollectionViewSource.GetDefaultView(Objects);
@@ -77,20 +81,6 @@ namespace CADio.SceneManagement
         {
             get { return _manipulator; }
             set { _manipulator = value; OnPropertyChanged(); }
-        }
-
-        public ISceneSelectable GrabbedObject
-        {
-            get { return _grabbedObject; }
-            set
-            {
-                if (_grabbedObject != null)
-                    _grabbedObject.IsGrabbed = false;
-                _grabbedObject = value;
-                if (_grabbedObject != null)
-                    _grabbedObject.IsGrabbed = true;
-                OnPropertyChanged();
-            }
         }
 
         public string Filename { get; set; }
@@ -120,13 +110,41 @@ namespace CADio.SceneManagement
         public void DetachObject(IWorldObject worldObject)
         {
             if (worldObject?.SceneManager != this) return;
-            if (GrabbedObject == worldObject)
-                GrabbedObject = null;
+            if (worldObject.IsGrabbed)
+                UngrabObject(worldObject as ISceneSelectable);
             worldObject.DetachFromCompositors();
             // todo: fix hack
             Objects.Remove((WorldObject)worldObject);
             worldObject.SceneManager = null;
             worldObject.PropertyChanged -= OnWorldObjectChange;
+        }
+
+        public void ToggleObjectGrab(ISceneSelectable selectable)
+        {
+            if (_grabbedObjects.Contains(selectable))
+                UngrabObject(selectable);
+            else GrabObject(selectable);
+        }
+
+        public void GrabObject(ISceneSelectable selectable)
+        {
+            if (selectable.IsGrabbed) return;
+            selectable.IsGrabbed = true;
+            _grabbedObjects.Add(selectable);
+        }
+
+        public void UngrabObject(ISceneSelectable selectable)
+        {
+            if (!selectable.IsGrabbed) return;
+            selectable.IsGrabbed = false;
+            _grabbedObjects.Remove(selectable);
+        }
+
+        public void UngrabAllObjects()
+        {
+            foreach (var grabbed in _grabbedObjects)
+                grabbed.IsGrabbed = false;
+            _grabbedObjects.Clear();
         }
 
         private void OnWorldObjectChange(object sender, PropertyChangedEventArgs e)
@@ -505,6 +523,12 @@ namespace CADio.SceneManagement
             var importer = new SceneDataImporter(sceneFile);
             importer.Import(this);
             GlobalSettings.FreezeDrawing = false;
+        }
+
+        public void SetObjectGrab(ISceneSelectable closestObject)
+        {
+            UngrabAllObjects();
+            GrabObject(closestObject);
         }
     }
 }
