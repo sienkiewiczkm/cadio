@@ -16,6 +16,7 @@ using CADio.Geometry.Shapes.Dynamic;
 using CADio.Geometry.Shapes.Static;
 using CADio.Mathematics;
 using CADio.Rendering;
+using CADio.SceneManagement.Interfaces;
 using CADio.SceneManagement.Surfaces;
 
 namespace CADio.SceneManagement
@@ -529,6 +530,34 @@ namespace CADio.SceneManagement
         {
             UngrabAllObjects();
             GrabObject(closestObject);
+        }
+
+        public void CollapseSelection()
+        {
+            var collapsables = _grabbedObjects
+                .Where(t => t is ICollapsable)
+                .Cast<ICollapsable>()
+                .ToList();
+
+            if (collapsables.Count < 2)
+                throw new ApplicationException(string.Concat(
+                    "There is not enough collapsables contained in selection ",
+                    "to perform collapse operation."
+                    ));
+
+            var firstCollapsable = collapsables.First();
+            var resultantPosition = (Vector3D)firstCollapsable.Position;
+
+            foreach (var collapsable in collapsables.Skip(1))
+            {
+                resultantPosition += (Vector3D)collapsable.Position;
+                collapsable.Tracked = firstCollapsable;
+            }
+
+            firstCollapsable.Position =
+                (Point3D) (resultantPosition/collapsables.Count);
+
+            SetObjectGrab(firstCollapsable as ISceneSelectable);
         }
     }
 }

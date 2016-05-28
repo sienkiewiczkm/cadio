@@ -122,6 +122,7 @@
     </Compile>
     <Compile Include="SceneManagement\BezierC2WorldObject.cs" />
     <Compile Include="SceneManagement\IImportable.cs" />
+    <Compile Include="SceneManagement\Interfaces\ICollapsable.cs" />
     <Compile Include="SceneManagement\InterpolatingBSplineObject.cs" />
     <Compile Include="SceneManagement\BsplineBernsteinVirtualPoint.cs" />
     <Compile Include="SceneManagement\ControlPoint.cs" />
@@ -247,6 +248,15 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\edit.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\AddBezier.png" />
+    <Resource Include="Resources\AddBspline.png" />
+    <Resource Include="Resources\AddInterpolation.png" />
+    <Resource Include="Resources\AddPoint.png" />
+    <Resource Include="Resources\AddSurfaceC0.png" />
+    <Resource Include="Resources\AddSurfaceC2.png" />
+    <Resource Include="Resources\Collapse.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

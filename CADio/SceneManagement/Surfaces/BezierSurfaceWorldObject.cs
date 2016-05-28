@@ -73,9 +73,8 @@ namespace CADio.SceneManagement.Surfaces
                 _segmentsX = segmentsX,
                 _segmentsY = segmentsY,
                 _rowLength = 3*segmentsX,
+                _folded = true,
             };
-
-            surface._folded = true;
 
             surface.SetupVirtualPointsCylinder(
                 3*segmentsX, 

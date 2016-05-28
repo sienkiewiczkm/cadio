@@ -47,7 +47,12 @@
                 </StackPanel>
             </ToolBar>
             <ToolBar>
-                <ToggleButton></ToggleButton>
+                <Button ToolTip="Collapse selected vertices" 
+                        Command="{Binding CollapseSelectionCommand}">
+                    <Image Source="../Resources/Collapse.png" 
+                           Width="16" 
+                           Height="16" />
+                </Button> 
             </ToolBar>
         </ToolBarTray>
         <StatusBar DockPanel.Dock="Bottom">

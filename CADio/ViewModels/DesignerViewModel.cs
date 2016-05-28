@@ -30,40 +30,80 @@ namespace CADio.ViewModels
         private ICommand _loadSceneCommand;
         private ICommand _saveSceneCommand;
         private ICommand _saveSceneAsCommand;
+        private ICommand _collapseSelectionCommand;
 
         public QualitySettingsViewModel QualitySettingsViewModel
         {
             get { return _qualitySettingsViewModel; }
-            set { _qualitySettingsViewModel = value; OnPropertyChanged(); }
+            set
+            {
+                _qualitySettingsViewModel = value;
+                OnPropertyChanged();
+            }
         }
 
         public ICommand NewSceneCommand
         {
             get { return _newSceneCommand ?? (_newSceneCommand = new RelayCommand(RequestNewScene)); }
-            set { _newSceneCommand = value; OnPropertyChanged(); }
+            set
+            {
+                _newSceneCommand = value;
+                OnPropertyChanged();
+            }
         }
 
         public ICommand LoadSceneCommand
         {
             get { return _loadSceneCommand ?? (_loadSceneCommand = new RelayCommand(LoadScene)); }
-            set { _loadSceneCommand = value; OnPropertyChanged(); }
+            set
+            {
+                _loadSceneCommand = value;
+                OnPropertyChanged();
+            }
         }
 
         public ICommand SaveSceneCommand
         {
             get { return _saveSceneCommand ?? (_saveSceneCommand = new RelayCommand(SaveScene)); }
-            set { _saveSceneCommand = value; OnPropertyChanged(); }
+            set
+            {
+                _saveSceneCommand = value;
+                OnPropertyChanged();
+            }
         }
 
         public ICommand SaveSceneAsCommand
         {
             get { return _saveSceneAsCommand ?? (_saveSceneAsCommand = new RelayCommand(SaveSceneAs)); }
-            set { _saveSceneAsCommand = value; OnPropertyChanged(); }
+            set
+            {
+                _saveSceneAsCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ICommand CollapseSelectionCommand
+        {
+            get
+            {
+                return _collapseSelectionCommand ?? 
+                    (_collapseSelectionCommand 
+                        = new RelayCommand(
+                            CollapseSelection, 
+                            () => IsSelectionCollapsable)
+                    );
+            }
+            set
+            {
+                _collapseSelectionCommand = value;
+                OnPropertyChanged();
+            }
         }
 
         private void RequestNewScene()
         {
-            var result = MessageBox.Show(_ownerWindow, "Creating new scene will clear this one. Are you sure?", "New scene confirmation",
+            var result = MessageBox.Show(_ownerWindow, "Creating new scene will clear this one. Are you sure?",
+                "New scene confirmation",
                 MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (result == MessageBoxResult.No)
                 return;
@@ -73,7 +113,8 @@ namespace CADio.ViewModels
 
         private void LoadScene()
         {
-            var result = MessageBox.Show(_ownerWindow, "Loading a scene will clear this one. Are you sure?", "New scene confirmation",
+            var result = MessageBox.Show(_ownerWindow, "Loading a scene will clear this one. Are you sure?",
+                "New scene confirmation",
                 MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (result == MessageBoxResult.No)
                 return;
@@ -108,6 +149,12 @@ namespace CADio.ViewModels
 
             _scene.Filename = sfd.FileName;
             _scene.Save();
+        }
+
+        private bool IsSelectionCollapsable => _scene.GrabbedObjects.Count > 1;
+        private void CollapseSelection()
+        {
+            _scene.CollapseSelection();
         }
 
         public DesignerViewModel(Window ownerWindow)
