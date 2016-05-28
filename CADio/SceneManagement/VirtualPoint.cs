@@ -17,7 +17,7 @@ namespace CADio.SceneManagement
             set
             {
                 if (Tracked == null) _position = value;
-                else Tracked.Position = _position;
+                else Tracked.Position = value;
             }
         }
 

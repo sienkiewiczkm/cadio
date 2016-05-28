@@ -124,6 +124,12 @@ namespace CADio.SceneManagement.Surfaces
                     IsPolygonRenderingEnabled;
         }
 
+        public override void Translate(Vector3D translation)
+        {
+            foreach (var virtualPoint in _virtualPoints)
+                virtualPoint.Position += translation;
+        }
+
         private void SetupVirtualPointsGrid(
             int cols, 
             int rows, 
