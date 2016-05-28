@@ -123,7 +123,12 @@ namespace CADio.SceneManagement.Surfaces
                 {
                     _virtualPoints.Add(new VirtualPoint()
                     {
-                        Position = new Point3D(width * (x * spacingX - totalX * 0.5), 0, height * (y * spacingY - totalY * 0.5))
+                        Position = new Point3D(
+                            width * (x * spacingX - totalX * 0.5), 
+                            0, 
+                            height * (y * spacingY - totalY * 0.5)
+                        ),
+                        ParentObject = this,
                     });
                 }
             }
@@ -142,6 +147,7 @@ namespace CADio.SceneManagement.Surfaces
                     _virtualPoints.Add(new VirtualPoint()
                     {
                         Position = new Point3D(radius*Math.Sin(angle), h, radius*Math.Cos(angle)),
+                        ParentObject = this,
                     });
                 }
             }

@@ -20,6 +20,7 @@ namespace CADio.SceneManagement
         public IShape Shape => new MarkerPoint();
 
         public Point3D Position { get; set; }
+        public Point3D WorldPosition => Position;
         public Vector3D Scale { get; set; }
         public bool IsGrabbed { get; set; }
         public Scene SceneManager { get; set; }

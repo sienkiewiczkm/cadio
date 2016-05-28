@@ -58,7 +58,13 @@ namespace CADio.SceneManagement.Surfaces
                 _rowLength = 3*segmentsX+1,
             };
 
-            surface.SetupVirtualPointsGrid(3*segmentsX+1, 3*segmentsY+1, width, height);
+            surface.SetupVirtualPointsGrid(
+                3*segmentsX+1, 
+                3*segmentsY+1, 
+                width, 
+                height
+            );
+
             return surface;
         }
 
@@ -101,7 +107,7 @@ namespace CADio.SceneManagement.Surfaces
                     Position = t.Position,
                     ColorOverride = t.IsGrabbed
                         ? ColorSettings.SceneSelection
-                        : (Color?) null
+                        : (Color?) null,
                 }).ToList();
         }
 
@@ -112,12 +118,18 @@ namespace CADio.SceneManagement.Surfaces
 
         private void SetupPolygonRendering()
         {
-            if (!(Shape is BezierPatchGroup))
-                return;
-            ((BezierPatchGroup)Shape).IsPolygonRenderingEnabled = IsPolygonRenderingEnabled;
+            var bezierPatchGroup = Shape as BezierPatchGroup;
+            if (bezierPatchGroup != null)
+                bezierPatchGroup.IsPolygonRenderingEnabled = 
+                    IsPolygonRenderingEnabled;
         }
 
-        private void SetupVirtualPointsGrid(int cols, int rows, double width = 1, double height = 1)
+        private void SetupVirtualPointsGrid(
+            int cols, 
+            int rows, 
+            double width = 1, 
+            double height = 1
+            )
         {
             var spacingX = 1.0/(cols - 1);
             var spacingY = 1.0/(rows - 1);
@@ -132,13 +144,23 @@ namespace CADio.SceneManagement.Surfaces
                 {
                     _virtualPoints.Add(new VirtualPoint()
                     {
-                        Position = new Point3D(width*(x*spacingX - totalX*0.5), 0, height*(y*spacingY - totalY*0.5))
+                        Position = new Point3D(
+                            width*(x*spacingX - totalX*0.5), 
+                            0, 
+                            height*(y*spacingY - totalY*0.5)
+                        ),
+                        ParentObject = this,
                     });
                 }
             }
         }
 
-        private void SetupVirtualPointsCylinder(int onCrossSectionPoints, int onLengthPoints, double radius, double height)
+        private void SetupVirtualPointsCylinder(
+            int onCrossSectionPoints, 
+            int onLengthPoints, 
+            double radius, 
+            double height
+            )
         {
             _virtualPoints.Clear();
 
@@ -150,7 +172,12 @@ namespace CADio.SceneManagement.Surfaces
                     var angle = 2*Math.PI*j/onCrossSectionPoints;
                     _virtualPoints.Add(new VirtualPoint()
                     {
-                        Position = new Point3D(radius*Math.Sin(angle), h, radius*Math.Cos(angle)),
+                        Position = new Point3D(
+                            radius*Math.Sin(angle), 
+                            h, 
+                            radius*Math.Cos(angle)
+                        ),
+                        ParentObject = this,
                     });
                 }
             }

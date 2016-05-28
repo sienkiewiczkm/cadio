@@ -277,9 +277,11 @@ namespace CADio.ViewModels
 
             foreach (var selectable in selectables)
             {
-                var screenSpacePosition = ActiveRenderer.GetStandardScreenSpacePosition(selectable.Position);
+                var screenSpacePosition = ActiveRenderer
+                    .GetStandardScreenSpacePosition(selectable.WorldPosition);
                 if (!screenSpacePosition.HasValue) continue;
-                var candidateLength = (screenSpacePosition.Value - screenSpaceClick).Length;
+                var candidateLength = 
+                    (screenSpacePosition.Value - screenSpaceClick).Length;
                 if (candidateLength >= closestDistance) continue;
                 closestObject = selectable;
                 closestDistance = candidateLength;
@@ -302,7 +304,8 @@ namespace CADio.ViewModels
             foreach (var t in selectables)
             {
                 if (t.IsGrabbed && allowMultigrab) continue;
-                var candidateDistance = (t.Position - _scene.Manipulator.Position).Length;
+                var candidateDistance = 
+                    (t.Position - _scene.Manipulator.Position).Length;
                 if (candidateDistance >= closestDistance) continue;
                 closestSelectable = t;
                 closestDistance = candidateDistance;
@@ -329,9 +332,14 @@ namespace CADio.ViewModels
             return markerPoints.Union(selectableChildren).ToList();
         }
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        protected virtual void OnPropertyChanged(
+            [CallerMemberName] string propertyName = null
+            )
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            PropertyChanged?.Invoke(
+                this, 
+                new PropertyChangedEventArgs(propertyName)
+            );
         }
 
         private void UpdateManipulatorInfo()

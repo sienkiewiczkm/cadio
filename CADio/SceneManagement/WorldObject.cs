@@ -11,7 +11,11 @@ using CADio.Views.DragDropSupport;
 
 namespace CADio.SceneManagement
 {
-    public class WorldObject : IWorldObject, IUIDragable, INotifyPropertyChanged, ISceneSelectable
+    public class WorldObject : 
+        IWorldObject, 
+        IUIDragable, 
+        INotifyPropertyChanged, 
+        ISceneSelectable
     {
         private string _name;
         private bool _isSelected;
@@ -25,13 +29,14 @@ namespace CADio.SceneManagement
 
         public Scene SceneManager { get; set; }
         public Point3D Position { get; set; }
+        public Point3D WorldPosition => Position;
         public Vector3D Orientation { get; set; } // Euler angles
         public Vector3D Scale { get; set; } = new Vector3D(1, 1, 1);
         public bool IsGrabable { get; set; } = true;
         public IShape Shape { get; set; }
 
-        public IList<IControlPointDependent> ObjectControlPointUsers { get; set; } 
-            = new List<IControlPointDependent>();
+        public IList<IControlPointDependent> ObjectControlPointUsers
+            { get; set; } = new List<IControlPointDependent>();
 
         public bool IsSelected
         {
@@ -45,11 +50,13 @@ namespace CADio.SceneManagement
             set { _isGrabbed = value; OnPropertyChanged(); }
         }
 
-        public Color? ColorOverride => _isGrabbed ? Colors.OrangeRed : (Color?) null;
+        public Color? ColorOverride => _isGrabbed 
+            ? Colors.OrangeRed 
+            : (Color?) null;
 
         public Matrix4X4 GetWorldMatrix()
         {
-            var translation = Transformations3D.Translation((Vector3D) Position);
+            var translation = Transformations3D.Translation((Vector3D)Position);
             var rotation = Transformations3D.RotationX(Orientation.X)
                            *Transformations3D.RotationY(Orientation.Y)
                            *Transformations3D.RotationZ(Orientation.Z);
@@ -80,9 +87,14 @@ namespace CADio.SceneManagement
             return new List<ISceneSelectable>();
         }
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        protected virtual void OnPropertyChanged(
+            [CallerMemberName] string propertyName = null
+            )
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            PropertyChanged?.Invoke(
+                this, 
+                new PropertyChangedEventArgs(propertyName)
+            );
         }
     }
 }

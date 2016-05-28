@@ -20,8 +20,19 @@ namespace CADio.SceneManagement
             }
         }
 
+        public Point3D WorldPosition
+        {
+            get
+            {
+                if (ParentObject != null)
+                    return ParentObject.Position + (Vector3D)Position;
+                return Position;
+            }
+        }
+
         public ICollapsable Tracked { get; set; }
         public bool IsGrabbed { get; set; }
+        public IWorldObject ParentObject { get; set; }
 
         public void Translate(Vector3D translation)
         {

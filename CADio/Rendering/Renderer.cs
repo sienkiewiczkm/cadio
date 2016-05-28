@@ -95,19 +95,22 @@ namespace CADio.Rendering
         public RenderedPrimitives GetRenderedPrimitives(PerspectiveType perspectiveType, RenderTarget renderTarget)
         {
             // todo: fixme
-            _aspectRatio = (float) renderTarget.OutputBitmap.PixelWidth/renderTarget.OutputBitmap.PixelHeight;
+            _aspectRatio = (float) renderTarget.OutputBitmap.PixelWidth
+                           /renderTarget.OutputBitmap.PixelHeight;
 
             var projection = GetProjectionMatrix(perspectiveType);
             var viewProj = projection*Scene.Camera.GetViewMatrix();
 
             var rasterizedLines = new List<Line2D>();
-            var perspectiveColorOverride = GetPerspectiveColorOverride(perspectiveType);
+            var perspectiveColorOverride = 
+                GetPerspectiveColorOverride(perspectiveType);
 
             foreach (var worldObject in Scene.Objects)
                 worldObject.PrerenderUpdate();
 
             if (Scene.GrabbedObjects.Count > 0)
-                Scene.Manipulator.Position = Scene.GrabbedObjects.First().Position;
+                Scene.Manipulator.Position = 
+                    Scene.GrabbedObjects.First().WorldPosition;
 
             foreach (var worldObject in Scene.Objects)
             {
