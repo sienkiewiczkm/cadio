@@ -52,7 +52,13 @@
                     <Image Source="../Resources/Collapse.png" 
                            Width="16" 
                            Height="16" />
-                </Button> 
+                </Button>
+                <Button ToolTip="Fill hole using Gregory patch"
+                        Command="{Binding FillWithGregoryCommand}">
+                    <Image Source="../Resources/Gregory.png"
+                           Width="16"
+                           Height="16" />
+                </Button>
             </ToolBar>
         </ToolBarTray>
         <StatusBar DockPanel.Dock="Bottom">

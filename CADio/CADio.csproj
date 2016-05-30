@@ -78,6 +78,7 @@
     <Compile Include="Geometry\Shapes\Dynamic\BezierPatchGroup.cs" />
     <Compile Include="Geometry\Shapes\Dynamic\BSplinePatch.cs" />
     <Compile Include="Geometry\Shapes\Dynamic\BSplinePatchGroup.cs" />
+    <Compile Include="Geometry\Shapes\Dynamic\GregoryPatchShape.cs" />
     <Compile Include="Geometry\Shapes\Dynamic\SurfacePatch.cs" />
     <Compile Include="Geometry\Shapes\IDynamicShape.cs" />
     <Compile Include="Geometry\Shapes\IShape.cs" />
@@ -90,6 +91,7 @@
     <Compile Include="Helpers\LINQExtensions.cs" />
     <Compile Include="Helpers\MVVM\RelayCommand.cs" />
     <Compile Include="Mathematics\MathHelpers.cs" />
+    <Compile Include="Mathematics\Matrix.cs" />
     <Compile Include="Mathematics\Matrix4x4.cs" />
     <Compile Include="Mathematics\Numerical\Bspline.cs" />
     <Compile Include="Mathematics\Numerical\BsplineDynamicSolver3D.cs" />
@@ -98,7 +100,9 @@
     <Compile Include="Mathematics\Numerical\DeBoorSolverRecursive3D.cs" />
     <Compile Include="Mathematics\Numerical\BSplineToBernsteinConverter.cs" />
     <Compile Include="Mathematics\Numerical\DeCastlejauSolver.cs" />
+    <Compile Include="Mathematics\Numerical\Gregory.cs" />
     <Compile Include="Mathematics\Numerical\LinearEquationSolver.cs" />
+    <Compile Include="Mathematics\Patches\GregoryPatch.cs" />
     <Compile Include="Mathematics\Transformations3D.cs" />
     <Compile Include="Mathematics\Vector3DExtensions.cs" />
     <Compile Include="Mathematics\Vector4D.cs" />
@@ -121,6 +125,7 @@
       <DependentUpon>DesignSceneListData.xaml</DependentUpon>
     </Compile>
     <Compile Include="SceneManagement\BezierC2WorldObject.cs" />
+    <Compile Include="SceneManagement\Surfaces\GregoryPatchWorldObject.cs" />
     <Compile Include="SceneManagement\Interfaces\ICollapsable.cs" />
     <Compile Include="SceneManagement\Interfaces\IControlPointDependent.cs" />
     <Compile Include="SceneManagement\Interfaces\IImportable.cs" />
@@ -260,6 +265,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Docs\Bugs.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Gregory.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

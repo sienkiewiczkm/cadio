@@ -35,8 +35,13 @@ namespace CADio.SceneManagement.Surfaces
 
         public ICommand TogglePolygonRenderingCommand
         {
-            get { return _togglePolygonRenderingCommand ?? (_togglePolygonRenderingCommand = new RelayCommand(TogglePolygonRendering)); }
-            set { _togglePolygonRenderingCommand = value; OnPropertyChanged(); }
+            get
+            {
+                return _togglePolygonRenderingCommand ?? 
+                    (_togglePolygonRenderingCommand = new RelayCommand(
+                        TogglePolygonRendering
+                    ));
+            }
         }
 
         private void TogglePolygonRendering()
@@ -49,7 +54,12 @@ namespace CADio.SceneManagement.Surfaces
             Shape = new BezierPatchGroup();
         }
 
-        public static BezierSurfaceWorldObject CreateFlatGrid(int segmentsX, int segmentsY, double width, double height)
+        public static BezierSurfaceWorldObject CreateFlatGrid(
+            int segmentsX, 
+            int segmentsY, 
+            double width, 
+            double height
+            )
         {
             var surface = new BezierSurfaceWorldObject
             {
@@ -128,6 +138,19 @@ namespace CADio.SceneManagement.Surfaces
         {
             foreach (var virtualPoint in _virtualPoints)
                 virtualPoint.Position += translation;
+        }
+
+        public Tuple<int, int> GetVirtualPointCoordinate(VirtualPoint vp)
+        {
+            var index = _virtualPoints.IndexOf(vp);
+            var x = index%_rowLength;
+            var y = index/_rowLength;
+            return new Tuple<int, int>(x, y);
+        }
+
+        public VirtualPoint GetVirtualPoint(int x, int y)
+        {
+            return _virtualPoints[y*_rowLength + x];
         }
 
         private void SetupVirtualPointsGrid(
@@ -239,10 +262,100 @@ namespace CADio.SceneManagement.Surfaces
                 {
                     _virtualPoints.Add(new VirtualPoint()
                     {
-                        Position = data[y, x]
+                        Position = data[y, x],
+                        ParentObject = this,
                     });
                 }
             }
+        }
+
+        public static List<BezierSurfaceWorldObject> GetAdjacentSurfaces(
+            VirtualPoint virtualPoint
+            )
+        {
+            var adjacentPatches = virtualPoint.Trackers
+                .Select(t => ((VirtualPoint)t).ParentObject
+                    as BezierSurfaceWorldObject)
+                .ToList();
+
+            if (virtualPoint.Tracked != null)
+                adjacentPatches.Add(
+                    ((VirtualPoint)virtualPoint.Tracked).ParentObject
+                    as BezierSurfaceWorldObject
+                );
+
+            return adjacentPatches;
+        }
+
+        public static List<VirtualPoint> FindHoleOutline(
+            List<BezierSurfaceWorldObject> gregoryAdjacentPatches
+            )
+        {
+            var outline = new List<VirtualPoint>();
+            BezierSurfaceWorldObject lastProcessedPatch = null;
+            var nonProcessedPatches = new LinkedList<BezierSurfaceWorldObject>(
+                gregoryAdjacentPatches
+            );
+
+            var currentPatch = nonProcessedPatches.First();
+            while (nonProcessedPatches.Count > 0)
+            {
+                nonProcessedPatches.Remove(currentPatch);
+
+                var importantCollapsedPoints = currentPatch._virtualPoints
+                    .Where(t => 
+                        gregoryAdjacentPatches.Contains(
+                            (t.Tracked as VirtualPoint)?.ParentObject
+                        ) || 
+                        t.Trackers.Any(
+                            tracker => gregoryAdjacentPatches.Contains(
+                                (tracker as VirtualPoint)?.ParentObject
+                            )
+                        ))
+                    .ToList();
+
+                if (importantCollapsedPoints.Count != 2)
+                    throw new ApplicationException(string.Join(
+                        "Expected two shared points between adjacent patches,",
+                        $" but found ${importantCollapsedPoints.Count}."
+                    ));
+
+                if (lastProcessedPatch != null)
+                {
+                    var firstPoint = importantCollapsedPoints.First();
+                    if (!GetAdjacentSurfaces(firstPoint)
+                        .Contains(lastProcessedPatch))
+                        importantCollapsedPoints.Reverse();
+                }
+
+                if (lastProcessedPatch == null)
+                    outline.Add(importantCollapsedPoints[0]);
+
+                var a = currentPatch.GetVirtualPointCoordinate(
+                    importantCollapsedPoints[0]
+                );
+
+                var b = currentPatch.GetVirtualPointCoordinate(
+                    importantCollapsedPoints[1]
+                );
+
+                for (var i = 1; i < 3; ++i)
+                {
+                    var xcoord = (a.Item1*(3 - i) + b.Item1*i)/3;
+                    var ycoord = (a.Item2*(3 - i) + b.Item2*i)/3;
+                    outline.Add(currentPatch.GetVirtualPoint(xcoord, ycoord));
+                }
+
+                if (nonProcessedPatches.Count > 0)
+                    outline.Add(importantCollapsedPoints[1]);
+
+                lastProcessedPatch = currentPatch;
+                currentPatch = GetAdjacentSurfaces(
+                    importantCollapsedPoints[1]
+                )[0];
+            }
+
+            return outline;
         }
     }
 }

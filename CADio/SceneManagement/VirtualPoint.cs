@@ -6,6 +6,9 @@ namespace CADio.SceneManagement
 {
     public class VirtualPoint : ISceneSelectable, ICollapsable 
     {
+        // todo: virtual point should not track another objects,
+        //       but instead be one object with owners list
+
         private Point3D _position;
 
         public Point3D Position

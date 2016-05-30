@@ -15,6 +15,7 @@ using CADio.Helpers.MVVM;
 using CADio.Rendering;
 using CADio.SceneManagement;
 using CADio.SceneManagement.Interfaces;
+using CADio.SceneManagement.Surfaces;
 using Microsoft.Win32;
 
 namespace CADio.ViewModels
@@ -32,6 +33,7 @@ namespace CADio.ViewModels
         private ICommand _saveSceneCommand;
         private ICommand _saveSceneAsCommand;
         private ICommand _collapseSelectionCommand;
+        private ICommand _fillWithGregoryCommand;
 
         public QualitySettingsViewModel QualitySettingsViewModel
         {
@@ -98,6 +100,44 @@ namespace CADio.ViewModels
             {
                 _collapseSelectionCommand = value;
                 OnPropertyChanged();
+            }
+        }
+
+        public ICommand FillWithGregoryCommand
+        {
+            get
+            {
+                if (_fillWithGregoryCommand == null)
+                    _fillWithGregoryCommand = new RelayCommand(
+                        FillWithGregory,
+                        IsGregoryPatchAvailable
+                    );
+                return _fillWithGregoryCommand;
+            }
+        }
+
+        private bool IsGregoryPatchAvailable()
+        {
+            return _scene.GrabbedObjects
+                .Count(t => t is BezierSurfaceWorldObject) >= 3;
+        }
+
+        private void FillWithGregory()
+        {
+            var gregoryAdjacentPatches = _scene.GrabbedObjects
+                .Where(t => t is BezierSurfaceWorldObject)
+                .Cast<BezierSurfaceWorldObject>()
+                .Take(3) // todo: support for more
+                .ToList();
+
+            var outline = BezierSurfaceWorldObject.FindHoleOutline(
+                gregoryAdjacentPatches
+            );
+
+            UngrabSelection();
+            foreach (var vp in outline)
+            {
+                _scene.ToggleObjectGrab(vp);
             }
         }
 
@@ -178,6 +218,7 @@ namespace CADio.ViewModels
             _scene.Manipulator = manipulator;
             _scene.PropertyChanged += SceneChanged;
             _scene.Objects.CollectionChanged += SceneCollectionChanged;
+            _scene.AttachObject(new GregoryPatchWorldObject());
             ActiveRenderer.Scene = _scene;
             SceneTreeViewModel.Scene = _scene;
             UpdateManipulatorInfo();
