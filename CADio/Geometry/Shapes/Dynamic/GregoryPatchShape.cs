@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Media.Media3D;
+using CADio.Geometry.Shapes.Builders;
 using CADio.Mathematics.Patches;
 using CADio.SceneManagement.Surfaces;
 
@@ -27,26 +29,30 @@ namespace CADio.Geometry.Shapes.Dynamic
             gregoryPatch.SetCornerPoint(2, new Point3D(-1.0f, 0.0f, -1.0f));
             gregoryPatch.SetCornerPoint(3, new Point3D(+1.0f, 0.0f, -1.0f));
 
-            /*
             gregoryPatch.SetCornerDerivatives(
                 0, 
                 new Vector3D(0, 1, 0),
                 new Vector3D(0, 1, 0)
             );
-            */
 
-            MarkerPoints.Clear();
-            var usamples = 64;
-            var vsamples = 64;
-            for (var i = 0; i < usamples; ++i)
+            var builder = new WireframeBuilder();
+            var surfaceSampler = new SurfaceConstantParameterLinesBuilder(
+                builder
+            );
+
+            surfaceSampler.Build(gregoryPatch);
+
+            for (var i = 0; i < 4; ++i)
             {
-                var u = i/(usamples-1.0);
-                for (var j = 0; j < vsamples; ++j)
-                {
-                    var v = j/(vsamples-1.0);
-                    MarkerPoints.Add(new Vertex(gregoryPatch.Evaluate(u, v)));
-                }
+                var cornerPos = gregoryPatch.GetCornerPoint(i);
+                var cornerdU = gregoryPatch.GetCornerDerivativeU(i);
+                var cornerdV = gregoryPatch.GetCornerDerivativeV(i);
+                builder.DrawVector(cornerPos, cornerdU);
+                builder.DrawVector(cornerPos, cornerdV);
             }
+
+            Vertices = builder.Vertices.ToList();
+            Lines = builder.Lines.ToList();
         }
     }
 }

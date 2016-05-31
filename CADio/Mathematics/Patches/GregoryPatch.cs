@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Media.Media3D;
+using CADio.Mathematics.Interfaces;
 using MathNet.Numerics.LinearAlgebra.Double;
 
 namespace CADio.Mathematics.Patches
 {
-    public class GregoryPatch
+    public class GregoryPatch : IParametricSurface
     {
         private readonly Point3D[] _cornerPoints = new Point3D[4];
         private readonly Vector3D[,] _cornerDerivatives = new Vector3D[4, 2];
@@ -14,6 +15,11 @@ namespace CADio.Mathematics.Patches
         public void SetCornerPoint(int id, Point3D point)
         {
             _cornerPoints[id] = point;
+        }
+
+        public Point3D GetCornerPoint(int id)
+        {
+            return _cornerPoints[id];
         }
 
         public void SetCornerDerivatives(
@@ -26,6 +32,16 @@ namespace CADio.Mathematics.Patches
             _cornerDerivatives[cornerId, 1] = cornerDerivativeV;
         }
 
+        public Vector3D GetCornerDerivativeU(int cornerId)
+        {
+            return _cornerDerivatives[cornerId, 0];
+        }
+
+        public Vector3D GetCornerDerivativeV(int cornerId)
+        {
+            return _cornerDerivatives[cornerId, 1];
+        }
+
         public void SetCornerTwistVectors(
             int cornerId,
             Vector3D cornerTwistVectorUV,
@@ -36,8 +52,22 @@ namespace CADio.Mathematics.Patches
             _cornerTwistVectors[cornerId, 1] = cornerTwistVectorVU;
         }
 
+        public Vector3D GetCornerTwistVectorUV(int cornerId)
+        {
+            return _cornerTwistVectors[cornerId, 0];
+        }
+
+        public Vector3D GetCornerTwistVectorVU(int cornerId)
+        {
+            return _cornerTwistVectors[cornerId, 1];
+        }
+
         public Point3D Evaluate(double u, double v)
         {
+            var corner = FindCorner(u, v);
+            if (corner.HasValue)
+                return _cornerPoints[corner.Value];
+
             var replacements = CalculateGregoryReplacements(u, v);
             var hu = GetHermiteVector(u);
             var hv = GetHermiteVector(v);
@@ -53,16 +83,42 @@ namespace CADio.Mathematics.Patches
             return new Point3D(x, y, z);
         }
 
+        protected int? FindCorner(
+            double u, 
+            double v, 
+            double threshold = double.Epsilon
+            )
+        {
+            var uEquals0 = MathHelpers.AlmostEqual(u, 0, threshold);
+            var uEquals1 = MathHelpers.AlmostEqual(u, 1, threshold);
+            var vEquals0 = MathHelpers.AlmostEqual(v, 0, threshold);
+            var vEquals1 = MathHelpers.AlmostEqual(v, 1, threshold);
+
+            if (uEquals0)
+            {
+                if (vEquals0) return 0;
+                if (vEquals1) return 1;
+            }
+
+            if (uEquals1)
+            {
+                if (vEquals0) return 2;
+                if (vEquals1) return 3;
+            }
+
+            return null;
+        }
+
         protected Vector3D[] CalculateGregoryReplacements(double u, double v)
         {
             return new Vector3D[4]
             {
                 (u*_cornerTwistVectors[0, 0]
                     + v*_cornerTwistVectors[0, 1]) /(u+v),
-                (u*_cornerTwistVectors[1, 0]
-                    + (1 - v)*_cornerTwistVectors[1, 1]) / (u+v-1),
-                ((1 - u)*_cornerTwistVectors[2, 0]
-                    + v*_cornerTwistVectors[2, 1]) / (1 - u + v),
+                ((1 - u)*_cornerTwistVectors[1, 0]
+                    + v*_cornerTwistVectors[1, 1]) / (1 - u + v),
+                (u*_cornerTwistVectors[2, 0]
+                    + (1 - v)*_cornerTwistVectors[2, 1]) / (1+u-v),
                 ((1 - u)*_cornerTwistVectors[3, 0]
                     + (1 - v)*_cornerTwistVectors[3, 1]) / (2 - u - v),
             };

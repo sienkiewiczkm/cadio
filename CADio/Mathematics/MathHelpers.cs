@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +10,29 @@ namespace CADio.Mathematics
 {
     public static class MathHelpers
     {
+        [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator")]
+        public static bool AlmostEqual(double a, double b, double epsilon)
+        {
+            double absA = Math.Abs(a);
+            double absB = Math.Abs(b);
+            double diff = Math.Abs(a - b);
+
+            if (a == b)
+            { // shortcut, handles infinities
+                return true;
+            }
+            else if (a == 0 || b == 0 || diff < Double.Epsilon)
+            {
+                // a or b is zero or both are extremely close to it
+                // relative error is less meaningful here
+                return diff < epsilon;
+            }
+            else
+            { // use relative error
+                return diff / (absA + absB) < epsilon;
+            }
+        }
+
         public static byte Lerp(byte a, byte b, double t)
         {
             return (byte) (a + (b - a)*t);

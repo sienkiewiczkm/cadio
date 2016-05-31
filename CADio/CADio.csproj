@@ -72,6 +72,8 @@
     <Compile Include="Configuration\GlobalSettings.cs" />
     <Compile Include="Geometry\Mesh.cs" />
     <Compile Include="Geometry\IndexedLine.cs" />
+    <Compile Include="Geometry\Shapes\Builders\SurfaceConstantParameterLinesBuilder.cs" />
+    <Compile Include="Geometry\Shapes\Builders\WireframeBuilder.cs" />
     <Compile Include="Geometry\Shapes\Dynamic\BezierCurveC2.cs" />
     <Compile Include="Geometry\Shapes\Dynamic\BezierCurveC0.cs" />
     <Compile Include="Geometry\Shapes\Dynamic\BezierPatch.cs" />
@@ -90,6 +92,7 @@
     <Compile Include="Helpers\ColorHelpers.cs" />
     <Compile Include="Helpers\LINQExtensions.cs" />
     <Compile Include="Helpers\MVVM\RelayCommand.cs" />
+    <Compile Include="Mathematics\Interfaces\IParametricSurface.cs" />
     <Compile Include="Mathematics\MathHelpers.cs" />
     <Compile Include="Mathematics\Matrix.cs" />
     <Compile Include="Mathematics\Matrix4x4.cs" />
