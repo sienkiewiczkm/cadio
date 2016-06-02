@@ -116,29 +116,29 @@ namespace CADio.Geometry.Shapes.Dynamic
                             0.5);
 
                 var prevDeriv =
-                    -(Vector3D)
+                    (Vector3D)
                         BernsteinPolynomial.Evaluate3DPolynomial(previousCurveDerivative,
                             0.5);
 
-                var currentA2 = -(triangleMiddlePoints[previousSurf, 2] -
+                var currentA2 = (triangleMiddlePoints[previousSurf, 2] -
                                 middlePoint);
-                var currentB2 = -(middlePoint - triangleMiddlePoints[nextSurf, 2]);
+                var currentB2 = (middlePoint - triangleMiddlePoints[nextSurf, 2]);
 
-                var previousA2 = -(triangleMiddlePoints[nextSurf, 2] -
+                var previousA2 = (triangleMiddlePoints[nextSurf, 2] -
                                 middlePoint);
-                var previousB2 = -(middlePoint - triangleMiddlePoints[currentSurf, 2]);
+                var previousB2 = (middlePoint - triangleMiddlePoints[currentSurf, 2]);
 
                 var gregoryPatch = new GregoryPatch();
                 gregoryPatch.ReshapeEdge(0, toCenter, baseDeriv, baseDeriv,
-                    currentA2, currentB2);
+                    currentA2, currentB2, -1);
                 gregoryPatch.ReshapeEdge(1, fromCenter, previousA2, previousB2,
-                    prevDeriv, prevDeriv);
+                    prevDeriv, prevDeriv, -1);
                 gregoryPatch.ReshapeEdge(3, currentLeftSide, g0, g0, g2, g2);
                 gregoryPatch.ReshapeEdge(2, previousRightSide, prevg0, prevg0, prevg2, prevg2);
 
                 sampler.Build(gregoryPatch);
-                //GregoryPatchShape.DrawGregoryPatchDebugData(gregoryPatch,
-                //    builder);
+                GregoryPatchShape.DrawGregoryPatchDebugData(gregoryPatch,
+                    builder);
             }
 
             for (var i = 0; i < 3; ++i)
@@ -153,7 +153,8 @@ namespace CADio.Geometry.Shapes.Dynamic
             Lines = builder.Lines.ToList();
 
             MarkerPoints =
-                markers.Select(t => new Vertex(new Point3D(t.X,t.Y+0.04,t.Z), Colors.GreenYellow)).ToList();
+                markers.Select(t => new Vertex(new Point3D(t.X,t.Y,t.Z), 
+                Colors.GreenYellow)).ToList();
         }
 
         public Point3D FindPointOnSideCurve(int curve)

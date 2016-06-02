@@ -69,7 +69,8 @@ namespace CADio.Mathematics.Patches
             Vector3D a0, 
             Vector3D b0,
             Vector3D a3, 
-            Vector3D b3
+            Vector3D b3,
+            int deriv = 1
             )
         {
             var boundaryCurveDerivative =
@@ -133,8 +134,8 @@ namespace CADio.Mathematics.Patches
 
             _cornerPoints[v0] = boundaryCurve[0];
             _cornerPoints[v1] = boundaryCurve[3];
-            _cornerDerivatives[v0, derivativeIndex] = d(0);
-            _cornerDerivatives[v1, derivativeIndex] = d(1);
+            _cornerDerivatives[v0, 1 - derivativeIndex] = -deriv*c0;
+            _cornerDerivatives[v1, 1 - derivativeIndex] = -deriv*c2;
             _cornerTwistVectors[v0, 1 - derivativeIndex] = d(1.0/3.0);
             _cornerTwistVectors[v1, 1 - derivativeIndex] = d(2.0/3.0);
         }
