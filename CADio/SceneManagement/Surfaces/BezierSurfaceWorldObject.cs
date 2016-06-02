@@ -7,6 +7,7 @@ using System.Windows.Media.Media3D;
 using CADio.Configuration;
 using CADio.Geometry.Shapes.Dynamic;
 using CADio.Helpers.MVVM;
+using CADio.Mathematics.Patches;
 using CADio.SceneManagement.Interfaces;
 
 namespace CADio.SceneManagement.Surfaces
@@ -151,6 +152,15 @@ namespace CADio.SceneManagement.Surfaces
         public VirtualPoint GetVirtualPoint(int x, int y)
         {
             return _virtualPoints[y*_rowLength + x];
+        }
+
+        public BernsteinPatch GetBernsteinPatch()
+        {
+            var bezierPatch = new BernsteinPatch();
+            for (var i = 0; i < 16; ++i)
+                bezierPatch.ControlPoints[i / 4, i % 4] = 
+                    _virtualPoints[i].Position;
+            return bezierPatch;
         }
 
         private void SetupVirtualPointsGrid(

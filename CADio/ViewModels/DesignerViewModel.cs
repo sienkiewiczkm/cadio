@@ -134,11 +134,9 @@ namespace CADio.ViewModels
                 gregoryAdjacentPatches
             );
 
-            UngrabSelection();
-            foreach (var vp in outline)
-            {
-                _scene.ToggleObjectGrab(vp);
-            }
+            var fill = new TriangularHoleFill();
+            fill.OutlinePoints = outline;
+            _scene.AttachObject(fill);
         }
 
         private void RequestNewScene()
@@ -213,12 +211,27 @@ namespace CADio.ViewModels
         private void CreateNewScene()
         {
             _scene = new Scene();
-            var manipulator = new WorldObject() {Shape = new Cursor3D(0.1), IsGrabable = false};
+            var manipulator = new WorldObject()
+            {
+                Shape = new Cursor3D(0.1),
+                IsGrabable = false
+            };
+
             _scene.AttachObject(manipulator);
             _scene.Manipulator = manipulator;
             _scene.PropertyChanged += SceneChanged;
             _scene.Objects.CollectionChanged += SceneCollectionChanged;
-            _scene.AttachObject(new GregoryPatchWorldObject());
+
+            /*
+            var bezier = BezierSurfaceWorldObject.CreateFlatGrid(1, 1, 2, 2);
+            bezier.Position = new Point3D(-2, 0.0f, 0.0f);
+            var gregory = new GregoryPatchWorldObject();
+            gregory.GregoryPatchShape.ObservedBezierDebug = bezier;
+
+            _scene.AttachObject(gregory);
+            _scene.AttachObject(bezier);
+            */
+
             ActiveRenderer.Scene = _scene;
             SceneTreeViewModel.Scene = _scene;
             UpdateManipulatorInfo();

@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Media.Media3D;
+using CADio.Geometry.Shapes.Builders;
 using CADio.Mathematics;
 using CADio.Mathematics.Numerical;
+using CADio.Mathematics.Patches;
 
 namespace CADio.Geometry.Shapes.Dynamic
 {
@@ -19,40 +21,24 @@ namespace CADio.Geometry.Shapes.Dynamic
             List<IndexedLine> lines
             )
         {
-            var solvers = new DeCastlejauSolver[4];
-            for (var i = 0; i < 4; ++i)
+            // todo: fix this hack
+            if (vertices.Count > 0)
+                return;
+
+            var builder = new WireframeBuilder();
+            var surfaceSampler = new SurfaceConstantParameterLinesBuilder(
+                builder
+            );
+
+            var bezierPatch = new BernsteinPatch();
+            for (var i = 0; i < 16; ++i)
             {
-                var subcontrolPoints = new List<Point3D>();
-
-                for (var j = 0; j < 4; ++j)
-                {
-                    var mapped = mapping(i, j);
-                    subcontrolPoints.Add(ControlPoints[mapped.Item1 + mapped.Item2 * 4].Position);
-                }
-
-                solvers[i] = new DeCastlejauSolver(BezierCurveC0.FillBernsteinCoordinatesArray(subcontrolPoints, 3, 0));
+                bezierPatch.ControlPoints[i/4, i%4] = ControlPoints[i].Position;
             }
+            surfaceSampler.Build(bezierPatch);
 
-            for (var i = 0; i < subdivisions; ++i)
-            {
-                var t = (double)i / (subdivisions - 1);
-                var subdivisionControlPoints = new List<Point3D>();
-                for (var j = 0; j < 4; ++j)
-                {
-                    subdivisionControlPoints.Add(MathHelpers.MakePoint3D(solvers[j].Evaluate(t)));
-                }
-
-                var sampled = BezierCurveC0.SampleBezierCurveC0(subdivisionControlPoints,
-                    estimateScreenDistanceWithoutClip, 3);
-                if (sampled.Count <= 1) continue;
-
-                var sampledLines = Enumerable.Range(vertices.Count, sampled.Count - 1)
-                    .Select(idx => new IndexedLine(idx, idx + 1))
-                    .ToList();
-
-                vertices.AddRange(sampled);
-                lines.AddRange(sampledLines);
-            }
+            vertices.AddRange(builder.Vertices.ToList());
+            lines.AddRange(builder.Lines.ToList());
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Windows.Media.Media3D;
 using CADio.Mathematics.Interfaces;
+using CADio.Mathematics.Numerical;
 using MathNet.Numerics.LinearAlgebra.Double;
 
 namespace CADio.Mathematics.Patches
@@ -60,6 +61,82 @@ namespace CADio.Mathematics.Patches
         public Vector3D GetCornerTwistVectorVU(int cornerId)
         {
             return _cornerTwistVectors[cornerId, 1];
+        }
+
+        public void ReshapeEdge(
+            int edgeId, 
+            IList<Point3D> boundaryCurve,
+            Vector3D a0, 
+            Vector3D b0,
+            Vector3D a3, 
+            Vector3D b3
+            )
+        {
+            var boundaryCurveDerivative =
+                BernsteinPolynomial.CalculateDerivative(boundaryCurve);
+
+            var c0 = (Vector3D)BernsteinPolynomial.Evaluate3DPolynomial(
+                boundaryCurveDerivative, 0.0
+            );
+
+            var c2 = (Vector3D)BernsteinPolynomial.Evaluate3DPolynomial(
+                boundaryCurveDerivative, 1.0
+            );
+
+            var g0 = (a0 + b0)/2.0;
+            var g2 = (a3 + b3)/2.0;
+            var g1 = (g0 + g2)/2.0;
+
+            var gPolynomial = new List<Point3D>()
+            {
+                (Point3D) g0,
+                (Point3D) g1,
+                (Point3D) g2
+            };
+
+            double k0, k1, h0, h1;
+            CalculateTangentVectorFieldCoefficients(b0, g0, c0, out k0, out h0);
+            CalculateTangentVectorFieldCoefficients(b3, g2, c2, out k1, out h1);
+
+            Func<double, double> k = v => k0*(1 - v) + k1*v;
+            Func<double, double> h = v => h0*(1 - v) + h1*v;
+            Func<double, Vector3D> c = v =>
+                (Vector3D) BernsteinPolynomial.Evaluate3DPolynomial(
+                    boundaryCurveDerivative, v
+                );
+            Func<double, Vector3D> g = v =>
+                (Vector3D) BernsteinPolynomial.Evaluate3DPolynomial(
+                    gPolynomial, v
+                );
+            Func<double, Vector3D> d = v => k(v)*g(v) + h(v)*c(v);
+
+            int v0 = 2, v1 = 0, derivativeIndex = 1;
+
+            if (edgeId == 0)
+            {
+                v0 = 0;
+                v1 = 1;
+                derivativeIndex = 0;
+            }
+            else if (edgeId == 1)
+            {
+                v0 = 1;
+                v1 = 3;
+                derivativeIndex = 1;
+            }
+            else if (edgeId == 2)
+            {
+                v0 = 3;
+                v1 = 2;
+                derivativeIndex = 0;
+            }
+
+            _cornerPoints[v0] = boundaryCurve[0];
+            _cornerPoints[v1] = boundaryCurve[3];
+            _cornerDerivatives[v0, derivativeIndex] = d(0);
+            _cornerDerivatives[v1, derivativeIndex] = d(1);
+            _cornerTwistVectors[v0, 1 - derivativeIndex] = d(1.0/3.0);
+            _cornerTwistVectors[v1, 1 - derivativeIndex] = d(2.0/3.0);
         }
 
         public Point3D Evaluate(double u, double v)
@@ -162,6 +239,30 @@ namespace CADio.Mathematics.Patches
                 }
             }
             return geometryMatrix;
+        }
+
+        public static void CalculateTangentVectorFieldCoefficients(
+            Vector3D b,
+            Vector3D g,
+            Vector3D c,
+            out double k,
+            out double h
+            )
+        {
+            var A = MathNet.Numerics.LinearAlgebra.Matrix<double>
+                .Build.DenseOfArray(new [,]
+                {
+                    {g.X, c.X},
+                    {g.Y, c.Y},
+                    {g.Z, c.Z}
+                });
+            var vec = MathNet.Numerics.LinearAlgebra.Vector<double>
+                .Build.Dense(new [] {b.X, b.Y, b.Z});
+
+            var solution = A.Solve(vec);
+
+            k = solution[0];
+            h = solution[1];
         }
     }
 }

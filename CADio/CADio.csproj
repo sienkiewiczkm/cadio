@@ -82,6 +82,7 @@
     <Compile Include="Geometry\Shapes\Dynamic\BSplinePatchGroup.cs" />
     <Compile Include="Geometry\Shapes\Dynamic\GregoryPatchShape.cs" />
     <Compile Include="Geometry\Shapes\Dynamic\SurfacePatch.cs" />
+    <Compile Include="Geometry\Shapes\Dynamic\TriangularHoleFillShape.cs" />
     <Compile Include="Geometry\Shapes\IDynamicShape.cs" />
     <Compile Include="Geometry\Shapes\IShape.cs" />
     <Compile Include="Geometry\Shapes\Static\Cursor3D.cs" />
@@ -89,6 +90,7 @@
     <Compile Include="Geometry\Shapes\Static\Sphere.cs" />
     <Compile Include="Geometry\Shapes\Static\Torus.cs" />
     <Compile Include="Geometry\Vertex.cs" />
+    <Compile Include="Helpers\ArrayHelpers.cs" />
     <Compile Include="Helpers\ColorHelpers.cs" />
     <Compile Include="Helpers\LINQExtensions.cs" />
     <Compile Include="Helpers\MVVM\RelayCommand.cs" />
@@ -96,6 +98,7 @@
     <Compile Include="Mathematics\MathHelpers.cs" />
     <Compile Include="Mathematics\Matrix.cs" />
     <Compile Include="Mathematics\Matrix4x4.cs" />
+    <Compile Include="Mathematics\Numerical\BernsteinPolynomial.cs" />
     <Compile Include="Mathematics\Numerical\Bspline.cs" />
     <Compile Include="Mathematics\Numerical\BsplineDynamicSolver3D.cs" />
     <Compile Include="Mathematics\Numerical\BSplineInterpolation3D.cs" />
@@ -105,6 +108,7 @@
     <Compile Include="Mathematics\Numerical\DeCastlejauSolver.cs" />
     <Compile Include="Mathematics\Numerical\Gregory.cs" />
     <Compile Include="Mathematics\Numerical\LinearEquationSolver.cs" />
+    <Compile Include="Mathematics\Patches\BernsteinPatch.cs" />
     <Compile Include="Mathematics\Patches\GregoryPatch.cs" />
     <Compile Include="Mathematics\Transformations3D.cs" />
     <Compile Include="Mathematics\Vector3DExtensions.cs" />
@@ -145,6 +149,7 @@
     <Compile Include="SceneManagement\Surfaces\BezierSurfaceWorldObject.cs" />
     <Compile Include="SceneManagement\Surfaces\BSplineSurfaceWorldObject.cs" />
     <Compile Include="SceneManagement\Surfaces\SurfaceControlPoint.cs" />
+    <Compile Include="SceneManagement\Surfaces\TriangularHoleFill.cs" />
     <Compile Include="SceneManagement\VirtualPoint.cs" />
     <Compile Include="SceneManagement\WorldObject.cs" />
     <Compile Include="ViewModels\BezierSurfaceCreationViewModel.cs" />
