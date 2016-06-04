@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CADio.Geometry.Shapes.Dynamic;
+using CADio.SceneManagement.Points;
 
 namespace CADio.SceneManagement.Surfaces
 {

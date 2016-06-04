@@ -84,7 +84,6 @@ namespace CADio.Geometry.Shapes.Dynamic
                 ObservedBezierDebug.GetVirtualPoint(3, 3).WorldPosition,
             };
 
-            gregoryPatch.ReshapeEdge(3, observedEdge, g0, g0, g2, g2);
 
             /*
             var g1 = (g0+g2)/2.0;
@@ -151,7 +150,7 @@ namespace CADio.Geometry.Shapes.Dynamic
 
                 cornerdU.Normalize();
                 cornerdV.Normalize();
-
+/*
                 var uEnd = cornerPos + cVectorMagnitude * cornerdU;
                 var vEnd = cornerPos + cVectorMagnitude * cornerdV;
                 var uvTwist = gregoryPatch.GetCornerTwistVectorUV(i);
@@ -164,6 +163,7 @@ namespace CADio.Geometry.Shapes.Dynamic
                 builder.DrawVector(
                     vEnd, vuTwist, cVectorMagnitude, Colors.Chartreuse
                 );
+                */
             }
         }
     }

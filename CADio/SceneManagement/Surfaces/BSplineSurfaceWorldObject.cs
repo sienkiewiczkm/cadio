@@ -8,6 +8,7 @@ using CADio.Configuration;
 using CADio.Geometry.Shapes.Dynamic;
 using CADio.Helpers.MVVM;
 using CADio.SceneManagement.Interfaces;
+using CADio.SceneManagement.Points;
 
 namespace CADio.SceneManagement.Surfaces
 {

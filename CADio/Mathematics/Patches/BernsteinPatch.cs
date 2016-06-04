@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Windows.Media.Media3D;
 using CADio.Geometry.Shapes.Dynamic;
 using CADio.Helpers;
 using CADio.Mathematics.Interfaces;
 using CADio.Mathematics.Numerical;
+using CADio.Mathematics.Proxies;
 
 namespace CADio.Mathematics.Patches
 {
@@ -26,40 +28,84 @@ namespace CADio.Mathematics.Patches
             return BernsteinPolynomial.Evaluate3DPolynomial(subpoints, v);
         }
 
-        public Vector3D DerivativeU(double u, double v)
+        public Vector3D Derivative(
+            double u, double v, 
+            DerivativeParameter parameter
+            )
         {
+            double firstParameter, secondParameter;
+            Func<int, Point3D[]> generator;
+
+            switch (parameter)
+            {
+                case DerivativeParameter.U:
+                    generator = (i) => ArrayHelpers.GetColumn(ControlPoints, i);
+                    firstParameter = v;
+                    secondParameter = u;
+                    break;
+                case DerivativeParameter.V:
+                    generator = (i) => ArrayHelpers.GetRow(ControlPoints, i);
+                    firstParameter = u;
+                    secondParameter = v;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(
+                        nameof(parameter), 
+                        parameter, 
+                        null
+                    );
+            }
+
             var subpoints = new List<Point3D>();
             for (var i = 0; i < 4; ++i)
             {
-                var subpoint = BernsteinPolynomial.Evaluate3DPolynomial(
-                    ArrayHelpers.GetColumn(ControlPoints, i), v
-                );
-
-                subpoints.Add(subpoint);
+                subpoints.Add(BernsteinPolynomial.Evaluate3DPolynomial(
+                    generator(i), 
+                    firstParameter
+                ));
             }
 
             var derivative = BernsteinPolynomial.CalculateDerivative(subpoints);
-            return (Vector3D)BernsteinPolynomial.Evaluate3DPolynomial(
-                derivative, u
+            return (Vector3D) BernsteinPolynomial.Evaluate3DPolynomial(
+                derivative,
+                secondParameter
             );
         }
-        
-        public Vector3D DerivativeV(double u, double v)
+
+        public SurfaceReparametrisationFlip CreateReparametrisationUDirection(
+            int startColumn,
+            int startRow,
+            int endColumn,
+            int endRow
+            )
         {
-            var subpoints = new List<Point3D>();
-            for (var i = 0; i < 4; ++i)
-            {
-                var subpoint = BernsteinPolynomial.Evaluate3DPolynomial(
-                    ArrayHelpers.GetRow(ControlPoints, i), u
+            if (!(startRow == 0 || startRow == 3 || endRow == 0 || endRow == 3))
+                throw new ArgumentException(
+                    "Specified points should be corner points"
                 );
 
-                subpoints.Add(subpoint);
+            bool flipU = false, flipV = false, flipUV = false;
+
+            if (startRow == endRow && startRow == 3)
+                flipV = true;
+
+            if (startColumn == endColumn)
+            {
+                if (startColumn == 3)
+                    flipU = true;
+                flipUV = true;
             }
 
-            var derivative = BernsteinPolynomial.CalculateDerivative(subpoints);
-            return (Vector3D)BernsteinPolynomial.Evaluate3DPolynomial(
-                derivative, v
-            );
+            if (startColumn > endColumn || startRow > endRow)
+                flipU = true;
+
+            return new SurfaceReparametrisationFlip()
+            {
+                Surface = this,
+                FlipU = flipU,
+                FlipV = flipV,
+                FlipUV = flipUV,
+            };
         }
     }
 }

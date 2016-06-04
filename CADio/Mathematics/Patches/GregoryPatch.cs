@@ -65,25 +65,16 @@ namespace CADio.Mathematics.Patches
 
         public void ReshapeEdge(
             int edgeId, 
-            IList<Point3D> boundaryCurve,
+            Func<double, Point3D> boundaryCurve,
+            Func<double, Vector3D> boundaryDerivative,
             Vector3D a0, 
             Vector3D b0,
             Vector3D a3, 
-            Vector3D b3,
-            int deriv = 1
+            Vector3D b3
             )
         {
-            var boundaryCurveDerivative =
-                BernsteinPolynomial.CalculateDerivative(boundaryCurve);
-
-            var c0 = (Vector3D)BernsteinPolynomial.Evaluate3DPolynomial(
-                boundaryCurveDerivative, 0.0
-            );
-
-            var c2 = (Vector3D)BernsteinPolynomial.Evaluate3DPolynomial(
-                boundaryCurveDerivative, 1.0
-            );
-
+            var c0 = boundaryDerivative(0);
+            var c2 = boundaryDerivative(1);
             var g0 = (a0 + b0)/2.0;
             var g2 = (a3 + b3)/2.0;
             var g1 = (g0 + g2)/2.0;
@@ -101,43 +92,45 @@ namespace CADio.Mathematics.Patches
 
             Func<double, double> k = v => k0*(1 - v) + k1*v;
             Func<double, double> h = v => h0*(1 - v) + h1*v;
-            Func<double, Vector3D> c = v =>
-                (Vector3D) BernsteinPolynomial.Evaluate3DPolynomial(
-                    boundaryCurveDerivative, v
-                );
             Func<double, Vector3D> g = v =>
                 (Vector3D) BernsteinPolynomial.Evaluate3DPolynomial(
                     gPolynomial, v
                 );
-            Func<double, Vector3D> d = v => k(v)*g(v) + h(v)*c(v);
 
-            int v0 = 2, v1 = 0, derivativeIndex = 1;
+            Func<double, Vector3D> d =
+                v => k(v)*g(v) + h(v)*boundaryDerivative(v);
+
+            int v0 = 3, v1 = 1, derivativeIndex = 0;
 
             if (edgeId == 0)
             {
                 v0 = 0;
-                v1 = 1;
+                v1 = 2;
                 derivativeIndex = 0;
             }
             else if (edgeId == 1)
             {
                 v0 = 1;
-                v1 = 3;
+                v1 = 0;
                 derivativeIndex = 1;
             }
             else if (edgeId == 2)
             {
-                v0 = 3;
-                v1 = 2;
-                derivativeIndex = 0;
+                v0 = 2;
+                v1 = 3;
+                derivativeIndex = 1;
             }
 
-            _cornerPoints[v0] = boundaryCurve[0];
-            _cornerPoints[v1] = boundaryCurve[3];
-            _cornerDerivatives[v0, 1 - derivativeIndex] = -deriv*c0;
-            _cornerDerivatives[v1, 1 - derivativeIndex] = -deriv*c2;
-            _cornerTwistVectors[v0, 1 - derivativeIndex] = d(1.0/3.0);
-            _cornerTwistVectors[v1, 1 - derivativeIndex] = d(2.0/3.0);
+            _cornerPoints[v0] = boundaryCurve(0);
+            _cornerPoints[v1] = boundaryCurve(1);
+
+            if (edgeId <= 1)
+            {
+                _cornerDerivatives[v0, derivativeIndex] = c0;
+                _cornerDerivatives[v1, derivativeIndex] = c2;
+                //_cornerTwistVectors[v0, 1- derivativeIndex] = d(1.0 / 3.0);
+                //_cornerTwistVectors[v1, 1 - derivativeIndex] = d(2.0 / 3.0);
+            }
         }
 
         public Point3D Evaluate(double u, double v)
@@ -159,6 +152,13 @@ namespace CADio.Mathematics.Patches
             var z = hu*gz*hv;
 
             return new Point3D(x, y, z);
+        }
+
+        public Vector3D Derivative(
+            double u, double v, 
+            DerivativeParameter parameter)
+        {
+            throw new NotImplementedException();
         }
 
         protected int? FindCorner(

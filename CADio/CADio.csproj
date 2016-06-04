@@ -106,10 +106,10 @@
     <Compile Include="Mathematics\Numerical\DeBoorSolverRecursive3D.cs" />
     <Compile Include="Mathematics\Numerical\BSplineToBernsteinConverter.cs" />
     <Compile Include="Mathematics\Numerical\DeCastlejauSolver.cs" />
-    <Compile Include="Mathematics\Numerical\Gregory.cs" />
     <Compile Include="Mathematics\Numerical\LinearEquationSolver.cs" />
     <Compile Include="Mathematics\Patches\BernsteinPatch.cs" />
     <Compile Include="Mathematics\Patches\GregoryPatch.cs" />
+    <Compile Include="Mathematics\Proxies\SurfaceReparametrisation.cs" />
     <Compile Include="Mathematics\Transformations3D.cs" />
     <Compile Include="Mathematics\Vector3DExtensions.cs" />
     <Compile Include="Mathematics\Vector4D.cs" />
@@ -132,8 +132,9 @@
       <DependentUpon>DesignSceneListData.xaml</DependentUpon>
     </Compile>
     <Compile Include="SceneManagement\BezierC2WorldObject.cs" />
+    <Compile Include="SceneManagement\Points\SharedPoint3D.cs" />
+    <Compile Include="SceneManagement\Points\VirtualPoint.cs" />
     <Compile Include="SceneManagement\Surfaces\GregoryPatchWorldObject.cs" />
-    <Compile Include="SceneManagement\Interfaces\ICollapsable.cs" />
     <Compile Include="SceneManagement\Interfaces\IControlPointDependent.cs" />
     <Compile Include="SceneManagement\Interfaces\IImportable.cs" />
     <Compile Include="SceneManagement\Interfaces\ISaveable.cs" />
@@ -150,7 +151,6 @@
     <Compile Include="SceneManagement\Surfaces\BSplineSurfaceWorldObject.cs" />
     <Compile Include="SceneManagement\Surfaces\SurfaceControlPoint.cs" />
     <Compile Include="SceneManagement\Surfaces\TriangularHoleFill.cs" />
-    <Compile Include="SceneManagement\VirtualPoint.cs" />
     <Compile Include="SceneManagement\WorldObject.cs" />
     <Compile Include="ViewModels\BezierSurfaceCreationViewModel.cs" />
     <Compile Include="ViewModels\DesignerViewModel.cs" />

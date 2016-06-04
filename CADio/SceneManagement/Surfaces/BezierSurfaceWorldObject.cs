@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -9,6 +10,7 @@ using CADio.Geometry.Shapes.Dynamic;
 using CADio.Helpers.MVVM;
 using CADio.Mathematics.Patches;
 using CADio.SceneManagement.Interfaces;
+using CADio.SceneManagement.Points;
 
 namespace CADio.SceneManagement.Surfaces
 {
@@ -143,7 +145,10 @@ namespace CADio.SceneManagement.Surfaces
 
         public Tuple<int, int> GetVirtualPointCoordinate(VirtualPoint vp)
         {
-            var index = _virtualPoints.IndexOf(vp);
+            var realVirtualPoint = vp.GetAdjacentVirtualPointFor(this);
+            Debug.Assert(realVirtualPoint != null);
+
+            var index = _virtualPoints.IndexOf(realVirtualPoint);
             var x = index%_rowLength;
             var y = index/_rowLength;
             return new Tuple<int, int>(x, y);
@@ -283,18 +288,10 @@ namespace CADio.SceneManagement.Surfaces
             VirtualPoint virtualPoint
             )
         {
-            var adjacentPatches = virtualPoint.Trackers
-                .Select(t => ((VirtualPoint)t).ParentObject
-                    as BezierSurfaceWorldObject)
+            return virtualPoint.GetAdjacentObjects()
+                .Where(t => t is BezierSurfaceWorldObject)
+                .Cast<BezierSurfaceWorldObject>()
                 .ToList();
-
-            if (virtualPoint.Tracked != null)
-                adjacentPatches.Add(
-                    ((VirtualPoint)virtualPoint.Tracked).ParentObject
-                    as BezierSurfaceWorldObject
-                );
-
-            return adjacentPatches;
         }
 
         public static List<VirtualPoint> FindHoleOutline(
@@ -313,15 +310,10 @@ namespace CADio.SceneManagement.Surfaces
                 nonProcessedPatches.Remove(currentPatch);
 
                 var importantCollapsedPoints = currentPatch._virtualPoints
-                    .Where(t => 
-                        gregoryAdjacentPatches.Contains(
-                            (t.Tracked as VirtualPoint)?.ParentObject
-                        ) || 
-                        t.Trackers.Any(
-                            tracker => gregoryAdjacentPatches.Contains(
-                                (tracker as VirtualPoint)?.ParentObject
-                            )
-                        ))
+                    .Where(t => gregoryAdjacentPatches.Intersect(
+                            GetAdjacentSurfaces(t)
+                        ).Count() >= 2
+                    )
                     .ToList();
 
                 if (importantCollapsedPoints.Count != 2)
@@ -362,7 +354,7 @@ namespace CADio.SceneManagement.Surfaces
                 lastProcessedPatch = currentPatch;
                 currentPatch = GetAdjacentSurfaces(
                     importantCollapsedPoints[1]
-                )[0];
+                ).First(t => t != lastProcessedPatch);
             }
 
             return outline;

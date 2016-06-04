@@ -17,6 +17,7 @@ using CADio.Geometry.Shapes.Static;
 using CADio.Mathematics;
 using CADio.Rendering;
 using CADio.SceneManagement.Interfaces;
+using CADio.SceneManagement.Points;
 using CADio.SceneManagement.Surfaces;
 
 namespace CADio.SceneManagement
@@ -537,8 +538,8 @@ namespace CADio.SceneManagement
         public void CollapseSelection()
         {
             var collapsables = _grabbedObjects
-                .Where(t => t is ICollapsable)
-                .Cast<ICollapsable>()
+                .Where(t => t is VirtualPoint)
+                .Cast<VirtualPoint>()
                 .ToList();
 
             if (collapsables.Count < 2)
@@ -548,21 +549,18 @@ namespace CADio.SceneManagement
                     ));
 
             var firstCollapsable = collapsables.First();
-            var resultantPosition = (Vector3D)firstCollapsable.Position;
+            var resultantPosition = (Vector3D) firstCollapsable.Position;
 
             foreach (var collapsable in collapsables.Skip(1))
             {
-                resultantPosition += (Vector3D)collapsable.Position;
-                collapsable.Tracked = firstCollapsable;
-                firstCollapsable.Trackers.Add(collapsable);
+                resultantPosition += (Vector3D) collapsable.Position;
+                collapsable.MergeInto(firstCollapsable);
             }
 
             firstCollapsable.Position =
                 (Point3D) (resultantPosition/collapsables.Count);
 
-            SetObjectGrab(firstCollapsable as ISceneSelectable);
-
-            // todo: Rework screen refreshing
+            SetObjectGrab(firstCollapsable);
             OnPropertyChanged(nameof(GrabbedObjects));
         }
     }

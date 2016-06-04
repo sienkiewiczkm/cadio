@@ -2,6 +2,7 @@
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using CADio.Mathematics;
+using CADio.Mathematics.Interfaces;
 
 namespace CADio.Geometry.Shapes.Builders
 {
@@ -32,6 +33,19 @@ namespace CADio.Geometry.Shapes.Builders
             Connect(point, vectorColor);
             Connect(target, vectorColor);
             FinishChain();
+        }
+
+        public void DrawDerivative(
+            IParametricSurface surface,
+            double u,
+            double v,
+            DerivativeParameter parameter,
+            Color? color = null
+            )
+        {
+            var point = surface.Evaluate(u, v);
+            var derivative = surface.Derivative(u, v, parameter);
+            DrawVector(point, derivative, derivative.Length, color);
         }
 
         public void Connect(Point3D nextPoint, Color? color = null)
