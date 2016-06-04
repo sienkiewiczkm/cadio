@@ -96,8 +96,10 @@ namespace CADio.Mathematics.Patches
                 flipUV = true;
             }
 
-            if (startColumn > endColumn || startRow > endRow)
+            if (startColumn > endColumn)
                 flipU = true;
+            if (startRow > endRow)
+                flipV = true;
 
             return new SurfaceReparametrisationFlip()
             {

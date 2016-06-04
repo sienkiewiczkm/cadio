@@ -120,6 +120,12 @@ namespace CADio.Mathematics.Patches
                 v1 = 3;
                 derivativeIndex = 1;
             }
+            else if (edgeId == 4)
+            {
+                v0 = 3;
+                v1 = 1;
+                derivativeIndex = 0;
+            }
 
             _cornerPoints[v0] = boundaryCurve(0);
             _cornerPoints[v1] = boundaryCurve(1);
