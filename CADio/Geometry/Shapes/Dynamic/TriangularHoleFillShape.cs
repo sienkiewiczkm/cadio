@@ -98,19 +98,19 @@ namespace CADio.Geometry.Shapes.Dynamic
                 var currentSurface = EdgesUParametrisations[i];
                 var nextSurface = EdgesUParametrisations[(i + 1) % 3];
 
-                var nextG0 = nextSurface.Derivative(
+                var nextG0 = -nextSurface.Derivative(
                     0.0, 0.0, DerivativeParameter.V
                 );
 
-                var nextG2 = nextSurface.Derivative(
+                var nextG2 = -nextSurface.Derivative(
                     0.5, 0.0, DerivativeParameter.V
                 );
 
-                var currentG0 = currentSurface.Derivative(
+                var currentG0 = -currentSurface.Derivative(
                     0.5, 0.0, DerivativeParameter.V
                 );
 
-                var currentG2 = currentSurface.Derivative(
+                var currentG2 = -currentSurface.Derivative(
                     1.0, 0.0, DerivativeParameter.V
                 );
 
@@ -176,7 +176,7 @@ namespace CADio.Geometry.Shapes.Dynamic
                 gregoryPatch.ReshapeEdge(
                     0, 
                     (t) => nextSurface.Evaluate(0.5*t, 0),
-                    (t) => nextSurface.Derivative(
+                    (t) => 0.5*nextSurface.Derivative(
                         0.5*t, 0, DerivativeParameter.U),
                     nextG0, 
                     nextG0, 
@@ -187,7 +187,7 @@ namespace CADio.Geometry.Shapes.Dynamic
                 gregoryPatch.ReshapeEdge(
                     1,
                     (t) => currentSurface.Evaluate(0.5+0.5*t, 0),
-                    (t) => -currentSurface.Derivative(
+                    (t) => -0.5*currentSurface.Derivative(
                         0.5+0.5*t, 0, DerivativeParameter.U),
                     currentG0, 
                     currentG0, 
@@ -211,7 +211,7 @@ namespace CADio.Geometry.Shapes.Dynamic
                     3, 
                     (t) => BernsteinPolynomial.Evaluate3DPolynomial(
                             curveFromCenterControlPoints, t), 
-                    (t) => (Vector3D) BernsteinPolynomial.Evaluate3DPolynomial(
+                    (t) => -(Vector3D) BernsteinPolynomial.Evaluate3DPolynomial(
                             curveFromCenterDerivative, t),
                     previousA2, 
                     previousB2,
@@ -224,7 +224,7 @@ namespace CADio.Geometry.Shapes.Dynamic
                 GregoryPatchShape.DrawGregoryPatchDebugData(gregoryPatch,
                     builder);
 
-                break;
+                //break;
             }
 
             Vertices = builder.Vertices.ToList();

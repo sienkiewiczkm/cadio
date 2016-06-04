@@ -150,7 +150,7 @@ namespace CADio.Geometry.Shapes.Dynamic
 
                 cornerdU.Normalize();
                 cornerdV.Normalize();
-/*
+
                 var uEnd = cornerPos + cVectorMagnitude * cornerdU;
                 var vEnd = cornerPos + cVectorMagnitude * cornerdV;
                 var uvTwist = gregoryPatch.GetCornerTwistVectorUV(i);
@@ -163,7 +163,6 @@ namespace CADio.Geometry.Shapes.Dynamic
                 builder.DrawVector(
                     vEnd, vuTwist, cVectorMagnitude, Colors.Chartreuse
                 );
-                */
             }
         }
     }

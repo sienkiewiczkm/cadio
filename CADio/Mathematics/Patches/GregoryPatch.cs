@@ -123,14 +123,10 @@ namespace CADio.Mathematics.Patches
 
             _cornerPoints[v0] = boundaryCurve(0);
             _cornerPoints[v1] = boundaryCurve(1);
-
-            if (edgeId <= 1)
-            {
-                _cornerDerivatives[v0, derivativeIndex] = c0;
-                _cornerDerivatives[v1, derivativeIndex] = c2;
-                //_cornerTwistVectors[v0, 1- derivativeIndex] = d(1.0 / 3.0);
-                //_cornerTwistVectors[v1, 1 - derivativeIndex] = d(2.0 / 3.0);
-            }
+            _cornerDerivatives[v0, derivativeIndex] = c0;
+            _cornerDerivatives[v1, derivativeIndex] = c2;
+            _cornerTwistVectors[v0, derivativeIndex] = d(1.0 / 3.0);
+            _cornerTwistVectors[v1, derivativeIndex] = d(2.0 / 3.0);
         }
 
         public Point3D Evaluate(double u, double v)
@@ -193,10 +189,10 @@ namespace CADio.Mathematics.Patches
             {
                 (u*_cornerTwistVectors[0, 0]
                     + v*_cornerTwistVectors[0, 1]) /(u+v),
-                ((1 - u)*_cornerTwistVectors[1, 0]
-                    + v*_cornerTwistVectors[1, 1]) / (1 - u + v),
-                (u*_cornerTwistVectors[2, 0]
-                    + (1 - v)*_cornerTwistVectors[2, 1]) / (1+u-v),
+                (u*_cornerTwistVectors[1, 0]
+                    + (1 - v)*_cornerTwistVectors[1, 1]) / (1+u-v),
+                ((1 - u)*_cornerTwistVectors[2, 0]
+                    + v*_cornerTwistVectors[2, 1]) / (1 - u + v),
                 ((1 - u)*_cornerTwistVectors[3, 0]
                     + (1 - v)*_cornerTwistVectors[3, 1]) / (2 - u - v),
             };
