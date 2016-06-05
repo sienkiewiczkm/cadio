@@ -19,6 +19,9 @@
         <DataTemplate DataType="{x:Type dynamic:BezierCurveC2}">
             <shapeEditors:BezierCurveC2Editor/>
         </DataTemplate>
+        <DataTemplate DataType="{x:Type dynamic:TriangularHoleFillShape}">
+            <shapeEditors:TriangularFillEditor/>
+        </DataTemplate>
     </Window.Resources>
     <DockPanel LastChildFill="True">
         <Menu DockPanel.Dock="Top">

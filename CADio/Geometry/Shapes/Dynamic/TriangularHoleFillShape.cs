@@ -13,17 +13,22 @@ using CADio.Mathematics.Patches;
 using CADio.SceneManagement;
 using CADio.SceneManagement.Points;
 using CADio.SceneManagement.Surfaces;
+using CADio.Views.ShapeEditors;
 
 namespace CADio.Geometry.Shapes.Dynamic
 {
     public class TriangularHoleFillShape : IDynamicShape
     {
-        public string Name { get; }
+        public string Name { get; } = "Triangular Hole Fill";
         public IList<Vertex> Vertices { get; set; } = new List<Vertex>();
         public IList<IndexedLine> Lines { get; set; } = new List<IndexedLine>();
         public IList<Vertex> MarkerPoints { get; set; } = new List<Vertex>();
         public IList<Vertex> RawPoints { get; set; } = new List<Vertex>();
-        public Control GetEditorControl() => null;
+
+        public Control GetEditorControl() => new TriangularFillEditor()
+        {
+            DataContext = this,
+        };
 
         public IList<BezierSurfaceWorldObject> ReferenceSurfaces { get; set; }
         public IList<VirtualPoint> ReferencePoints { get; set; } =
@@ -31,6 +36,8 @@ namespace CADio.Geometry.Shapes.Dynamic
 
         public IList<IParametricSurface> EdgesUParametrisations { get; set; }
             = new List<IParametricSurface>();
+
+        public double Distance { get; set; } = 1.0f;
 
         public void UpdateGeometry(
             Func<Point3D, Point3D, double> estimateScreenDistanceWithoutClip,
@@ -55,7 +62,7 @@ namespace CADio.Geometry.Shapes.Dynamic
                     0.5,
                     0.0,
                     DerivativeParameter.V
-                );
+                )*Distance;
              
                 innerControlPoints[i, 1] = innerControlPoints[i, 0] 
                     + outwardDerivativeV;
@@ -80,15 +87,14 @@ namespace CADio.Geometry.Shapes.Dynamic
                     2.0*(auxiliaryPoints[i] - innerCurvesMiddlePoint)/3.0;
             }
 
-            //for (var i = 0; i < 3; ++i)
-            //{
-            //    for (var j = 0; j < 3; ++j)
-            //        builder.Connect(innerControlPoints[i, j]);
-            //    builder.Connect(innerCurvesMiddlePoint);
-            //    builder.FinishChain();
-            //}
+            for (var i = 0; i < 3; ++i)
+            {
+                for (var j = 0; j < 3; ++j)
+                    builder.Connect(innerControlPoints[i, j]);
+                builder.Connect(innerCurvesMiddlePoint);
+                builder.FinishChain();
+            }
 
-            //foreach (var currentSurface in EdgesUParametrisations)
             for (var i = 0; i < EdgesUParametrisations.Count; ++i)
             {
                 var currentMiddleCurve = i;
@@ -113,20 +119,6 @@ namespace CADio.Geometry.Shapes.Dynamic
                 var currentG2 = -currentSurface.Derivative(
                     1.0, 0.0, DerivativeParameter.V
                 );
-
-                builder.DrawDerivative(
-                    currentSurface,
-                    0.0,
-                    0.0,
-                    DerivativeParameter.U,
-                    Colors.Fuchsia);
-
-                builder.DrawDerivative(
-                    currentSurface,
-                    0.5,
-                    0.0,
-                    DerivativeParameter.U,
-                    Colors.Cyan);
 
                 var nextMiddleBoundaryDerivative = 
                     nextSurface.Derivative(0.5, 0.0, DerivativeParameter.V);
@@ -221,10 +213,8 @@ namespace CADio.Geometry.Shapes.Dynamic
 
 
                 sampler.Build(gregoryPatch);
-                GregoryPatchShape.DrawGregoryPatchDebugData(gregoryPatch,
-                    builder);
-
-                //break;
+                //GregoryPatchShape.DrawGregoryPatchDebugData(gregoryPatch,
+                //    builder);
             }
 
             Vertices = builder.Vertices.ToList();

@@ -15,6 +15,7 @@ namespace CADio.SceneManagement.Surfaces
 
         public TriangularHoleFill()
         {
+            Name = "Triangular hole fill";
             TriangularHoleFillShape = new TriangularHoleFillShape();
             Shape = TriangularHoleFillShape;
         }

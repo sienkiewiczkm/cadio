@@ -46,6 +46,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Numerics" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -180,6 +181,9 @@
     <Compile Include="Views\ShapeEditors\TorusEditor.xaml.cs">
       <DependentUpon>TorusEditor.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\ShapeEditors\TriangularFillEditor.xaml.cs">
+      <DependentUpon>TriangularFillEditor.xaml</DependentUpon>
+    </Compile>
     <Page Include="SampleData\DesignSceneListData\DesignSceneListData.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -201,6 +205,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\ShapeEditors\TorusEditor.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ShapeEditors\TriangularFillEditor.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
