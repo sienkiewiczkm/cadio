@@ -179,7 +179,10 @@ namespace CADio.Rendering
             return new Point(x, y);
         }
 
-        private void RasterizeRenderedPrimitives(WriteableBitmap targetBitmap, RenderedPrimitives pixelSpacePrimitives)
+        private void RasterizeRenderedPrimitives(
+            WriteableBitmap targetBitmap, 
+            RenderedPrimitives pixelSpacePrimitives
+            )
         {
             using (targetBitmap.GetBitmapContext())
             {

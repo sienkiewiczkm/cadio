@@ -319,10 +319,13 @@ namespace CADio.ViewModels
             ActiveRenderer.ForceRedraw();
         }
 
-        public void GrabUsingMouse(Point screenSpaceClick, bool allowMultigrab, double limit = 0.2)
+        public void GrabUsingMouse(
+            Point screenSpaceClick, 
+            bool allowMultigrab, 
+            double limit = 0.2
+            )
         {
             var selectables = GetSceneSelectables();
-
             if (selectables.Count == 0)
                 return;
 
@@ -346,6 +349,27 @@ namespace CADio.ViewModels
 
             if (allowMultigrab) _scene.ToggleObjectGrab(closestObject);
             else _scene.SetObjectGrab(closestObject);
+        }
+
+        public void GrabUsingMouseRect(
+            Rect screenSpaceGrabRect,
+            bool allowMultigrab
+            )
+        {
+            var selectables = GetSceneSelectables();
+            if (selectables.Count == 0)
+                return;
+
+            foreach (var selectable in selectables)
+            {
+                var screenSpacePosition =
+                    ActiveRenderer.GetStandardScreenSpacePosition(
+                        selectable.WorldPosition
+                    );
+                if (!screenSpacePosition.HasValue) continue;
+                if (screenSpaceGrabRect.Contains(screenSpacePosition.Value))
+                    _scene.GrabObject(selectable);
+            }
         }
 
         public void GrabNearestPoint(bool allowMultigrab, double limit = 1.0)
@@ -412,6 +436,49 @@ namespace CADio.ViewModels
         public void UngrabSelection()
         {
             _scene.UngrabAllObjects();
+        }
+
+        public void RotateSelectionZAxis(int rotationStep)
+        {
+            var alpha = rotationStep*(1/(36*Math.PI));
+            var cosa = Math.Cos(alpha);
+            var sina = Math.Sin(alpha);
+
+            var centerMass = GetSelectionCenterMass();
+
+            foreach (var grabbed in _scene.GrabbedObjects)
+            {
+                var oldPos = grabbed.Position - centerMass;
+                var x = oldPos.X*cosa - oldPos.Y*sina;
+                var y = oldPos.X*sina + oldPos.Y*cosa;
+                var z = oldPos.Z;
+                grabbed.Position = centerMass + new Vector3D(x, y, z);
+            }
+        }
+
+        public void ScaleSelection(int scalingStep)
+        {
+            var factor = 1+scalingStep*0.05;
+            var centerMass = GetSelectionCenterMass();
+            foreach (var grabbed in _scene.GrabbedObjects)
+            {
+                var positionVector = grabbed.Position - centerMass;
+                grabbed.Position = centerMass + positionVector*factor;
+            }
+        }
+
+        public Point3D GetSelectionCenterMass()
+        {
+            var center = new Vector3D(0.0f, 0.0f, 0.0f);
+            var divider = 0;
+
+            foreach (var grabbed in _scene.GrabbedObjects)
+            {
+                center += (Vector3D) grabbed.Position;
+                divider++;
+            }
+
+            return (Point3D)(center/divider);
         }
     }
 }

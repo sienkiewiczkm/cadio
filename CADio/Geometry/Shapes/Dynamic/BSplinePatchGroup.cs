@@ -44,8 +44,9 @@ namespace CADio.Geometry.Shapes.Dynamic
                 (i, j) => new Tuple<int, int>(i, j),
                 idMapping,
                 3 + SegmentsU, 
-                3 + SegmentsV, 
+                3 + SegmentsV,
                 GlobalSettings.QualitySettingsViewModel.SurfaceHSubdivisions,
+                dataRowsCount != (3 + SegmentsV),
                 vertices, lines
             );
 
@@ -56,6 +57,7 @@ namespace CADio.Geometry.Shapes.Dynamic
                 3 + SegmentsV,
                 3 + SegmentsU,
                 GlobalSettings.QualitySettingsViewModel.SurfaceWSubdivisions,
+                false,
                 vertices, lines
             );
 
@@ -115,6 +117,7 @@ namespace CADio.Geometry.Shapes.Dynamic
             int rows, 
             int cols, 
             int subdivisions, 
+            bool looped,
             List<Vertex> vertices, 
             List<IndexedLine> lines
             )
@@ -138,7 +141,7 @@ namespace CADio.Geometry.Shapes.Dynamic
 
             for (var i = 0; i < subdivisions; ++i)
             {
-                var t = (double)i / (subdivisions - 1);
+                var t = (double)i / (looped ? subdivisions : subdivisions - 1);
                 var subdivisionControlPoints = new List<Point3D>();
                 for (var j = 0; j < rows; ++j)
                 {

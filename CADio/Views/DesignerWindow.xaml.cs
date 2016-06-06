@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
+using CADio.Rendering;
 using CADio.ViewModels;
 
 namespace CADio.Views
@@ -9,6 +10,8 @@ namespace CADio.Views
     {
         private readonly DesignerViewModel _viewModel;
         private bool _leftMouseButtonDown;
+        private bool _boxGrab;
+        private Point _startMousePosition;
         private Point _lastMousePosition;
 
         public DesignerWindow()
@@ -21,28 +24,49 @@ namespace CADio.Views
 
         private void OnMouseDown(object sender, MouseButtonEventArgs e)
         {
+            _startMousePosition = _lastMousePosition = e.GetPosition(RT);
+
             if (e.LeftButton == MouseButtonState.Pressed)
             {
-                _lastMousePosition = e.GetPosition(this);
                 _leftMouseButtonDown = true;
             }
 
             if (e.RightButton == MouseButtonState.Pressed)
             {
-                var multigrab = (Keyboard.GetKeyStates(Key.LeftShift) & KeyStates.Down) != 0;
-                var aspect = RT.ActualWidth/RT.ActualHeight;
-                var pixelPosition = e.GetPosition(RT);
-                var xf = pixelPosition.X/RT.ActualWidth;
-                var yf = pixelPosition.Y/RT.ActualHeight;
-                aspect = 1.0;
-                var screenSpaceClick = new Point(2*aspect*xf-aspect, -(2*yf-1));
-                _viewModel.GrabUsingMouse(screenSpaceClick, multigrab);
+                _boxGrab =
+                    (Keyboard.GetKeyStates(Key.LeftCtrl) & KeyStates.Down) != 0;
             }
         }
 
         private void OnMouseUp(object sender, MouseButtonEventArgs e)
         {
+            var rightButtonChanged = e.ChangedButton == MouseButton.Right;
+
+            if (_boxGrab && rightButtonChanged)
+            {
+                var screenSpaceStart = GetScreenSpacePoint(_startMousePosition);
+                var screenSpaceEnd = GetScreenSpacePoint(e.GetPosition(RT));
+                var grabRect = new Rect(screenSpaceStart, screenSpaceEnd);
+                _viewModel.GrabUsingMouseRect(grabRect, false);
+            }
+            else if (rightButtonChanged)
+            {
+                var multigrab = (Keyboard.GetKeyStates(Key.LeftShift) & 
+                    KeyStates.Down) != 0;
+                var screenSpaceClick = GetScreenSpacePoint(e.GetPosition(RT));
+                _viewModel.GrabUsingMouse(screenSpaceClick, multigrab);
+            }           
+
             _leftMouseButtonDown = false;
+        }
+
+        private Point GetScreenSpacePoint(Point pixelPosition)
+        {
+            var aspect = RT.ActualWidth/RT.ActualHeight;
+            var xf = pixelPosition.X/RT.ActualWidth;
+            var yf = pixelPosition.Y/RT.ActualHeight;
+            aspect = 1.0; // todo: wtf? aspekt brany pod uwage w macierzy?
+            return new Point(2*aspect*xf - aspect, -(2*yf - 1));
         }
 
         private void OnMouseMove(object sender, MouseEventArgs e)
@@ -50,7 +74,7 @@ namespace CADio.Views
             if (!_leftMouseButtonDown)
                 return;
 
-            var mousePosition = e.GetPosition(this);
+            var mousePosition = e.GetPosition(RT);
             var movement = mousePosition - _lastMousePosition;
 
             if (Keyboard.IsKeyDown(Key.LeftShift))
@@ -83,6 +107,7 @@ namespace CADio.Views
         private void OnPreviewKeyDown(object sender, KeyEventArgs e)
         {
             int cursorMovementX = 0, cursorMovementY = 0, cursorMovementZ = 0;
+            int rotationStep = 0, scalingStep = 0;
 
             switch (e.Key)
             {
@@ -92,6 +117,10 @@ namespace CADio.Views
                 case Key.S: --cursorMovementY; break;
                 case Key.E: ++cursorMovementZ; break;
                 case Key.D: --cursorMovementZ; break;
+                case Key.U: ++rotationStep; break;
+                case Key.J: --rotationStep; break;
+                case Key.O: ++scalingStep; break;
+                case Key.K: --scalingStep; break;
             }
 
             if (e.Key == Key.F)
@@ -103,6 +132,18 @@ namespace CADio.Views
             var moveStep = 0.05;
             _viewModel.MoveManipulator(moveStep * cursorMovementX, 
                 moveStep * cursorMovementY, moveStep * cursorMovementZ);
+
+            if (rotationStep != 0)
+                _viewModel.RotateSelectionZAxis(rotationStep);
+            if (scalingStep != 0)
+                _viewModel.ScaleSelection(scalingStep);
+        }
+
+        private void OnPreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var renderTarget = sender as RenderTarget;
+            Debug.Assert(renderTarget != null, "renderTarget != null");
+            renderTarget.Focus();
         }
     }
 }

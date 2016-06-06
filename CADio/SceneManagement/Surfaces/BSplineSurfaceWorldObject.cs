@@ -180,6 +180,12 @@ namespace CADio.SceneManagement.Surfaces
                     ));
         }
 
+        public override void Translate(Vector3D translation)
+        {
+            foreach (var virtualPoint in _virtualPoints)
+                virtualPoint.Position += translation;
+        }
+
         public void Save(SceneDataSaver saver)
         {
             var dataRowLength = 3 + _segmentsU;
