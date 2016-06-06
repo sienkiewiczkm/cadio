@@ -21,10 +21,9 @@ namespace CADio.Geometry.Shapes.Dynamic
 
         public Control GetEditorControl() => null;
 
-        public int SegmentsX { get; set; }
-        public int SegmentsY { get; set; }
+        public int SegmentsU { get; set; }
+        public int SegmentsV { get; set; }
         public List<SurfaceControlPoint> ControlPoints { get; set; }
-        public int ControlPointsRowLength { get; set; }
 
         public void UpdateGeometry(
             Func<Point3D, Point3D, double> estimateScreenDistanceWithoutClip, 
@@ -34,15 +33,18 @@ namespace CADio.Geometry.Shapes.Dynamic
             var vertices = new List<Vertex>();
             var lines = new List<IndexedLine>();
 
+            var dataRowLength = 3 + SegmentsU;
+            var dataRowsCount = ControlPoints.Count/dataRowLength;
             Func<int, int, int> idMapping = (i, j) => 
-                (j)*(ControlPointsRowLength) + (i%(ControlPointsRowLength)); 
+                (j%dataRowsCount)*dataRowLength + i; 
                 
+            // constant v sampling
             CreateDirectionalSurfaceSampling(
                 estimateScreenDistanceWithoutClip,
                 (i, j) => new Tuple<int, int>(i, j),
                 idMapping,
-                3 + SegmentsX, 
-                3 + SegmentsY, 
+                3 + SegmentsU, 
+                3 + SegmentsV, 
                 GlobalSettings.QualitySettingsViewModel.SurfaceHSubdivisions,
                 vertices, lines
             );
@@ -51,8 +53,8 @@ namespace CADio.Geometry.Shapes.Dynamic
                 estimateScreenDistanceWithoutClip,
                 (i, j) => new Tuple<int, int>(j, i),
                 idMapping,
-                3 + SegmentsY,
-                3 + SegmentsX,
+                3 + SegmentsV,
+                3 + SegmentsU,
                 GlobalSettings.QualitySettingsViewModel.SurfaceWSubdivisions,
                 vertices, lines
             );
@@ -68,26 +70,23 @@ namespace CADio.Geometry.Shapes.Dynamic
                 var additionalLines = new List<IndexedLine>();
                 var baseVertex = vertices.Count;
 
-                for (var x = 0; x < 3 + SegmentsX; ++x)
+                for (var x = 0; x < 3 + SegmentsU; ++x)
                 {
-                    for (var y = 0; y < 3 + SegmentsY; ++y)
+                    for (var y = 0; y < 3 + SegmentsV; ++y)
                     {
-                        if (x < 2 + SegmentsX)
+                        if (x < 2 + SegmentsU)
                         {
                             additionalLines.Add(new IndexedLine(
-                                baseVertex + (ControlPointsRowLength*y 
-                                    + (x%ControlPointsRowLength)),
-                                baseVertex + (ControlPointsRowLength*y 
-                                    + ((x + 1)%ControlPointsRowLength))
+                                baseVertex + (dataRowLength*y + x),
+                                baseVertex + (dataRowLength*y + x + 1)
                             ));
                         }
-                        if (y < 2 + SegmentsY)
+                        if (y < 2 + SegmentsV)
                         {
                             additionalLines.Add(new IndexedLine(
-                                baseVertex + (ControlPointsRowLength * y 
-                                    + (x % ControlPointsRowLength)),
-                                baseVertex + (ControlPointsRowLength * (y + 1) 
-                                    + (x % ControlPointsRowLength))
+                                baseVertex + dataRowLength * y + x,
+                                baseVertex + x +
+                                    (dataRowLength * (y + 1))%dataRowsCount 
                             ));
                         }
                     }

@@ -71,6 +71,8 @@
     </ApplicationDefinition>
     <Compile Include="Configuration\ColorSettings.cs" />
     <Compile Include="Configuration\GlobalSettings.cs" />
+    <Compile Include="Geometry\Generators\CylinderGenerator.cs" />
+    <Compile Include="Geometry\Generators\GridGenerator.cs" />
     <Compile Include="Geometry\Mesh.cs" />
     <Compile Include="Geometry\IndexedLine.cs" />
     <Compile Include="Geometry\Shapes\Builders\SurfaceConstantParameterLinesBuilder.cs" />
@@ -135,6 +137,8 @@
     <Compile Include="SceneManagement\BezierC2WorldObject.cs" />
     <Compile Include="SceneManagement\Points\SharedPoint3D.cs" />
     <Compile Include="SceneManagement\Points\VirtualPoint.cs" />
+    <Compile Include="SceneManagement\Serialization\SceneDataSaver.cs" />
+    <Compile Include="SceneManagement\Serialization\SceneDataImporter.cs" />
     <Compile Include="SceneManagement\Surfaces\GregoryPatchWorldObject.cs" />
     <Compile Include="SceneManagement\Interfaces\IControlPointDependent.cs" />
     <Compile Include="SceneManagement\Interfaces\IImportable.cs" />
@@ -285,6 +289,7 @@
   <ItemGroup>
     <Resource Include="Resources\Gregory.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

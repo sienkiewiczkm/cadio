@@ -6,6 +6,7 @@ using CADio.Geometry.Shapes.Dynamic;
 using CADio.Geometry.Shapes.Static;
 using CADio.Helpers.MVVM;
 using CADio.SceneManagement.Interfaces;
+using CADio.SceneManagement.Serialization;
 using CADio.Views.DragDropSupport;
 
 namespace CADio.SceneManagement
@@ -117,19 +118,19 @@ namespace CADio.SceneManagement
                 AttachObject(markerPoint);
         }
 
-        public void Save(Scene.SceneDataGatherer gatherer)
+        public void Save(SceneDataSaver saver)
         {
-            gatherer.EmitObjectInfo(Scene.WorldObjectType.BezierCurve, Name);
-            gatherer.EmitInt(Objects.Count);
-            gatherer.EmitEOL();
+            saver.EmitObjectInfo(Scene.WorldObjectType.BezierCurve, Name);
+            saver.EmitInt(Objects.Count);
+            saver.EmitEndOfLine();
 
             foreach (var cp in Objects)
             {
-                var id = gatherer.GetWorldObjectId(cp.Reference);
-                gatherer.EmitInt(id);
+                var id = saver.GetWorldObjectId(cp.Reference);
+                saver.EmitInt(id);
             }
 
-            gatherer.EmitObjectDataEnd();
+            saver.EmitObjectDataEnd();
         }
     }
 }

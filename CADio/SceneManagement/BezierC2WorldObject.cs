@@ -8,6 +8,7 @@ using CADio.Geometry.Shapes.Static;
 using CADio.Helpers.MVVM;
 using CADio.Mathematics.Numerical;
 using CADio.SceneManagement.Interfaces;
+using CADio.SceneManagement.Serialization;
 using CADio.Views.DragDropSupport;
 
 namespace CADio.SceneManagement
@@ -171,18 +172,18 @@ namespace CADio.SceneManagement
             }
         }
 
-        public void Save(Scene.SceneDataGatherer gatherer)
+        public void Save(SceneDataSaver saver)
         {
-            gatherer.EmitObjectInfo(Scene.WorldObjectType.BSplineCurve, Name);
-            gatherer.EmitInt(Objects.Count);
+            saver.EmitObjectInfo(Scene.WorldObjectType.BSplineCurve, Name);
+            saver.EmitInt(Objects.Count);
 
             foreach (var cp in Objects)
             {
-                var id = gatherer.GetWorldObjectId(cp.Reference);
-                gatherer.EmitInt(id);
+                var id = saver.GetWorldObjectId(cp.Reference);
+                saver.EmitInt(id);
             }
 
-            gatherer.EmitObjectDataEnd();
+            saver.EmitObjectDataEnd();
         }
     }
 }

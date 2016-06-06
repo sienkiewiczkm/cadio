@@ -6,24 +6,27 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using CADio.Configuration;
+using CADio.Geometry.Generators;
 using CADio.Geometry.Shapes.Dynamic;
 using CADio.Helpers.MVVM;
 using CADio.Mathematics.Patches;
 using CADio.SceneManagement.Interfaces;
 using CADio.SceneManagement.Points;
+using CADio.SceneManagement.Serialization;
 
 namespace CADio.SceneManagement.Surfaces
 {
     public class BezierSurfaceWorldObject : WorldObject, ISaveable
     {
-        private int _segmentsX;
-        private int _segmentsY;
-        private int _rowLength;
+        private int _segmentsU;
+        private int _segmentsV;
         private bool _isPolygonRenderingEnabled;
         private ICommand _togglePolygonRenderingCommand;
         private readonly List<VirtualPoint> _virtualPoints 
             = new List<VirtualPoint>();
         private bool _folded;
+
+        protected int RowLength => 3*_segmentsU + 1;
 
         public bool IsPolygonRenderingEnabled
         {
@@ -58,22 +61,21 @@ namespace CADio.SceneManagement.Surfaces
         }
 
         public static BezierSurfaceWorldObject CreateFlatGrid(
-            int segmentsX, 
-            int segmentsY, 
+            int segmentsU, 
+            int segmentsV, 
             double width, 
             double height
             )
         {
             var surface = new BezierSurfaceWorldObject
             {
-                _segmentsX = segmentsX,
-                _segmentsY = segmentsY,
-                _rowLength = 3*segmentsX+1,
+                _segmentsU = segmentsU,
+                _segmentsV = segmentsV,
             };
 
             surface.SetupVirtualPointsGrid(
-                3*segmentsX+1, 
-                3*segmentsY+1, 
+                3*segmentsU+1, 
+                3*segmentsV+1, 
                 width, 
                 height
             );
@@ -82,23 +84,22 @@ namespace CADio.SceneManagement.Surfaces
         }
 
         public static BezierSurfaceWorldObject CreateCylindrical(
-            int segmentsX, 
-            int segmentsY,
+            int segmentsU, 
+            int segmentsV,
             double radius, 
             double height
             )
         {
             var surface = new BezierSurfaceWorldObject
             {
-                _segmentsX = segmentsX,
-                _segmentsY = segmentsY,
-                _rowLength = 3*segmentsX,
+                _segmentsU = segmentsU,
+                _segmentsV = segmentsV,
                 _folded = true,
             };
 
             surface.SetupVirtualPointsCylinder(
-                3*segmentsX, 
-                3*segmentsY+1, 
+                3*segmentsU+1, 
+                3*segmentsV, 
                 radius, 
                 height
             );
@@ -112,9 +113,8 @@ namespace CADio.SceneManagement.Surfaces
             if (patch == null)
                 return;
 
-            patch.SegmentsX = _segmentsX;
-            patch.SegmentsY = _segmentsY;
-            patch.ControlPointsRowLength = _rowLength;
+            patch.SegmentsU = _segmentsU;
+            patch.SegmentsV = _segmentsV;
             patch.ControlPoints = _virtualPoints
                 .Select(t => new SurfaceControlPoint() {
                     Position = t.Position,
@@ -149,18 +149,25 @@ namespace CADio.SceneManagement.Surfaces
             Debug.Assert(realVirtualPoint != null);
 
             var index = _virtualPoints.IndexOf(realVirtualPoint);
-            var x = index%_rowLength;
-            var y = index/_rowLength;
+            var rowLength = 3*_segmentsU + 1;
+            var x = index%rowLength;
+            var y = index/rowLength;
             return new Tuple<int, int>(x, y);
         }
 
         public VirtualPoint GetVirtualPoint(int x, int y)
         {
-            return _virtualPoints[y*_rowLength + x];
+            var rowLength = 3*_segmentsU + 1;
+            return _virtualPoints[y*rowLength + x];
         }
 
         public BernsteinPatch GetBernsteinPatch()
         {
+            if (_segmentsU > 1 || _segmentsV > 1)
+                throw new ArgumentException(
+                    "There exists more than one bernstein patch here"
+                );
+
             var bezierPatch = new BernsteinPatch();
             for (var i = 0; i < 16; ++i)
                 bezierPatch.ControlPoints[i / 4, i % 4] = 
@@ -169,111 +176,97 @@ namespace CADio.SceneManagement.Surfaces
         }
 
         private void SetupVirtualPointsGrid(
-            int cols, 
-            int rows, 
-            double width = 1, 
+            int segmentsU,
+            int segmentsV,
+            double width = 1,
             double height = 1
             )
         {
-            var spacingX = 1.0/(cols - 1);
-            var spacingY = 1.0/(rows - 1);
-            var totalX = spacingX*(cols-1);
-            var totalY = spacingY*(rows-1);
+            var generated =
+                GridGenerator.Generate(segmentsU, segmentsV, width, height);
 
-            _virtualPoints.Clear();
-
-            for (var y = 0; y < rows; y++)
-            {
-                for (var x = 0; x < cols; x++)
-                {
-                    _virtualPoints.Add(new VirtualPoint()
-                    {
-                        Position = new Point3D(
-                            width*(x*spacingX - totalX*0.5), 
-                            0, 
-                            height*(y*spacingY - totalY*0.5)
-                        ),
-                        ParentObject = this,
-                    });
-                }
-            }
+            SetControlPointsUsingPositions(generated);
         }
 
         private void SetupVirtualPointsCylinder(
-            int onCrossSectionPoints, 
-            int onLengthPoints, 
+            int lengthPoints, 
+            int circlePoints, 
             double radius, 
             double height
             )
         {
-            _virtualPoints.Clear();
+            var generated = CylinderGenerator.Generate(
+                lengthPoints,
+                circlePoints,
+                radius,
+                height
+            );
 
-            for (var i = 0; i < onLengthPoints; ++i)
-            {
-                var h = height*i/onLengthPoints;
-                for (var j = 0; j < onCrossSectionPoints; ++j)
-                {
-                    var angle = 2*Math.PI*j/onCrossSectionPoints;
-                    _virtualPoints.Add(new VirtualPoint()
-                    {
-                        Position = new Point3D(
-                            radius*Math.Sin(angle), 
-                            h, 
-                            radius*Math.Cos(angle)
-                        ),
-                        ParentObject = this,
-                    });
-                }
-            }
+            SetControlPointsUsingPositions(generated);
         }
 
-        public void Save(Scene.SceneDataGatherer gatherer)
+        private void SetControlPointsUsingPositions(
+            IEnumerable<Point3D> generated
+            )
         {
-            var totalRows = _virtualPoints.Count / _rowLength;
+            _virtualPoints.Clear();
+            _virtualPoints.AddRange(
+                generated.Select(
+                    t => new VirtualPoint()
+                    {
+                        Position = t,
+                        ParentObject = this
+                    }
+                    ));
+        }
 
-            gatherer.EmitObjectInfo(Scene.WorldObjectType.BezierSurface, Name);
-            gatherer.EmitInt(totalRows);
-            gatherer.EmitInt(_rowLength);
-            gatherer.EmitChar(_folded ? 'C' : 'R');
-            gatherer.EmitChar('V');
-            gatherer.EmitEOL();
+        public void Save(SceneDataSaver saver)
+        {
+            var totalRows = _virtualPoints.Count / RowLength;
+
+            saver.EmitObjectInfo(Scene.WorldObjectType.BezierSurface, Name);
+            saver.EmitInt(totalRows);
+            saver.EmitInt(RowLength);
+            saver.EmitChar(_folded ? 'C' : 'R');
+            saver.EmitChar('H');
+            saver.EmitEndOfLine();
 
             for (var row = 0; row < totalRows; ++row)
             {
-                for (var column = 0; column < _rowLength; ++column)
+                for (var column = 0; column < RowLength; ++column)
                 {
                     var dataRow = row;
                     var dataColumn = column;
-                    var pos = _virtualPoints[dataColumn + dataRow*_rowLength].Position;
-                    gatherer.EmitInt(gatherer.CreateReferencePoint(pos));
+                    var pos = _virtualPoints[dataColumn + dataRow*RowLength].Position;
+                    saver.EmitInt(saver.CreateReferencePoint(pos));
                 }
             }
 
-            gatherer.EmitObjectDataEnd();
+            saver.EmitObjectDataEnd();
         }
 
         public void BuildFromExternalData(Point3D[,] data, bool folded)
         {
             var rows = data.GetLength(0);
-            _rowLength = data.GetLength(1);
+            var rowLength = data.GetLength(1);
             _folded = folded;
 
             if (!folded)
             {
-                _segmentsX = (_rowLength - 1) / 3;
-                _segmentsY = (rows - 1)/3;
+                _segmentsU = (rowLength - 1) / 3;
+                _segmentsV = (rows - 1)/3;
             }
             else
             {
-                _segmentsX = _rowLength/3;
-                _segmentsY = (rows - 1)/3;
+                _segmentsU = (rowLength - 1)/3;
+                _segmentsV = rows/3;
             }
 
             _virtualPoints.Clear();
 
             for (var y = 0; y < rows; y++)
             {
-                for (var x = 0; x < _rowLength; x++)
+                for (var x = 0; x < rowLength; x++)
                 {
                     _virtualPoints.Add(new VirtualPoint()
                     {

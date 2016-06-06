@@ -19,10 +19,9 @@ namespace CADio.Geometry.Shapes.Dynamic
 
         public Control GetEditorControl() => null;
 
-        public int SegmentsX { get; set; }
-        public int SegmentsY { get; set; }
+        public int SegmentsU { get; set; }
+        public int SegmentsV { get; set; }
         public List<SurfaceControlPoint> ControlPoints { get; set; }
-        public int ControlPointsRowLength { get; set; }
 
         public void UpdateGeometry(
             Func<Point3D, Point3D, double> estimateScreenDistanceWithoutClip, 
@@ -33,21 +32,35 @@ namespace CADio.Geometry.Shapes.Dynamic
             var lines = new List<IndexedLine>();
             var markerPoints = new List<Vertex>();
             
-            for (var i = 0; i < SegmentsX; ++i)
+            for (var i = 0; i < SegmentsU; ++i)
             {
-                for (var j = 0; j < SegmentsY; ++j)
+                for (var j = 0; j < SegmentsV; ++j)
                 {
-                    var patchControlPoints = GetList2DSubRect(ControlPoints, ControlPointsRowLength, 3*i, 3*j, 4, 4);
+                    var patchControlPoints = GetList2DSubRectCyclic(
+                        ControlPoints, 
+                        3*SegmentsU+1, 
+                        3*i, 
+                        3*j, 
+                        4, 
+                        4
+                    );
+                    
                     var patch = new BezierPatch
                     {
                         ControlPoints = patchControlPoints,
                         IsPolygonRenderingEnabled = IsPolygonRenderingEnabled
                     };
 
-                    patch.UpdateGeometry(estimateScreenDistanceWithoutClip, isInsideProjectiveCubePredicate);
+                    patch.UpdateGeometry(
+                        estimateScreenDistanceWithoutClip, 
+                        isInsideProjectiveCubePredicate
+                    );
 
                     lines.AddRange(patch.Lines
-                        .Select(t => new IndexedLine(t.First + vertices.Count, t.Second + vertices.Count))
+                        .Select(t => new IndexedLine(
+                            t.First + vertices.Count, 
+                            t.Second + vertices.Count
+                        ))
                         .ToList()
                     );
 
@@ -58,16 +71,32 @@ namespace CADio.Geometry.Shapes.Dynamic
             
             Vertices = vertices;
             Lines = lines;
-            MarkerPoints = markerPoints;//ControlPoints.Select(t => new Vertex(t, Colors.Red)).ToList();
+            MarkerPoints = markerPoints;
             RawPoints = new List<Vertex>();
         }
 
-        private List<T> GetList2DSubRect<T>(IReadOnlyList<T> input, int rowLength, int x, int y, int w, int h)
+        private static List<T> GetList2DSubRectCyclic<T>(
+            IReadOnlyList<T> input, 
+            int rowLength, 
+            int x, 
+            int y, 
+            int w, 
+            int h
+            )
         {
             var points = new List<T>();
+            var rows = input.Count/rowLength;
+
             for (var i = 0; i < w; ++i)
+            {
                 for (var j = 0; j < h; ++j)
-                    points.Add(input[((y + j))*rowLength + (x + i)%rowLength]);
+                {
+                    var adjustedY = (y + j)%rows;
+                    var adjustedX = (x + i)%rowLength;
+                    var index = adjustedY*rowLength + adjustedX;
+                    points.Add(input[index]);
+                }
+            }
 
             return points;
         }
