@@ -74,20 +74,21 @@ namespace CADio.Geometry.Shapes.Dynamic
                 {
                     for (var y = 0; y < 3 + SegmentsV; ++y)
                     {
+                        var ym = y%dataRowsCount;
                         if (x < 2 + SegmentsU)
                         {
                             additionalLines.Add(new IndexedLine(
-                                baseVertex + (dataRowLength*y + x),
-                                baseVertex + (dataRowLength*y + x + 1)
+                                baseVertex + (dataRowLength*ym + x),
+                                baseVertex + (dataRowLength*ym + x + 1)
                             ));
                         }
                         if (y < 2 + SegmentsV)
                         {
                             additionalLines.Add(new IndexedLine(
-                                baseVertex + dataRowLength * y + x,
+                                baseVertex + dataRowLength * ym + x,
                                 baseVertex + x +
-                                    (dataRowLength * (y + 1))%dataRowsCount 
-                            ));
+                                    dataRowLength * ((ym + 1)%dataRowsCount)
+                           ));
                         }
                     }
                 }
