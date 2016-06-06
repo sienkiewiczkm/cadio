@@ -134,7 +134,8 @@
     <Compile Include="SampleData\DesignSceneListData\DesignSceneListData.xaml.cs">
       <DependentUpon>DesignSceneListData.xaml</DependentUpon>
     </Compile>
-    <Compile Include="SceneManagement\BezierC2WorldObject.cs" />
+    <Compile Include="SceneManagement\Curves\BezierC0WorldObject.cs" />
+    <Compile Include="SceneManagement\Curves\BezierC2WorldObject.cs" />
     <Compile Include="SceneManagement\Points\SharedPoint3D.cs" />
     <Compile Include="SceneManagement\Points\VirtualPoint.cs" />
     <Compile Include="SceneManagement\Serialization\SceneDataSaver.cs" />
@@ -151,7 +152,6 @@
     <Compile Include="SceneManagement\ControlPoint.cs" />
     <Compile Include="SceneManagement\MarkerPointObject.cs" />
     <Compile Include="SceneManagement\Scene.cs" />
-    <Compile Include="SceneManagement\BezierC0WorldObject.cs" />
     <Compile Include="SceneManagement\Surfaces\BezierSurfaceWorldObject.cs" />
     <Compile Include="SceneManagement\Surfaces\BSplineSurfaceWorldObject.cs" />
     <Compile Include="SceneManagement\Surfaces\SurfaceControlPoint.cs" />

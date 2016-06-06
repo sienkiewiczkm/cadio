@@ -225,8 +225,8 @@ namespace CADio.SceneManagement.Surfaces
             var totalRows = _virtualPoints.Count / RowLength;
 
             saver.EmitObjectInfo(Scene.WorldObjectType.BezierSurface, Name);
-            saver.EmitInt(totalRows);
             saver.EmitInt(RowLength);
+            saver.EmitInt(totalRows);
             saver.EmitChar(_folded ? 'C' : 'R');
             saver.EmitChar('H');
             saver.EmitEndOfLine();
@@ -237,7 +237,8 @@ namespace CADio.SceneManagement.Surfaces
                 {
                     var dataRow = row;
                     var dataColumn = column;
-                    var pos = _virtualPoints[dataColumn + dataRow*RowLength].Position;
+                    var pos = _virtualPoints[dataColumn + 
+                        dataRow*RowLength].SharedPoint;
                     saver.EmitInt(saver.CreateReferencePoint(pos));
                 }
             }
@@ -245,7 +246,7 @@ namespace CADio.SceneManagement.Surfaces
             saver.EmitObjectDataEnd();
         }
 
-        public void BuildFromExternalData(Point3D[,] data, bool folded)
+        public void BuildFromExternalData(SharedPoint3D[,] data, bool folded)
         {
             var rows = data.GetLength(0);
             var rowLength = data.GetLength(1);
@@ -270,7 +271,7 @@ namespace CADio.SceneManagement.Surfaces
                 {
                     _virtualPoints.Add(new VirtualPoint()
                     {
-                        Position = data[y, x],
+                        SharedPoint = data[y, x],
                         ParentObject = this,
                     });
                 }

@@ -131,8 +131,8 @@ namespace CADio.SceneManagement
 
             foreach (var cp in Objects)
             {
-                var id = saver.GetWorldObjectId(cp.Reference);
-                saver.EmitInt(id);
+                //var id = saver.GetWorldObjectId(cp.Reference);
+                //saver.EmitInt(id);
             }
 
             saver.EmitObjectDataEnd();

@@ -12,6 +12,7 @@ using CADio.Geometry.Shapes.Dynamic;
 using CADio.Geometry.Shapes.Static;
 using CADio.Helpers.MVVM;
 using CADio.SceneManagement;
+using CADio.SceneManagement.Curves;
 using CADio.SceneManagement.Surfaces;
 
 namespace CADio.ViewModels

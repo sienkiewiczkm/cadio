@@ -3,15 +3,16 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using System.Windows.Media.Media3D;
+using CADio.SceneManagement.Points;
 
 namespace CADio.SceneManagement.Serialization
 {
     public class SceneDataSaver
     {
-        private Dictionary<WorldObject, int> WorldObjectIdMap { get; set; } 
-            = new Dictionary<WorldObject, int>();
-        public List<Point3D> ReferencePoints { get; set; } 
-            = new List<Point3D>();
+        private Dictionary<SharedPoint3D, int> StoredReferencePointsMap { get; } 
+            = new Dictionary<SharedPoint3D, int>();
+        public List<SharedPoint3D> ReferencePoints { get; set; } 
+            = new List<SharedPoint3D>();
         public StringBuilder ObjectDataSet { get; set; } = new StringBuilder();
 
         private string TranslateWorldObjectType(Scene.WorldObjectType type)
@@ -74,18 +75,6 @@ namespace CADio.SceneManagement.Serialization
             ObjectDataSet.AppendLine();
         }
 
-        public int GetWorldObjectId(WorldObject worldObject)
-        {
-            int value;
-            if (WorldObjectIdMap.TryGetValue(worldObject, out value))
-                return value;
-
-            value = ReferencePoints.Count;
-            WorldObjectIdMap.Add(worldObject, value);
-            ReferencePoints.Add(worldObject.Position);
-            return value;
-        }
-
         public string Build()
         {
             var file = new StringBuilder();
@@ -93,18 +82,22 @@ namespace CADio.SceneManagement.Serialization
             foreach (var rp in ReferencePoints)
                 file.AppendFormat(
                     "{0} {1} {2}\n",
-                    rp.X.ToString(CultureInfo.InvariantCulture), 
-                    rp.Y.ToString(CultureInfo.InvariantCulture),
-                    rp.Z.ToString(CultureInfo.InvariantCulture)
+                    rp.Data.X.ToString(CultureInfo.InvariantCulture), 
+                    rp.Data.Y.ToString(CultureInfo.InvariantCulture),
+                    rp.Data.Z.ToString(CultureInfo.InvariantCulture)
                 );
             file.AppendFormat(ObjectDataSet.ToString());
             return file.ToString();
         }
 
-        public int CreateReferencePoint(Point3D pos)
+        public int CreateReferencePoint(SharedPoint3D pos)
         {
+            if (StoredReferencePointsMap.ContainsKey(pos))
+                return StoredReferencePointsMap[pos];
+
             var id = ReferencePoints.Count;
             ReferencePoints.Add(pos);
+            StoredReferencePointsMap[pos] = id;
             return id;
         }
     }

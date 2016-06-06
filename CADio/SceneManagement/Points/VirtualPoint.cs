@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows.Media.Media3D;
 using CADio.SceneManagement.Interfaces;
@@ -19,6 +20,18 @@ namespace CADio.SceneManagement.Points
 
         public bool IsGrabbed { get; set; }
         public IWorldObject ParentObject { get; set; }
+
+        public SharedPoint3D SharedPoint
+        {
+            get { return _sharedPoint; }
+            set
+            {
+                Debug.Assert(_sharedPoint != null);
+                _sharedPoint.Users.Remove(this);
+                _sharedPoint = value;
+                _sharedPoint.Users.Add(this);
+            }
+        }
 
         public VirtualPoint()
         {

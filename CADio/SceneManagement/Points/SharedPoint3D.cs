@@ -9,6 +9,10 @@ namespace CADio.SceneManagement.Points
         public List<VirtualPoint> Users { get; set; } = 
             new List<VirtualPoint>();
 
+        public SharedPoint3D()
+        {
+        }
+
         public SharedPoint3D(VirtualPoint originalOwner)
         {
             Users.Add(originalOwner);

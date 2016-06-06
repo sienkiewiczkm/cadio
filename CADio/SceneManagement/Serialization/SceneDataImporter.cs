@@ -5,6 +5,8 @@ using System.IO;
 using System.Windows.Media.Media3D;
 using CADio.Geometry.Shapes.Dynamic;
 using CADio.Geometry.Shapes.Static;
+using CADio.SceneManagement.Curves;
+using CADio.SceneManagement.Points;
 using CADio.SceneManagement.Surfaces;
 
 namespace CADio.SceneManagement.Serialization
@@ -15,11 +17,8 @@ namespace CADio.SceneManagement.Serialization
         private int _contentCurrentIndex;
         private int _objectsNumber;
 
-        private readonly List<WorldObject> _redundantPoints =
-            new List<WorldObject>();
-
-        private readonly List<WorldObject> _referencePoints =
-            new List<WorldObject>();
+        private readonly List<SharedPoint3D> _referencePoints =
+            new List<SharedPoint3D>();
 
         private int _referencePointsTotalCount;
 
@@ -42,17 +41,11 @@ namespace CADio.SceneManagement.Serialization
                 var x = ReadDouble();
                 var y = ReadDouble();
                 var z = ReadDouble();
+
                 var point = new Point3D(x, y, z);
+                var sharedPoint = new SharedPoint3D() { Data = point };
 
-                var pointObject = new WorldObject
-                {
-                    Name = $"Point {i}",
-                    Position = point,
-                    Shape = new MarkerPoint(),
-                };
-
-                _referencePoints.Add(pointObject);
-                scene.AttachObject(pointObject);
+                _referencePoints.Add(sharedPoint);
             }
 
             _objectsNumber = ReadInt();
@@ -70,8 +63,7 @@ namespace CADio.SceneManagement.Serialization
                         "END expected and not found.");
             }
 
-            foreach (var pt in _redundantPoints)
-                scene.DetachObject(pt);
+            // attach virutal points that are visible on list
         }
 
         public int ReadInt()
@@ -105,7 +97,9 @@ namespace CADio.SceneManagement.Serialization
 
                 var refPointsCount = ReadInt();
                 for (var i = 0; i < refPointsCount; ++i)
-                    beziercurve.AttachObject(_referencePoints[ReadInt()]);
+                {
+                    beziercurve.AttachObject(GetMarkerPoint(ReadInt()));
+                }
 
                 return beziercurve;
             }
@@ -120,7 +114,7 @@ namespace CADio.SceneManagement.Serialization
 
                 var refPointsCount = ReadInt();
                 for (var i = 0; i < refPointsCount; ++i)
-                    bsplinecurve.AttachObject(_referencePoints[ReadInt()]);
+                    bsplinecurve.AttachObject(GetMarkerPoint(ReadInt()));
 
                 return bsplinecurve;
             }
@@ -135,7 +129,7 @@ namespace CADio.SceneManagement.Serialization
 
                 var refPointsCount = ReadInt();
                 for (var i = 0; i < refPointsCount; ++i)
-                    interpolat.AttachObject(_referencePoints[ReadInt()]);
+                    interpolat.AttachObject(GetMarkerPoint(ReadInt()));
 
                 return interpolat;
             }
@@ -158,7 +152,7 @@ namespace CADio.SceneManagement.Serialization
                 }
                 else throw new ArgumentException("Only H option is supported");
 
-                var data = new Point3D[dataRows, dataColumns];
+                var data = new SharedPoint3D[dataRows, dataColumns];
 
                 for (var row = 0; row < controlPointsU; ++row)
                 {
@@ -166,10 +160,8 @@ namespace CADio.SceneManagement.Serialization
                     {
                         var id = ReadInt();
                         var point = _referencePoints[id];
-                        _redundantPoints.Add(point);
-
                         var mapped = mapper(row, column);
-                        data[mapped.Item1, mapped.Item2] = point.Position;
+                        data[mapped.Item1, mapped.Item2] = point;
                     }
                 }
 
@@ -254,6 +246,16 @@ namespace CADio.SceneManagement.Serialization
                 eol - _contentCurrentIndex);
             _contentCurrentIndex = eol + 1;
             return segment;
+        }
+
+        private WorldObject GetMarkerPoint(int refId)
+        {
+            return new WorldObject()
+            {
+                Name = "Point",
+                Shape = new MarkerPoint(),
+                Position = _referencePoints[refId].Data,
+            };
         }
     }
 }

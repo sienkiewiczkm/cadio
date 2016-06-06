@@ -10,6 +10,7 @@
              xmlns:dynamic="clr-namespace:CADio.Geometry.Shapes.Dynamic"
              xmlns:converters="clr-namespace:CADio.Views.Converters"
              xmlns:surfaces="clr-namespace:CADio.SceneManagement.Surfaces"
+             xmlns:curves="clr-namespace:CADio.SceneManagement.Curves"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="200" d:DataContext="{d:DesignData /SampleData/DesignSceneListData/DesignSceneListData.xaml}">
     <UserControl.Resources>
@@ -71,7 +72,7 @@
                             <TextBlock Text="{Binding Name}"/>
                         </StackPanel>
                     </HierarchicalDataTemplate>
-                    <HierarchicalDataTemplate DataType="{x:Type sceneManagement:BezierC0WorldObject}" ItemsSource="{Binding Objects}">
+                    <HierarchicalDataTemplate DataType="{x:Type curves:BezierC0WorldObject}" ItemsSource="{Binding Objects}">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="{Binding Name}" Margin="0 0 4 0"/>
                             <Button Command="{Binding RequestSmartEditCommand}" 
@@ -86,7 +87,7 @@
                             </Button>
                         </StackPanel>
                     </HierarchicalDataTemplate>
-                    <HierarchicalDataTemplate DataType="{x:Type sceneManagement:BezierC2WorldObject}" ItemsSource="{Binding Objects}">
+                    <HierarchicalDataTemplate DataType="{x:Type curves:BezierC2WorldObject}" ItemsSource="{Binding Objects}">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="{Binding Name}" Margin="0 0 4 0"/>
                             <Button Command="{Binding RequestSmartEditCommand}" 

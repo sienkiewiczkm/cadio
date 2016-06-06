@@ -182,12 +182,12 @@ namespace CADio.SceneManagement.Surfaces
 
         public void Save(SceneDataSaver saver)
         {
-            var dataRowLength = 3 + _segmentsU + 1;
+            var dataRowLength = 3 + _segmentsU;
             var totalRows = _virtualPoints.Count/dataRowLength;
 
             saver.EmitObjectInfo(Scene.WorldObjectType.BSplineSurface, Name);
-            saver.EmitInt(totalRows);
             saver.EmitInt(dataRowLength);
+            saver.EmitInt(totalRows);
             saver.EmitChar(_folded ? 'C' : 'R');
             saver.EmitChar('H');
             saver.EmitEndOfLine();
@@ -199,7 +199,7 @@ namespace CADio.SceneManagement.Surfaces
                     var dataRow = row;
                     var dataColumn = column;
                     var pos = _virtualPoints[dataColumn 
-                        + dataRow * dataRowLength].Position;
+                        + dataRow * dataRowLength].SharedPoint;
                     saver.EmitInt(saver.CreateReferencePoint(pos));
                 }
             }
@@ -207,7 +207,7 @@ namespace CADio.SceneManagement.Surfaces
             saver.EmitObjectDataEnd();
         }
 
-        public void BuildFromExternalData(Point3D[,] data, bool folded)
+        public void BuildFromExternalData(SharedPoint3D[,] data, bool folded)
         {
             var rows = data.GetLength(0);
             var rowLength = data.GetLength(1);
@@ -232,7 +232,8 @@ namespace CADio.SceneManagement.Surfaces
                 {
                     _virtualPoints.Add(new VirtualPoint()
                     {
-                        Position = data[y, x]
+                        SharedPoint = data[y, x],
+                        ParentObject = this,
                     });
                 }
             }
