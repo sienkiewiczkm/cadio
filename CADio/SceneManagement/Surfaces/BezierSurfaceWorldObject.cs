@@ -311,10 +311,12 @@ namespace CADio.SceneManagement.Surfaces
                     .ToList();
 
                 if (importantCollapsedPoints.Count != 2)
+                    return new List<VirtualPoint>();
+                    /*
                     throw new ApplicationException(string.Join(
                         "Expected two shared points between adjacent patches,",
                         $" but found ${importantCollapsedPoints.Count}."
-                    ));
+                    ));*/
 
                 if (lastProcessedPatch != null)
                 {

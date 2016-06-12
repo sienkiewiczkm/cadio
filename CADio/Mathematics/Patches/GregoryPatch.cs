@@ -120,10 +120,10 @@ namespace CADio.Mathematics.Patches
                 v1 = 3;
                 derivativeIndex = 1;
             }
-            else if (edgeId == 4)
+            else if (edgeId == 3)
             {
-                v0 = 3;
-                v1 = 1;
+                v0 = 1;
+                v1 = 3;
                 derivativeIndex = 0;
             }
 

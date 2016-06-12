@@ -25,7 +25,8 @@ namespace CADio.ViewModels
         private Scene _scene = new Scene();
         private Renderer _renderer;
         private string _cursorInfo;
-        private QualitySettingsViewModel _qualitySettingsViewModel = new QualitySettingsViewModel();
+        private QualitySettingsViewModel _qualitySettingsViewModel 
+            = new QualitySettingsViewModel();
         private readonly Window _ownerWindow;
 
         private ICommand _newSceneCommand;
@@ -134,16 +135,32 @@ namespace CADio.ViewModels
                 gregoryAdjacentPatches
             );
 
-            var fill = new TriangularHoleFill();
-            fill.OutlinePoints = outline;
+            if (outline.Count != 9)
+            {
+                MessageBox.Show(
+                    _ownerWindow,
+                    "Hole cannot be filled for selected patches",
+                    "Operation cannot be performed",
+                    MessageBoxButton.OK, 
+                    MessageBoxImage.Information
+                );
+                return;
+            }
+
+            var fill = new TriangularHoleFill {OutlinePoints = outline};
             _scene.AttachObject(fill);
         }
 
         private void RequestNewScene()
         {
-            var result = MessageBox.Show(_ownerWindow, "Creating new scene will clear this one. Are you sure?",
+            var result = MessageBox.Show(
+                _ownerWindow, 
+                "Creating new scene will clear this one. Are you sure?",
                 "New scene confirmation",
-                MessageBoxButton.YesNo, MessageBoxImage.Question);
+                MessageBoxButton.YesNo, 
+                MessageBoxImage.Question
+            );
+
             if (result == MessageBoxResult.No)
                 return;
 
