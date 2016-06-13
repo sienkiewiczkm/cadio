@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
@@ -12,10 +13,14 @@ using CADio.Geometry.Shapes;
 using CADio.Geometry.Shapes.Dynamic;
 using CADio.Geometry.Shapes.Static;
 using CADio.Helpers.MVVM;
+using CADio.Mathematics.Interfaces;
+using CADio.Mathematics.Intersections;
+using CADio.Mathematics.Surfaces;
 using CADio.Rendering;
 using CADio.SceneManagement;
 using CADio.SceneManagement.Interfaces;
 using CADio.SceneManagement.Surfaces;
+using CADio.Views;
 using Microsoft.Win32;
 
 namespace CADio.ViewModels
@@ -35,6 +40,7 @@ namespace CADio.ViewModels
         private ICommand _saveSceneAsCommand;
         private ICommand _collapseSelectionCommand;
         private ICommand _fillWithGregoryCommand;
+        private RelayCommand _intersectSurfacesCommand;
 
         public QualitySettingsViewModel QualitySettingsViewModel
         {
@@ -48,7 +54,11 @@ namespace CADio.ViewModels
 
         public ICommand NewSceneCommand
         {
-            get { return _newSceneCommand ?? (_newSceneCommand = new RelayCommand(RequestNewScene)); }
+            get
+            {
+                return _newSceneCommand ?? 
+                    (_newSceneCommand = new RelayCommand(RequestNewScene));
+            }
             set
             {
                 _newSceneCommand = value;
@@ -58,7 +68,11 @@ namespace CADio.ViewModels
 
         public ICommand LoadSceneCommand
         {
-            get { return _loadSceneCommand ?? (_loadSceneCommand = new RelayCommand(LoadScene)); }
+            get
+            {
+                return _loadSceneCommand ?? 
+                    (_loadSceneCommand = new RelayCommand(LoadScene));
+            }
             set
             {
                 _loadSceneCommand = value;
@@ -68,7 +82,11 @@ namespace CADio.ViewModels
 
         public ICommand SaveSceneCommand
         {
-            get { return _saveSceneCommand ?? (_saveSceneCommand = new RelayCommand(SaveScene)); }
+            get
+            {
+                return _saveSceneCommand ?? 
+                    (_saveSceneCommand = new RelayCommand(SaveScene));
+            }
             set
             {
                 _saveSceneCommand = value;
@@ -78,7 +96,11 @@ namespace CADio.ViewModels
 
         public ICommand SaveSceneAsCommand
         {
-            get { return _saveSceneAsCommand ?? (_saveSceneAsCommand = new RelayCommand(SaveSceneAs)); }
+            get
+            {
+                return _saveSceneAsCommand ?? 
+                    (_saveSceneAsCommand = new RelayCommand(SaveSceneAs));
+            }
             set
             {
                 _saveSceneAsCommand = value;
@@ -115,6 +137,63 @@ namespace CADio.ViewModels
                     );
                 return _fillWithGregoryCommand;
             }
+        }
+
+        public ICommand IntersectSurfacesCommand
+        {
+            get
+            {
+                if (_intersectSurfacesCommand == null)
+                    _intersectSurfacesCommand = new RelayCommand(
+                        IntersectSurfaces
+                    );
+                return _intersectSurfacesCommand;
+            }
+        }
+
+        private void IntersectSurfaces()
+        {
+            var surfaces = _scene.GrabbedObjects
+                .Select(t => t as BezierSurfaceWorldObject)
+                .ToList();
+
+            var firstPatch = surfaces[0].GetBernsteinPatch();
+            var secondPatch = surfaces[1].GetBernsteinPatch();
+
+            var nearestFinder = new SurfaceSamplingNearestFinder();
+            nearestFinder.SamplesU = 64;
+            nearestFinder.SamplesV = 64;
+
+            var referencePosition = _scene.Manipulator.Position;
+
+            var finder = new DomainIntersectionFinder();
+            finder.NearestPointFinder = nearestFinder;
+
+            var polygon = finder.FindIntersectionPolygon(
+                firstPatch,
+                secondPatch,
+                referencePosition
+            );
+
+            var firstParametrisationWindow = new ParametricPreview();
+            var secondParametrisationWindow = new ParametricPreview();
+
+            firstParametrisationWindow.ViewModel.ParametricPolygon
+                = new ObservableCollection<Parametrisation>(
+                    polygon.Polygon.Select(t => t.First).ToList());
+
+            secondParametrisationWindow.ViewModel.ParametricPolygon
+                = new ObservableCollection<Parametrisation>(
+                    polygon.Polygon.Select(t => t.Second).ToList());
+
+            firstParametrisationWindow.ViewModel.Name = surfaces[0].Name;
+            secondParametrisationWindow.ViewModel.Name = surfaces[1].Name;
+
+            firstParametrisationWindow.ViewModel.RedrawPreview();
+            secondParametrisationWindow.ViewModel.RedrawPreview();
+
+            firstParametrisationWindow.Show();
+            secondParametrisationWindow.Show();
         }
 
         private bool IsGregoryPatchAvailable()
@@ -223,6 +302,8 @@ namespace CADio.ViewModels
             SceneTreeViewModel = new SceneTreeViewModel();
 
             CreateNewScene();
+
+            (new ParametricPreview()).Show();
         }
 
         private void CreateNewScene()

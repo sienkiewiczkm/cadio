@@ -98,8 +98,11 @@
     <Compile Include="Helpers\LINQExtensions.cs" />
     <Compile Include="Helpers\MVVM\RelayCommand.cs" />
     <Compile Include="Mathematics\Interfaces\IParametricSurface.cs" />
+    <Compile Include="Mathematics\Interfaces\ISurfaceNearestPointFinder.cs" />
+    <Compile Include="Mathematics\Intersections\DomainIntersectionFinder.cs" />
+    <Compile Include="Mathematics\Intersections\IntersectionParametrisation.cs" />
+    <Compile Include="Mathematics\Intersections\PolygonIntersection.cs" />
     <Compile Include="Mathematics\MathHelpers.cs" />
-    <Compile Include="Mathematics\Matrix.cs" />
     <Compile Include="Mathematics\Matrix4x4.cs" />
     <Compile Include="Mathematics\Numerical\BernsteinPolynomial.cs" />
     <Compile Include="Mathematics\Numerical\Bspline.cs" />
@@ -113,6 +116,7 @@
     <Compile Include="Mathematics\Patches\BernsteinPatch.cs" />
     <Compile Include="Mathematics\Patches\GregoryPatch.cs" />
     <Compile Include="Mathematics\Proxies\SurfaceReparametrisation.cs" />
+    <Compile Include="Mathematics\Surfaces\SurfaceSamplingNearestFinder.cs" />
     <Compile Include="Mathematics\Transformations3D.cs" />
     <Compile Include="Mathematics\Vector3DExtensions.cs" />
     <Compile Include="Mathematics\Vector4D.cs" />
@@ -159,6 +163,7 @@
     <Compile Include="SceneManagement\WorldObject.cs" />
     <Compile Include="ViewModels\BezierSurfaceCreationViewModel.cs" />
     <Compile Include="ViewModels\DesignerViewModel.cs" />
+    <Compile Include="ViewModels\ParametricPreviewViewModel.cs" />
     <Compile Include="ViewModels\QualitySettingsViewModel.cs" />
     <Compile Include="ViewModels\SceneTreeViewModel.cs" />
     <Compile Include="Views\BezierSurfaceC0Creator.xaml.cs">
@@ -176,6 +181,9 @@
     <Compile Include="Views\DragDropSupport\IDropzone.cs" />
     <Compile Include="Views\DropDownButton.cs" />
     <Compile Include="Views\Extensions\EnumerationExtension.cs" />
+    <Compile Include="Views\ParametricPreview.xaml.cs">
+      <DependentUpon>ParametricPreview.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\SceneTree.xaml.cs">
       <DependentUpon>SceneTree.xaml</DependentUpon>
     </Compile>
@@ -199,6 +207,10 @@
     <Page Include="Views\DesignerWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\ParametricPreview.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\SceneTree.xaml">
       <SubType>Designer</SubType>
@@ -289,7 +301,12 @@
   <ItemGroup>
     <Resource Include="Resources\Gregory.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Resources\Intersect.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\UV.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -28,6 +28,11 @@ namespace CADio.Mathematics.Patches
             return BernsteinPolynomial.Evaluate3DPolynomial(subpoints, v);
         }
 
+        public Point3D Evaluate(Parametrisation parametrisation)
+        {
+            return Evaluate(parametrisation.U, parametrisation.V);
+        }
+
         public Vector3D Derivative(
             double u, double v, 
             DerivativeParameter parameter

@@ -156,6 +156,11 @@ namespace CADio.Mathematics.Patches
             return new Point3D(x, y, z);
         }
 
+        public Point3D Evaluate(Parametrisation parametrisation)
+        {
+            return Evaluate(parametrisation.U, parametrisation.V);
+        }
+
         public Vector3D Derivative(
             double u, double v, 
             DerivativeParameter parameter)
