@@ -9,14 +9,18 @@ using CADio.Configuration;
 using CADio.Geometry.Generators;
 using CADio.Geometry.Shapes.Dynamic;
 using CADio.Helpers.MVVM;
+using CADio.Mathematics.Interfaces;
 using CADio.Mathematics.Patches;
+using CADio.Mathematics.Surfaces;
 using CADio.SceneManagement.Interfaces;
 using CADio.SceneManagement.Points;
 using CADio.SceneManagement.Serialization;
 
 namespace CADio.SceneManagement.Surfaces
 {
-    public class BezierSurfaceWorldObject : WorldObject, ISaveable
+    public class BezierSurfaceWorldObject : 
+        WorldObject, 
+        ISaveable
     {
         private int _segmentsU;
         private int _segmentsV;
@@ -173,6 +177,11 @@ namespace CADio.SceneManagement.Surfaces
                 bezierPatch.ControlPoints[i / 4, i % 4] = 
                     _virtualPoints[i].Position;
             return bezierPatch;
+        }
+
+        public IParametricSurface GetParametricSurface()
+        {
+            return ((BezierPatchGroup) Shape).GetParametricSurface();
         }
 
         private void SetupVirtualPointsGrid(

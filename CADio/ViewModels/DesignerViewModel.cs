@@ -154,11 +154,12 @@ namespace CADio.ViewModels
         private void IntersectSurfaces()
         {
             var surfaces = _scene.GrabbedObjects
-                .Select(t => t as BezierSurfaceWorldObject)
+                .Where(t => t is BezierSurfaceWorldObject)
+                .Cast<BezierSurfaceWorldObject>()
                 .ToList();
 
-            var firstPatch = surfaces[0].GetBernsteinPatch();
-            var secondPatch = surfaces[1].GetBernsteinPatch();
+            var firstPatch = surfaces[0].GetParametricSurface();
+            var secondPatch = surfaces[1].GetParametricSurface();
 
             var nearestFinder = new SurfaceSamplingNearestFinder();
             nearestFinder.SamplesU = 64;
@@ -302,8 +303,6 @@ namespace CADio.ViewModels
             SceneTreeViewModel = new SceneTreeViewModel();
 
             CreateNewScene();
-
-            (new ParametricPreview()).Show();
         }
 
         private void CreateNewScene()

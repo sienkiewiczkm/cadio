@@ -4,6 +4,8 @@ using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
+using CADio.Mathematics.Interfaces;
+using CADio.Mathematics.Surfaces;
 using CADio.SceneManagement.Surfaces;
 
 namespace CADio.Geometry.Shapes.Dynamic
@@ -75,7 +77,7 @@ namespace CADio.Geometry.Shapes.Dynamic
             RawPoints = new List<Vertex>();
         }
 
-        private static List<T> GetList2DSubRectCyclic<T>(
+        public static List<T> GetList2DSubRectCyclic<T>(
             IReadOnlyList<T> input, 
             int rowLength, 
             int x, 
@@ -87,9 +89,9 @@ namespace CADio.Geometry.Shapes.Dynamic
             var points = new List<T>();
             var rows = input.Count/rowLength;
 
-            for (var i = 0; i < w; ++i)
+            for (var j = 0; j < h; ++j)
             {
-                for (var j = 0; j < h; ++j)
+                for (var i = 0; i < w; ++i)
                 {
                     var adjustedY = (y + j)%rows;
                     var adjustedX = (x + i)%rowLength;
@@ -99,6 +101,16 @@ namespace CADio.Geometry.Shapes.Dynamic
             }
 
             return points;
+        }
+
+        public IParametricSurface GetParametricSurface()
+        {
+            return new BezierSurface()
+            {
+                SegmentsU = SegmentsU,
+                SegmentsV = SegmentsV,
+                ControlPoints = ControlPoints.Select(t => t.Position).ToList(),
+            };
         }
     }
 }

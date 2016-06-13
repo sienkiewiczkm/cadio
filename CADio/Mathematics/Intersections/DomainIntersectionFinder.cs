@@ -167,6 +167,9 @@ namespace CADio.Mathematics.Intersections
                     currentParametrisation
                 );
 
+                if (!IsValidParametrisation(nextParametrisation))
+                    return null;
+
                 if (MinimumStepLength >= (nextParametrisation - 
                     currentParametrisation).NormMaximum())
                     return nextParametrisation;
@@ -197,6 +200,9 @@ namespace CADio.Mathematics.Intersections
                     previousPoint,
                     tangent
                 );
+
+                if (!IsValidParametrisation(nextParametrisation))
+                    return null;
 
                 if (MinimumStepLength >= (nextParametrisation -
                     currentParametrisation).NormMaximum())

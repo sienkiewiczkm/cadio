@@ -116,6 +116,7 @@
     <Compile Include="Mathematics\Patches\BernsteinPatch.cs" />
     <Compile Include="Mathematics\Patches\GregoryPatch.cs" />
     <Compile Include="Mathematics\Proxies\SurfaceReparametrisation.cs" />
+    <Compile Include="Mathematics\Surfaces\BezierSurface.cs" />
     <Compile Include="Mathematics\Surfaces\SurfaceSamplingNearestFinder.cs" />
     <Compile Include="Mathematics\Transformations3D.cs" />
     <Compile Include="Mathematics\Vector3DExtensions.cs" />
