@@ -18,6 +18,7 @@ using CADio.Mathematics.Intersections;
 using CADio.Mathematics.Surfaces;
 using CADio.Rendering;
 using CADio.SceneManagement;
+using CADio.SceneManagement.Curves;
 using CADio.SceneManagement.Interfaces;
 using CADio.SceneManagement.Surfaces;
 using CADio.Views;
@@ -176,6 +177,19 @@ namespace CADio.ViewModels
                 referencePosition
             );
 
+            if (polygon == null || polygon.Polygon.Count == 0)
+            {
+                MessageBox.Show(
+                    _ownerWindow,
+                    "Intrsection has not been found.",
+                    "Intersection search failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning
+                );
+
+                return;
+            }
+
             var firstParametrisationWindow = new ParametricPreview();
             var secondParametrisationWindow = new ParametricPreview();
 
@@ -195,6 +209,20 @@ namespace CADio.ViewModels
 
             firstParametrisationWindow.Show();
             secondParametrisationWindow.Show();
+
+            var controlPoints = polygon.Polygon
+                .Select(parametrisation =>
+                    firstPatch.Evaluate(parametrisation.First)
+                ).ToList();
+
+            if (polygon.IsLooped)
+                controlPoints.Add(controlPoints.First());
+
+            var intersectionR3Curve = new PolygonCurveWorldObject(
+                controlPoints
+            );
+
+            _scene.AttachObject(intersectionR3Curve);
         }
 
         private bool IsGregoryPatchAvailable()
@@ -318,16 +346,6 @@ namespace CADio.ViewModels
             _scene.Manipulator = manipulator;
             _scene.PropertyChanged += SceneChanged;
             _scene.Objects.CollectionChanged += SceneCollectionChanged;
-
-            /*
-            var bezier = BezierSurfaceWorldObject.CreateFlatGrid(1, 1, 2, 2);
-            bezier.Position = new Point3D(-2, 0.0f, 0.0f);
-            var gregory = new GregoryPatchWorldObject();
-            gregory.GregoryPatchShape.ObservedBezierDebug = bezier;
-
-            _scene.AttachObject(gregory);
-            _scene.AttachObject(bezier);
-            */
 
             ActiveRenderer.Scene = _scene;
             SceneTreeViewModel.Scene = _scene;

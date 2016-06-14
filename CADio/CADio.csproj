@@ -84,6 +84,7 @@
     <Compile Include="Geometry\Shapes\Dynamic\BSplinePatch.cs" />
     <Compile Include="Geometry\Shapes\Dynamic\BSplinePatchGroup.cs" />
     <Compile Include="Geometry\Shapes\Dynamic\GregoryPatchShape.cs" />
+    <Compile Include="Geometry\Shapes\Dynamic\PolygonCurve.cs" />
     <Compile Include="Geometry\Shapes\Dynamic\SurfacePatch.cs" />
     <Compile Include="Geometry\Shapes\Dynamic\TriangularHoleFillShape.cs" />
     <Compile Include="Geometry\Shapes\IDynamicShape.cs" />
@@ -142,6 +143,7 @@
     </Compile>
     <Compile Include="SceneManagement\Curves\BezierC0WorldObject.cs" />
     <Compile Include="SceneManagement\Curves\BezierC2WorldObject.cs" />
+    <Compile Include="SceneManagement\Curves\PolygonCurveWorldObject.cs" />
     <Compile Include="SceneManagement\Interfaces\IParametrizationQueryable.cs" />
     <Compile Include="SceneManagement\Points\SharedPoint3D.cs" />
     <Compile Include="SceneManagement\Points\VirtualPoint.cs" />
