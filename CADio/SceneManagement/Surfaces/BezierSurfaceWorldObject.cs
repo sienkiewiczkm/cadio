@@ -20,7 +20,8 @@ namespace CADio.SceneManagement.Surfaces
 {
     public class BezierSurfaceWorldObject : 
         WorldObject, 
-        ISaveable
+        ISaveable,
+        IParametrizationQueryable
     {
         private int _segmentsU;
         private int _segmentsV;

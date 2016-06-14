@@ -6,6 +6,12 @@
         xmlns:local="clr-namespace:CADio.Views"
         mc:Ignorable="d"
         Icon="../Resources/UV.png"
-        Title="{Binding Name}" ResizeMode="NoResize" Width="256" Height="256">
-    <Image Source="{Binding ParametricPreviewImage}"/>
+        Title="{Binding Name}" ResizeMode="NoResize" 
+        SizeToContent="WidthAndHeight">
+    <StackPanel>
+        <Image Width="256" 
+               Height="256" 
+               Source="{Binding ParametricPreviewImage}"/>
+        <Button>Try to apply sufrace trimming</Button>
+    </StackPanel>
 </Window>

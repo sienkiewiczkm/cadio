@@ -8,13 +8,18 @@ using CADio.Configuration;
 using CADio.Geometry.Generators;
 using CADio.Geometry.Shapes.Dynamic;
 using CADio.Helpers.MVVM;
+using CADio.Mathematics.Interfaces;
+using CADio.Mathematics.Surfaces;
 using CADio.SceneManagement.Interfaces;
 using CADio.SceneManagement.Points;
 using CADio.SceneManagement.Serialization;
 
 namespace CADio.SceneManagement.Surfaces
 {
-    public class BSplineSurfaceWorldObject : WorldObject, ISaveable
+    public class BSplineSurfaceWorldObject : 
+        WorldObject, 
+        ISaveable,
+        IParametrizationQueryable
     {
         private int _segmentsU;
         private int _segmentsV;
@@ -243,6 +248,18 @@ namespace CADio.SceneManagement.Surfaces
                     });
                 }
             }
+        }
+
+        public IParametricSurface GetParametricSurface()
+        {
+            var patch = new BsplineSurface
+            {
+                SegmentsU = _segmentsU,
+                SegmentsV = _segmentsV,
+                ControlPoints = _virtualPoints.Select(t => t.Position).ToList()
+            };
+
+            return patch;
         }
     }
 }

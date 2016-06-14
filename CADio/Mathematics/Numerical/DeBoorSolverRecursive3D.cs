@@ -40,5 +40,18 @@ namespace CADio.Mathematics.Numerical
                 _solvers[2].Evaluate(t, applyParameterCorrection)
             );
         }
+
+        public Vector3D Derivative(
+            double t,
+            bool applyParameterCorrection = true
+            )
+        {
+            return new Vector3D(
+                _solvers[0].Derivative(t, applyParameterCorrection),
+                _solvers[1].Derivative(t, applyParameterCorrection),
+                _solvers[2].Derivative(t, applyParameterCorrection)
+            );
+        }
+
     }
 }

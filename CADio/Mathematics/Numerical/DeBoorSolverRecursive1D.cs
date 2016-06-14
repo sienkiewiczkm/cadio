@@ -7,9 +7,13 @@ namespace CADio.Mathematics.Numerical
     public class DeBoorSolverRecursive1D
     {
         private readonly IList<double> _deBoorPointsValues;
+        private IList<double> _deBoorDerivatives;
         private IList<double> _knotPositions;
 
-        public DeBoorSolverRecursive1D(IList<double> deBoorPointsValues, IList<double> knotPositions = null)
+        public DeBoorSolverRecursive1D(
+            IList<double> deBoorPointsValues, 
+            IList<double> knotPositions = null
+            )
         {
             _deBoorPointsValues = deBoorPointsValues;
             _knotPositions = knotPositions;
@@ -18,7 +22,9 @@ namespace CADio.Mathematics.Numerical
         public double Evaluate(double t, bool applyParameterCorrection = true)
         {
             if (_deBoorPointsValues.Count < 2)
-                throw new ApplicationException("Too few de Boor points passed.");
+                throw new ApplicationException(
+                    "Too few de Boor points passed."
+                );
 
             if (_knotPositions == null)
                 EvaluateEquidistantKnotPositions();
@@ -26,10 +32,36 @@ namespace CADio.Mathematics.Numerical
             if (applyParameterCorrection)
                 t = CorrectTParameter(t, 3);
 
-            return Bspline.EvaluateBspline(_deBoorPointsValues, _knotPositions, 3, t);
-            //return _deBoorPointsValues
-            //.Select((value, i) => EvaluateBsplineFunctionRecursively(3, i, t, _knotPositions)*value)
-            //.Sum();
+            return Bspline.EvaluateBspline(
+                _deBoorPointsValues, 
+                _knotPositions, 
+                3, 
+                t
+            );
+        }
+
+        public double Derivative(double t, bool applyParameterCorrection = true)
+        {
+            if (_knotPositions == null)
+                EvaluateEquidistantKnotPositions();
+            if (_deBoorDerivatives == null)
+                EvaluateDerivativePoints();
+            if (applyParameterCorrection)
+                t = CorrectTParameter(t, 3);
+
+            double sum = 0.0;
+            for (var i = 0; i < _deBoorDerivatives.Count; ++i)
+            {
+                sum += _deBoorDerivatives[i]*
+                    EvaluateBsplineFunctionRecursively(
+                        2,
+                        i + 1,
+                        t,
+                        _knotPositions
+                    );
+            }
+
+            return sum;
         }
 
         private double CorrectTParameter(double t, int degree)
@@ -72,6 +104,24 @@ namespace CADio.Mathematics.Numerical
                 knotPositions[i] = (double)i/intervals;
 
             _knotPositions = knotPositions;
+        }
+
+        private void EvaluateDerivativePoints()
+        {
+            const int degree = 3;
+
+            _deBoorDerivatives = new List<double>();
+
+            for (var i = 0; i < _deBoorPointsValues.Count - 1; ++i)
+            {
+                var coefficient = degree/
+                    (_knotPositions[i + degree + 1] - _knotPositions[i + 1]);
+
+                var newPoint = coefficient*
+                    (_deBoorPointsValues[i + 1] - _deBoorPointsValues[i]);
+
+                _deBoorDerivatives.Add(newPoint);
+            }
         }
     }
 }

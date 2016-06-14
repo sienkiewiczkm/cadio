@@ -154,8 +154,8 @@ namespace CADio.ViewModels
         private void IntersectSurfaces()
         {
             var surfaces = _scene.GrabbedObjects
-                .Where(t => t is BezierSurfaceWorldObject)
-                .Cast<BezierSurfaceWorldObject>()
+                .Where(t => t is IParametrizationQueryable)
+                .Cast<IParametrizationQueryable>()
                 .ToList();
 
             var firstPatch = surfaces[0].GetParametricSurface();

@@ -5,7 +5,9 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using CADio.Configuration;
+using CADio.Geometry.Shapes.Builders;
 using CADio.Mathematics.Numerical;
+using CADio.Mathematics.Surfaces;
 using CADio.SceneManagement.Surfaces;
 
 namespace CADio.Geometry.Shapes.Dynamic
@@ -35,72 +37,58 @@ namespace CADio.Geometry.Shapes.Dynamic
 
             var dataRowLength = 3 + SegmentsU;
             var dataRowsCount = ControlPoints.Count/dataRowLength;
-            Func<int, int, int> idMapping = (i, j) => 
-                (j%dataRowsCount)*dataRowLength + i; 
-                
-            // constant v sampling
-            CreateDirectionalSurfaceSampling(
-                estimateScreenDistanceWithoutClip,
-                (i, j) => new Tuple<int, int>(i, j),
-                idMapping,
-                3 + SegmentsU, 
-                3 + SegmentsV,
-                GlobalSettings.QualitySettingsViewModel.SurfaceHSubdivisions,
-                dataRowsCount != (3 + SegmentsV),
-                vertices, lines
-            );
 
-            CreateDirectionalSurfaceSampling(
-                estimateScreenDistanceWithoutClip,
-                (i, j) => new Tuple<int, int>(j, i),
-                idMapping,
-                3 + SegmentsV,
-                3 + SegmentsU,
-                GlobalSettings.QualitySettingsViewModel.SurfaceWSubdivisions,
-                false,
-                vertices, lines
-            );
+            var builder = new WireframeBuilder();
+            var sampler = new SurfaceConstantParameterLinesBuilder(builder);
+
+            var bsplineSurf = new BsplineSurface()
+            {
+                ControlPoints = ControlPoints.Select(t => t.Position).ToList(),
+                SegmentsU = SegmentsU,
+                SegmentsV = SegmentsV,
+            };
+
+            sampler.Build(bsplineSurf);
 
             if (IsPolygonRenderingEnabled)
             {
-                var additionalVertices = ControlPoints
-                        .Select(t => new Vertex(
-                            t.Position, 
-                            Colors.GreenYellow
-                        )).ToList();
-
-                var additionalLines = new List<IndexedLine>();
-                var baseVertex = vertices.Count;
-
+                var polygonColor = Colors.GreenYellow;
                 for (var x = 0; x < 3 + SegmentsU; ++x)
                 {
                     for (var y = 0; y < 3 + SegmentsV; ++y)
                     {
                         var ym = y%dataRowsCount;
+                        var fromPoint = 
+                            ControlPoints[dataRowLength*ym + x].Position;
+
                         if (x < 2 + SegmentsU)
                         {
-                            additionalLines.Add(new IndexedLine(
-                                baseVertex + (dataRowLength*ym + x),
-                                baseVertex + (dataRowLength*ym + x + 1)
-                            ));
+                            var toPointIndex = dataRowLength*ym + x + 1;
+                            builder.Connect(fromPoint, polygonColor);
+                            builder.Connect(
+                                ControlPoints[toPointIndex].Position,
+                                polygonColor
+                            );
+                            builder.FinishChain();
                         }
+
                         if (y < 2 + SegmentsV)
                         {
-                            additionalLines.Add(new IndexedLine(
-                                baseVertex + dataRowLength * ym + x,
-                                baseVertex + x +
-                                    dataRowLength * ((ym + 1)%dataRowsCount)
-                           ));
+                            var toPointIndex =
+                                dataRowLength*((ym + 1)%dataRowsCount) + x;
+                            builder.Connect(fromPoint, polygonColor);
+                            builder.Connect(
+                                ControlPoints[toPointIndex].Position,
+                                polygonColor
+                            );
+                            builder.FinishChain();
                         }
                     }
                 }
-
-                vertices = vertices.Concat(additionalVertices).ToList();
-                lines = lines.Concat(additionalLines).ToList();
             }
 
-            Vertices = vertices;
-            Lines = lines;
+            Vertices = builder.Vertices.ToList();
+            Lines = builder.Lines.ToList();
             MarkerPoints = ControlPoints
                 .Select(t => new Vertex(
                     t.Position, 
@@ -108,63 +96,6 @@ namespace CADio.Geometry.Shapes.Dynamic
                 )).ToList();
 
             RawPoints = new List<Vertex>();
-        }
-
-        protected void CreateDirectionalSurfaceSampling(
-            Func<Point3D, Point3D, double> estimateScreenDistanceWithoutClip,
-            Func<int, int, Tuple<int, int>> mapping, 
-            Func<int, int, int> indexMap,  
-            int rows, 
-            int cols, 
-            int subdivisions, 
-            bool looped,
-            List<Vertex> vertices, 
-            List<IndexedLine> lines
-            )
-        {
-            var solvers = new DeBoorSolverRecursive3D[rows];
-            for (var i = 0; i < rows; ++i)
-            {
-                var subcontrolPoints = new List<Point3D>();
-
-                for (var j = 0; j < cols; ++j)
-                {
-                    var mapped = mapping(i, j);
-                    var indexMapped = indexMap(mapped.Item1, mapped.Item2);
-                    subcontrolPoints.Add(
-                        ControlPoints[indexMapped].Position
-                    );
-                }
-
-                solvers[i] = new DeBoorSolverRecursive3D(subcontrolPoints);
-            }
-
-            for (var i = 0; i < subdivisions; ++i)
-            {
-                var t = (double)i / (looped ? subdivisions : subdivisions - 1);
-                var subdivisionControlPoints = new List<Point3D>();
-                for (var j = 0; j < rows; ++j)
-                {
-                    subdivisionControlPoints.Add(solvers[j].Evaluate(t, true));
-                }
-
-                var sampled = BezierCurveC2.SampleBSplineCurve(
-                    subdivisionControlPoints, 
-                    null, 
-                    true,
-                    estimateScreenDistanceWithoutClip
-                );
-
-                if (sampled.Count <= 1) continue;
-
-                var sampledLines = Enumerable
-                    .Range(vertices.Count, sampled.Count - 1)
-                    .Select(idx => new IndexedLine(idx, idx + 1))
-                    .ToList();
-
-                vertices.AddRange(sampled);
-                lines.AddRange(sampledLines);
-            }
         }
     }
 }
