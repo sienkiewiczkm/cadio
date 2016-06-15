@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Media.Media3D;
 using CADio.Mathematics.Interfaces;
@@ -9,6 +10,8 @@ namespace CADio.Mathematics.Trimming
 {
     public class SurfaceTrimmer : ISurfaceTrimmer
     {
+        public const double SnapThreshold = 0.05;
+
         private List<TrimmingArea> _trimmingAreas = new List<TrimmingArea>();
 
         public void BuildTrimmingAreas(
@@ -16,10 +19,19 @@ namespace CADio.Mathematics.Trimming
             Func<IntersectionParametrisation, Parametrisation> paramSelector
             )
         {
-            if (!intersection.IsLooped)
+            if (intersection.Polygon.Count == 0)
                 return;
 
             var area = new TrimmingArea();
+
+            var firstParam = paramSelector(intersection.Polygon[0]);
+            if (!intersection.IsLooped && IsSnappable(firstParam.V))
+            {
+                area.Polygon.Add(
+                    new Point(firstParam.U, Snap(firstParam.V))
+                );
+            }
+
             Parametrisation? previous = null;
             for (var i = 0; i < intersection.Polygon.Count; ++i)
             {
@@ -67,7 +79,33 @@ namespace CADio.Mathematics.Trimming
                 previous = parametrisation;
             }
 
+            var lastParam = paramSelector(intersection.Polygon.Last());
+            if (!intersection.IsLooped && IsSnappable(lastParam.V))
+            {
+                area.Polygon.Add(
+                    new Point(firstParam.U, Snap(lastParam.V))
+                );
+            }
+
             _trimmingAreas.Add(area);
+        }
+
+        private double Snap(double d)
+        {
+            if (Math.Abs(d) < SnapThreshold)
+                return 0.0;
+            if (Math.Abs(1.0 - d) < SnapThreshold)
+                return 1.0;
+            throw new ArgumentException("Argument not snappable");
+        }
+
+        private bool IsSnappable(double intersectionParametrisation)
+        {
+            if (Math.Abs(intersectionParametrisation) < SnapThreshold)
+                return true;
+            if (Math.Abs(1.0 - intersectionParametrisation) < SnapThreshold)
+                return true;
+            return false;
         }
 
         public TrimMode TrimMode { get; set; }
