@@ -277,9 +277,14 @@ namespace CADio.ViewModels
 
         private void LoadScene()
         {
-            var result = MessageBox.Show(_ownerWindow, "Loading a scene will clear this one. Are you sure?",
+            var result = MessageBox.Show(
+                _ownerWindow, 
+                "Loading a scene will clear this one. Are you sure?",
                 "New scene confirmation",
-                MessageBoxButton.YesNo, MessageBoxImage.Question);
+                MessageBoxButton.YesNo, 
+                MessageBoxImage.Question
+            );
+
             if (result == MessageBoxResult.No)
                 return;
 

@@ -13,6 +13,9 @@ namespace CADio.Mathematics.Patches
     {
         public Point3D[,] ControlPoints { get; } = new Point3D[4, 4];
 
+        public ParametrisationBoundaries ParametrisationBoundaries
+            => new ParametrisationBoundaries();
+
         public Point3D Evaluate(double u, double v)
         {
             var subpoints = new List<Point3D>();

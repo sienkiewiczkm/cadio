@@ -19,8 +19,11 @@ namespace CADio.Mathematics.Intersections
         {
             foreach (var param in Polygon)
             {
-                var differenceParams = param - parametrisation;
-                var norm = differenceParams.NormMaximum();
+                var norm = IntersectionParametrisation.DistanceNormMax(
+                    param,
+                    parametrisation
+                );
+
                 if (norm < EqualityEpsilon)
                     return true;
             }

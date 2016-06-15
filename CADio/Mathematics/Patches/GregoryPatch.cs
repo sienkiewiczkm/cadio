@@ -135,6 +135,9 @@ namespace CADio.Mathematics.Patches
             _cornerTwistVectors[v1, derivativeIndex] = d(2.0 / 3.0);
         }
 
+        public ParametrisationBoundaries ParametrisationBoundaries
+            => new ParametrisationBoundaries();
+
         public Point3D Evaluate(double u, double v)
         {
             var corner = FindCorner(u, v);

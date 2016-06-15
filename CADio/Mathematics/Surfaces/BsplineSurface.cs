@@ -13,6 +13,19 @@ namespace CADio.Mathematics.Surfaces
         public int SegmentsV { get; set; }
         public List<Point3D> ControlPoints { get; set; }
 
+        public ParametrisationBoundaries ParametrisationBoundaries
+        {
+            get
+            {
+                var controlPointsRows = ControlPoints.Count/(3+SegmentsU);
+                var notLooped = controlPointsRows == (3+SegmentsV);
+                return new ParametrisationBoundaries()
+                {
+                    AllowTraversalV = !notLooped
+                };
+            }
+        }
+
         public Point3D Evaluate(double u, double v)
         {
             var recalculatedRowPoints = new List<Point3D>();

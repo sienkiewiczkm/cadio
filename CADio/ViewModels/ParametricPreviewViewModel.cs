@@ -112,6 +112,11 @@ namespace CADio.ViewModels
             var x1 = (int)(end.U*previewSize);
             var y1 = (int)(end.V*previewSize);
 
+            var maxDistance = (int) (0.8*previewSize);
+            if (Math.Abs(x0 - x1) > maxDistance ||
+                Math.Abs(y0 - y1) > maxDistance)
+                return;
+
             writeableBitmap.DrawLineAa(
                 offset + x0,
                 offset + y0,

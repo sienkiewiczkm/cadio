@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows.Media.Media3D;
 using CADio.Mathematics.Interfaces;
@@ -37,6 +38,11 @@ namespace CADio.Mathematics.Intersections
                 intersectionNearPoint
             );
 
+            firstGuessParametrisation.Boundaries = 
+                firstSurface.ParametrisationBoundaries;
+            secondGuessParametrisation.Boundaries =
+                secondSurface.ParametrisationBoundaries;
+
             var trackingDistanceSetting = TrackingDistance;
 
             TrackingDistance = -trackingDistanceSetting;
@@ -72,7 +78,7 @@ namespace CADio.Mathematics.Intersections
             var currentIntersectionParametrisation = FindFirstIntersection(
                 firstGuessParametrisation,
                 secondGuessParametrisation
-                );
+            );
 
             var polygon = new PolygonIntersection();
 
@@ -115,39 +121,26 @@ namespace CADio.Mathematics.Intersections
             IntersectionParametrisation? currentIntersectionParametrisation
             )
         {
-            if (!IsValidParametrisation(currentIntersectionParametrisation))
+            if (!(currentIntersectionParametrisation?.IsValid() ?? false))
                 return true;
 
             if (!previousParametrisation.HasValue)
                 return false;
 
-            if (MinimumStepLength >= (previousParametrisation.Value -
-                // ReSharper disable once PossibleInvalidOperationException
-                currentIntersectionParametrisation.Value).NormMaximum())
+            Debug.Assert(
+                currentIntersectionParametrisation != null, 
+                "currentIntersectionParametrisation != null"
+            );
+
+            if (MinimumStepLength >= 
+                IntersectionParametrisation.DistanceNormMax(
+                    previousParametrisation.Value,
+                    currentIntersectionParametrisation.Value
+                ))
                 return true;
 
             return false;
         }
-
-        private bool IsValidParametrisation(
-            IntersectionParametrisation? parametrisation
-            )
-        {
-            return parametrisation.HasValue &&
-                IsValidParametrisation(parametrisation.Value.First) &&
-                IsValidParametrisation(parametrisation.Value.Second);
-        }
-
-        private bool IsValidParametrisation(
-            Parametrisation? parametrisation
-            )
-        {
-            return parametrisation.HasValue &&
-                parametrisation.Value.U >= 0.0 && 
-                parametrisation.Value.U <= 1.0 &&
-                parametrisation.Value.V >= 0 &&
-                parametrisation.Value.V <= 1.0;
-        }            
 
         private IntersectionParametrisation? FindFirstIntersection(
             Parametrisation startingParametersFirstSurface,
@@ -167,11 +160,14 @@ namespace CADio.Mathematics.Intersections
                     currentParametrisation
                 );
 
-                if (!IsValidParametrisation(nextParametrisation))
+                if (!nextParametrisation.IsValid())
                     return null;
 
-                if (MinimumStepLength >= (nextParametrisation - 
-                    currentParametrisation).NormMaximum())
+                if (MinimumStepLength >= 
+                    IntersectionParametrisation.DistanceNormMax( 
+                        nextParametrisation,
+                        currentParametrisation
+                    ))
                     return nextParametrisation;
 
                 currentParametrisation = nextParametrisation;
@@ -201,11 +197,14 @@ namespace CADio.Mathematics.Intersections
                     tangent
                 );
 
-                if (!IsValidParametrisation(nextParametrisation))
+                if (!nextParametrisation.IsValid())
                     return null;
 
-                if (MinimumStepLength >= (nextParametrisation -
-                    currentParametrisation).NormMaximum())
+                if (MinimumStepLength >= 
+                    IntersectionParametrisation.DistanceNormMax(
+                        nextParametrisation,
+                        currentParametrisation
+                    ))
                     return nextParametrisation;
 
                 currentParametrisation = nextParametrisation;
@@ -326,8 +325,7 @@ namespace CADio.Mathematics.Intersections
         {
             var jacobianInv = GetPseudoInverse(jacobian);
             var correction = jacobianInv*evaluatedFunction;
-            return previousParametrisation -
-                new IntersectionParametrisation(correction);
+            return previousParametrisation - correction;
         }
 
         private static Matrix<double> GetPseudoInverse(Matrix matrix)

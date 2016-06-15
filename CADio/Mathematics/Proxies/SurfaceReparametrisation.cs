@@ -10,6 +10,9 @@ namespace CADio.Mathematics.Proxies
         public bool FlipV { get; set; }
         public bool FlipUV { get; set; }
 
+        public ParametrisationBoundaries ParametrisationBoundaries
+            => Surface.ParametrisationBoundaries;
+
         public Point3D Evaluate(double u, double v)
         {
             AdjustCoorinates(ref u, ref v);

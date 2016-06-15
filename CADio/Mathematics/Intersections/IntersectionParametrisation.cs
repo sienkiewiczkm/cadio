@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using CADio.Mathematics.Interfaces;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
@@ -30,18 +31,9 @@ namespace CADio.Mathematics.Intersections
             Second = new Parametrisation(vector[2], vector[3]);
         }
 
-        public double NormMaximum()
+        public bool IsValid()
         {
-            return Math.Max(
-                Math.Abs(First.U),
-                Math.Max(
-                    Math.Abs(First.V),
-                    Math.Max(
-                        Math.Abs(Second.U),
-                        Math.Abs(Second.V)
-                        )
-                    )
-                );
+            return First.IsValid() && Second.IsValid();
         }
 
         public static explicit operator Vector(
@@ -78,7 +70,30 @@ namespace CADio.Mathematics.Intersections
             return new IntersectionParametrisation(
                 left.First - right.First,
                 left.Second - right.Second
-                );
+            );
+        }
+
+        public static IntersectionParametrisation operator -(
+            IntersectionParametrisation left,
+            Vector<double> right
+            )
+        {
+            Debug.Assert(right.Count == 4);
+            return new IntersectionParametrisation(
+                left.First - DenseVector.OfArray(new[] {right[0], right[1]}),
+                left.Second - DenseVector.OfArray(new[] {right[2], right[3]})
+            );
+        }
+
+        public static double DistanceNormMax(
+            IntersectionParametrisation left,
+            IntersectionParametrisation right
+            )
+        {
+            return Math.Max(
+                Parametrisation.DistanceNormMax(left.First, right.First),
+                Parametrisation.DistanceNormMax(left.Second, right.Second)
+            );
         }
     }
 }
