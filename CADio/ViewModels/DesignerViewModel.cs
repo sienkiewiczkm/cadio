@@ -163,14 +163,24 @@ namespace CADio.ViewModels
                 .Cast<IParametrizationQueryable>()
                 .ToList();
 
-            // todo: check for surfaces size
+            if (surfaces.Count < 2)
+            {
+                MessageBox.Show(
+                    _ownerWindow,
+                    "Intersection requires selection of two surfaces.",
+                    "Intersection information",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information
+                );
+                return;
+            }
 
             var firstPatch = surfaces[0].GetParametricSurface();
             var secondPatch = surfaces[1].GetParametricSurface();
 
             var nearestFinder = new SurfaceSamplingNearestFinder();
-            nearestFinder.SamplesU = 64;
-            nearestFinder.SamplesV = 64;
+            nearestFinder.SamplesU = 128;
+            nearestFinder.SamplesV = 128;
 
             var referencePosition = _scene.Manipulator.Position;
 
@@ -225,9 +235,14 @@ namespace CADio.ViewModels
                 = new ObservableCollection<Parametrisation>(
                     polygon.Polygon.Select(t => t.Second).ToList());
 
-            var trimmer = new SurfaceTrimmer();
-            trimmer.BuildTrimmingAreas(polygon, (t) => t.First);
-            firstParametrisationWindow.ViewModel.Trimmer = trimmer;
+            firstParametrisationWindow.ViewModel.PolygonIntersection = polygon;
+            secondParametrisationWindow.ViewModel.PolygonIntersection = polygon;
+            firstParametrisationWindow.ViewModel.ParamMapping = (t) => t.First;
+            secondParametrisationWindow.ViewModel.ParamMapping = 
+                (t) => t.Second;
+
+            firstParametrisationWindow.ViewModel.ObservedSurface = firstPatch;
+            secondParametrisationWindow.ViewModel.ObservedSurface = secondPatch;
 
             firstParametrisationWindow.ViewModel.Name = surfaces[0].Name;
             secondParametrisationWindow.ViewModel.Name = surfaces[1].Name;

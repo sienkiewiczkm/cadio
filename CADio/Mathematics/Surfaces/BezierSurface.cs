@@ -4,6 +4,7 @@ using System.Windows.Media.Media3D;
 using CADio.Geometry.Shapes.Dynamic;
 using CADio.Mathematics.Interfaces;
 using CADio.Mathematics.Patches;
+using CADio.Mathematics.Trimming;
 
 namespace CADio.Mathematics.Surfaces
 {
@@ -13,6 +14,8 @@ namespace CADio.Mathematics.Surfaces
         public int SegmentsU { get; set; }
         public int SegmentsV { get; set; }
         public List<Point3D> ControlPoints { get; set; }
+
+        public ISurfaceTrimmer Trimmer { get; set; }
 
         public ParametrisationBoundaries ParametrisationBoundaries
         {

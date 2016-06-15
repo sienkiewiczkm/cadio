@@ -6,12 +6,15 @@ using CADio.Helpers;
 using CADio.Mathematics.Interfaces;
 using CADio.Mathematics.Numerical;
 using CADio.Mathematics.Proxies;
+using CADio.Mathematics.Trimming;
 
 namespace CADio.Mathematics.Patches
 {
     public class BernsteinPatch : IParametricSurface
     {
         public Point3D[,] ControlPoints { get; } = new Point3D[4, 4];
+
+        public ISurfaceTrimmer Trimmer { get; set; }
 
         public ParametrisationBoundaries ParametrisationBoundaries
             => new ParametrisationBoundaries();

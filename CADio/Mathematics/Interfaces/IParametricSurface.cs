@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Windows.Media.Media3D;
+using CADio.Mathematics.Trimming;
 using MathNet.Numerics.LinearAlgebra;
 
 namespace CADio.Mathematics.Interfaces
@@ -136,6 +137,7 @@ namespace CADio.Mathematics.Interfaces
 
     public interface IParametricSurface
     {
+        ISurfaceTrimmer Trimmer { get; set; }
         ParametrisationBoundaries ParametrisationBoundaries { get; }
         Point3D Evaluate(double u, double v);
         Vector3D Derivative(double u, double v, DerivativeParameter parameter);

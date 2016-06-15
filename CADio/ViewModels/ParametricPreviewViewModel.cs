@@ -9,7 +9,9 @@ using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
+using CADio.Helpers.MVVM;
 using CADio.Mathematics.Interfaces;
+using CADio.Mathematics.Intersections;
 using CADio.Mathematics.Trimming;
 
 namespace CADio.ViewModels
@@ -24,6 +26,9 @@ namespace CADio.ViewModels
             = new ObservableCollection<Parametrisation>();
         private WriteableBitmap _parametricPreviewImage;
         private string _name = "Parametric preview";
+        private TrimMode _trimMode;
+        private bool _isTrimmingEnabled;
+        private RelayCommand _applySurfaceTrimmingCommand;
 
         public ObservableCollection<Parametrisation> ParametricPolygon
         {
@@ -31,7 +36,15 @@ namespace CADio.ViewModels
             set { _parametricPolygon = value; OnPropertyChanged(); }
         }
 
-        public SurfaceTrimmer Trimmer { get; set; }
+        public PolygonIntersection PolygonIntersection { get; set; }
+        public Func<IntersectionParametrisation, Parametrisation> ParamMapping
+        {
+            get;
+            set;
+        }
+
+        public ISurfaceTrimmer Trimmer { get; set; }
+        public IParametricSurface ObservedSurface { get; set; }
 
         public WriteableBitmap ParametricPreviewImage
         {
@@ -43,6 +56,38 @@ namespace CADio.ViewModels
         {
             get { return _name; }
             set { _name = value; OnPropertyChanged(); }
+        }
+
+        public TrimMode TrimMode
+        {
+            get { return _trimMode; }
+            set
+            {
+                _trimMode = value;
+                OnPropertyChanged();
+
+                Trimmer.TrimMode = value;
+                RedrawPreview();
+                // todo: better handling
+            }
+        }
+
+        public bool IsTrimmingEnabled => Trimmer != null &&
+            ObservedSurface?.Trimmer == Trimmer;
+
+        public bool IsTrimmerAvailable => Trimmer != null;
+
+        public RelayCommand ApplySurfaceTrimmingCommand
+        {
+            get
+            {
+                if (_applySurfaceTrimmingCommand == null)
+                    _applySurfaceTrimmingCommand = new RelayCommand(
+                        ApplySurfaceTrimming,
+                        () => !IsTrimmingEnabled
+                    );
+                return _applySurfaceTrimmingCommand;
+            }
         }
 
         public ParametricPreviewViewModel()
@@ -146,6 +191,29 @@ namespace CADio.ViewModels
                 offset + x1,
                 offset + y1,
                 Colors.Red
+            );
+        }
+
+        private void ApplySurfaceTrimming()
+        {
+            CreateTrimmer();
+            ObservedSurface.Trimmer = Trimmer;
+            OnPropertyChanged(nameof(IsTrimmerAvailable));
+            RedrawPreview();
+        }
+
+        private void CreateTrimmer()
+        {
+            var heavySurfaceTrimmer = new SurfaceTrimmer();
+            heavySurfaceTrimmer.BuildTrimmingAreas(
+                PolygonIntersection, 
+                ParamMapping
+            );
+
+            Trimmer = SurfaceTimmerLookup.CreateBasedOn(
+                heavySurfaceTrimmer,
+                1024,
+                1024
             );
         }
 

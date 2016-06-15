@@ -1,5 +1,6 @@
 ﻿using System.Windows.Media.Media3D;
 using CADio.Mathematics.Interfaces;
+using CADio.Mathematics.Trimming;
 
 namespace CADio.Mathematics.Proxies
 {
@@ -9,6 +10,8 @@ namespace CADio.Mathematics.Proxies
         public bool FlipU { get; set; }
         public bool FlipV { get; set; }
         public bool FlipUV { get; set; }
+
+        public ISurfaceTrimmer Trimmer { get; set; }
 
         public ParametrisationBoundaries ParametrisationBoundaries
             => Surface.ParametrisationBoundaries;

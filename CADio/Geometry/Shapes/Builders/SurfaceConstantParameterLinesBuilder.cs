@@ -57,12 +57,18 @@ namespace CADio.Geometry.Shapes.Builders
         {
             for (var i = 0; i < samples; ++i)
             {
-                _builder.Connect(
-                    _sampledSurface.Evaluate(
-                        uCoordGenerator(i),
-                        vCoordGenerator(i)
-                    )
-                );
+                var u = uCoordGenerator(i);
+                var v = vCoordGenerator(i);
+
+                if (_sampledSurface.Trimmer != null &&
+                    !_sampledSurface.Trimmer.VerifyParametrisation(u, v))
+                {
+                    _builder.FinishChain();
+                }
+                else
+                {
+                    _builder.Connect(_sampledSurface.Evaluate(u,v));
+                }
             }
 
             _builder.FinishChain();

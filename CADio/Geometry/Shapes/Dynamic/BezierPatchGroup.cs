@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
+using CADio.Geometry.Shapes.Builders;
 using CADio.Mathematics.Interfaces;
 using CADio.Mathematics.Surfaces;
 using CADio.SceneManagement.Surfaces;
@@ -25,55 +26,42 @@ namespace CADio.Geometry.Shapes.Dynamic
         public int SegmentsV { get; set; }
         public List<SurfaceControlPoint> ControlPoints { get; set; }
 
+        private readonly BezierSurface _surface = new BezierSurface();
+
         public void UpdateGeometry(
             Func<Point3D, Point3D, double> estimateScreenDistanceWithoutClip, 
             Predicate<Point3D> isInsideProjectiveCubePredicate
             )
         {
-            var vertices = new List<Vertex>();
-            var lines = new List<IndexedLine>();
-            var markerPoints = new List<Vertex>();
-            
-            for (var i = 0; i < SegmentsU; ++i)
+            var isLooped = ControlPoints.Count/(3*SegmentsU + 1) !=
+                3*SegmentsV + 1;
+
+            _surface.SegmentsU = SegmentsU;
+            _surface.SegmentsV = SegmentsV;
+            _surface.ControlPoints = ControlPoints
+                .Select(t => t.Position)
+                .ToList();
+
+            var builder = new WireframeBuilder();
+            var sampler = new SurfaceConstantParameterLinesBuilder(builder);
+            sampler.Build(_surface);
+
+            if (IsPolygonRenderingEnabled)
             {
-                for (var j = 0; j < SegmentsV; ++j)
-                {
-                    var patchControlPoints = GetList2DSubRectCyclic(
-                        ControlPoints, 
-                        3*SegmentsU+1, 
-                        3*i, 
-                        3*j, 
-                        4, 
-                        4
-                    );
-                    
-                    var patch = new BezierPatch
-                    {
-                        ControlPoints = patchControlPoints,
-                        IsPolygonRenderingEnabled = IsPolygonRenderingEnabled
-                    };
-
-                    patch.UpdateGeometry(
-                        estimateScreenDistanceWithoutClip, 
-                        isInsideProjectiveCubePredicate
-                    );
-
-                    lines.AddRange(patch.Lines
-                        .Select(t => new IndexedLine(
-                            t.First + vertices.Count, 
-                            t.Second + vertices.Count
-                        ))
-                        .ToList()
-                    );
-
-                    vertices.AddRange(patch.Vertices);
-                    markerPoints.AddRange(patch.MarkerPoints);
-                }
+                var netBuilder = new ControlNetBuilder(builder);
+                netBuilder.BuildControlNet(
+                    ControlPoints,
+                    3*SegmentsU + 1,
+                    isLooped
+                );
             }
             
-            Vertices = vertices;
-            Lines = lines;
-            MarkerPoints = markerPoints;
+            Vertices = builder.Vertices.ToList();
+            Lines = builder.Lines.ToList();
+            MarkerPoints = ControlPoints.Select(t => new Vertex(
+                t.Position,
+                t.ColorOverride ?? Colors.White
+            )).ToList();
             RawPoints = new List<Vertex>();
         }
 
@@ -105,12 +93,12 @@ namespace CADio.Geometry.Shapes.Dynamic
 
         public IParametricSurface GetParametricSurface()
         {
-            return new BezierSurface()
-            {
-                SegmentsU = SegmentsU,
-                SegmentsV = SegmentsV,
-                ControlPoints = ControlPoints.Select(t => t.Position).ToList(),
-            };
+            _surface.SegmentsU = SegmentsU;
+            _surface.SegmentsV = SegmentsV;
+            _surface.ControlPoints = ControlPoints
+                .Select(t => t.Position)
+                .ToList();
+            return _surface;
         }
     }
 }

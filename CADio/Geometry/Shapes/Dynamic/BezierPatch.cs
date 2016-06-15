@@ -21,7 +21,6 @@ namespace CADio.Geometry.Shapes.Dynamic
             List<IndexedLine> lines
             )
         {
-            // todo: fix this hack
             if (vertices.Count > 0)
                 return;
 

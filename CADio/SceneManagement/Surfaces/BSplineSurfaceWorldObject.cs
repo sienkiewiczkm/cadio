@@ -252,14 +252,8 @@ namespace CADio.SceneManagement.Surfaces
 
         public IParametricSurface GetParametricSurface()
         {
-            var patch = new BsplineSurface
-            {
-                SegmentsU = _segmentsU,
-                SegmentsV = _segmentsV,
-                ControlPoints = _virtualPoints.Select(t => t.Position).ToList()
-            };
-
-            return patch;
+            var patch = (BSplinePatchGroup) Shape;
+            return patch.GetParametricSurface();
         }
     }
 }

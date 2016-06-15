@@ -7,7 +7,7 @@ using CADio.Mathematics.Intersections;
 
 namespace CADio.Mathematics.Trimming
 {
-    public class SurfaceTrimmer
+    public class SurfaceTrimmer : ISurfaceTrimmer
     {
         private List<TrimmingArea> _trimmingAreas = new List<TrimmingArea>();
 
@@ -31,8 +31,14 @@ namespace CADio.Mathematics.Trimming
             _trimmingAreas.Add(area);
         }
 
+        public TrimMode TrimMode { get; set; }
+
         public bool VerifyParametrisation(double u, double v)
         {
+            if (TrimMode == TrimMode.Disabled)
+                return true;
+            var valueToReturnIfInside = TrimMode == TrimMode.Outside;
+
             var rayOrigin = new Point(u, v);
             var rayTarget = new Point(u+2, v);
 
@@ -67,10 +73,10 @@ namespace CADio.Mathematics.Trimming
                 }
 
                 if (intersections%2 == 1)
-                    return false;
+                    return valueToReturnIfInside;
             }
 
-            return true;
+            return !valueToReturnIfInside;
         }
 
         private class TrimmingArea

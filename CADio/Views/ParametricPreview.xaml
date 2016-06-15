@@ -4,6 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CADio.Views"
+        xmlns:extensions="clr-namespace:CADio.Views.Extensions"
+        xmlns:trimming="clr-namespace:CADio.Mathematics.Trimming"
         mc:Ignorable="d"
         Icon="../Resources/UV.png"
         Title="{Binding Name}" ResizeMode="NoResize" 
@@ -12,6 +14,14 @@
         <Image Width="512" 
                Height="512" 
                Source="{Binding ParametricPreviewImage}"/>
-        <Button>Try to apply sufrace trimming</Button>
+        <Button Command="{Binding ApplySurfaceTrimmingCommand}">
+            Try to apply sufrace trimming
+        </Button>
+        <ComboBox Grid.Row="0" Grid.Column="1"
+                  ItemsSource="{Binding Source={extensions:Enumeration {x:Type trimming:TrimMode}}}"
+                  DisplayMemberPath="Description"
+                  SelectedValue="{Binding Path=TrimMode}"
+                  SelectedValuePath="Value"
+                  IsEnabled="{Binding IsTrimmerAvailable}"/>
     </StackPanel>
 </Window>

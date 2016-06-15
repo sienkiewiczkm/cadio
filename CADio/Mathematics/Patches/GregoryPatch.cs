@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Windows.Media.Media3D;
 using CADio.Mathematics.Interfaces;
 using CADio.Mathematics.Numerical;
+using CADio.Mathematics.Trimming;
 using MathNet.Numerics.LinearAlgebra.Double;
 
 namespace CADio.Mathematics.Patches
@@ -134,6 +135,8 @@ namespace CADio.Mathematics.Patches
             _cornerTwistVectors[v0, derivativeIndex] = d(1.0 / 3.0);
             _cornerTwistVectors[v1, derivativeIndex] = d(2.0 / 3.0);
         }
+
+        public ISurfaceTrimmer Trimmer { get; set; }
 
         public ParametrisationBoundaries ParametrisationBoundaries
             => new ParametrisationBoundaries();

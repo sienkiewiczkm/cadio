@@ -75,6 +75,7 @@
     <Compile Include="Geometry\Generators\GridGenerator.cs" />
     <Compile Include="Geometry\Mesh.cs" />
     <Compile Include="Geometry\IndexedLine.cs" />
+    <Compile Include="Geometry\Shapes\Builders\ControlNetBuilder.cs" />
     <Compile Include="Geometry\Shapes\Builders\SurfaceConstantParameterLinesBuilder.cs" />
     <Compile Include="Geometry\Shapes\Builders\WireframeBuilder.cs" />
     <Compile Include="Geometry\Shapes\Dynamic\BezierCurveC2.cs" />
@@ -122,6 +123,8 @@
     <Compile Include="Mathematics\Surfaces\BsplineSurface.cs" />
     <Compile Include="Mathematics\Surfaces\SurfaceSamplingNearestFinder.cs" />
     <Compile Include="Mathematics\Transformations3D.cs" />
+    <Compile Include="Mathematics\Trimming\ISurfaceTrimmer.cs" />
+    <Compile Include="Mathematics\Trimming\SurfaceTimmerLookup.cs" />
     <Compile Include="Mathematics\Trimming\SurfaceTrimmer.cs" />
     <Compile Include="Mathematics\Vector3DExtensions.cs" />
     <Compile Include="Mathematics\Vector4D.cs" />

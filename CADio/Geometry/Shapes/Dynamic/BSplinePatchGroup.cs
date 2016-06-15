@@ -6,6 +6,7 @@ using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using CADio.Configuration;
 using CADio.Geometry.Shapes.Builders;
+using CADio.Mathematics.Interfaces;
 using CADio.Mathematics.Numerical;
 using CADio.Mathematics.Surfaces;
 using CADio.SceneManagement.Surfaces;
@@ -26,65 +27,33 @@ namespace CADio.Geometry.Shapes.Dynamic
         public int SegmentsU { get; set; }
         public int SegmentsV { get; set; }
         public List<SurfaceControlPoint> ControlPoints { get; set; }
+        private readonly BsplineSurface _surface = new BsplineSurface();
 
         public void UpdateGeometry(
             Func<Point3D, Point3D, double> estimateScreenDistanceWithoutClip, 
             Predicate<Point3D> isInsideProjectiveCubePredicate
             )
         {
-            var vertices = new List<Vertex>();
-            var lines = new List<IndexedLine>();
-
             var dataRowLength = 3 + SegmentsU;
             var dataRowsCount = ControlPoints.Count/dataRowLength;
+
+            var isLooped = dataRowsCount != 3 + SegmentsV;
 
             var builder = new WireframeBuilder();
             var sampler = new SurfaceConstantParameterLinesBuilder(builder);
 
-            var bsplineSurf = new BsplineSurface()
-            {
-                ControlPoints = ControlPoints.Select(t => t.Position).ToList(),
-                SegmentsU = SegmentsU,
-                SegmentsV = SegmentsV,
-            };
+            var bsplineSurf = GetParametricSurface();
 
             sampler.Build(bsplineSurf);
 
             if (IsPolygonRenderingEnabled)
             {
-                var polygonColor = Colors.GreenYellow;
-                for (var x = 0; x < 3 + SegmentsU; ++x)
-                {
-                    for (var y = 0; y < 3 + SegmentsV; ++y)
-                    {
-                        var ym = y%dataRowsCount;
-                        var fromPoint = 
-                            ControlPoints[dataRowLength*ym + x].Position;
-
-                        if (x < 2 + SegmentsU)
-                        {
-                            var toPointIndex = dataRowLength*ym + x + 1;
-                            builder.Connect(fromPoint, polygonColor);
-                            builder.Connect(
-                                ControlPoints[toPointIndex].Position,
-                                polygonColor
-                            );
-                            builder.FinishChain();
-                        }
-
-                        if (y < 2 + SegmentsV)
-                        {
-                            var toPointIndex =
-                                dataRowLength*((ym + 1)%dataRowsCount) + x;
-                            builder.Connect(fromPoint, polygonColor);
-                            builder.Connect(
-                                ControlPoints[toPointIndex].Position,
-                                polygonColor
-                            );
-                            builder.FinishChain();
-                        }
-                    }
-                }
+                var netBuilder = new ControlNetBuilder(builder);
+                netBuilder.BuildControlNet(
+                    ControlPoints,
+                    3 + SegmentsU,
+                    isLooped
+                );
             }
 
             Vertices = builder.Vertices.ToList();
@@ -96,6 +65,15 @@ namespace CADio.Geometry.Shapes.Dynamic
                 )).ToList();
 
             RawPoints = new List<Vertex>();
+        }
+
+        public IParametricSurface GetParametricSurface()
+        {
+            _surface.ControlPoints =
+                ControlPoints.Select(t => t.Position).ToList();
+            _surface.SegmentsU = SegmentsU;
+            _surface.SegmentsV = SegmentsV;
+            return _surface;
         }
     }
 }
