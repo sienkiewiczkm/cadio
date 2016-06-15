@@ -20,6 +20,7 @@ namespace CADio.Mathematics.Interfaces
 
     public struct Parametrisation
     {
+        public const double BoxingEpsilon = 0.00001;
         public ParametrisationBoundaries Boundaries;
 
         public double UnboundedU;
@@ -46,6 +47,9 @@ namespace CADio.Mathematics.Interfaces
             }
             set { UnboundedV = value; }
         }
+
+        public int UBoxId => (int)Math.Floor(UnboundedU);
+        public int VBoxId => (int)Math.Floor(UnboundedV);
 
         public Parametrisation(double u, double v)
         {
