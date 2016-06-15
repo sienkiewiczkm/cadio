@@ -79,7 +79,12 @@ namespace CADio.Mathematics.Surfaces
             return innerDerivative*patch.Derivative(patchU, patchV, parameter);
         }
 
-        private BernsteinPatch GetPatchWithAdjustedCoords(double u, double v, out double adjustedU, out double adjustedV)
+        private BernsteinPatch GetPatchWithAdjustedCoords(
+            double u, 
+            double v, 
+            out double adjustedU, 
+            out double adjustedV
+            )
         {
             var du = 1.0/SegmentsU;
             var dv = 1.0/SegmentsV;
@@ -92,7 +97,14 @@ namespace CADio.Mathematics.Surfaces
 
         private BernsteinPatch GetPatchByLocation(int uPatchNum, int vPatchNum)
         {
-            var patchControlPoints = BezierPatchGroup.GetList2DSubRectCyclic(ControlPoints, 3*SegmentsU + 1, 3*uPatchNum, 3*vPatchNum, 4, 4);
+            var patchControlPoints = BezierPatchGroup.GetList2DSubRectCyclic(
+                ControlPoints, 
+                3*SegmentsU + 1, 
+                3*uPatchNum, 
+                3*vPatchNum, 
+                4, 
+                4
+            );
 
             var bezierPatch = new BernsteinPatch();
             for (var i = 0; i < 16; ++i)

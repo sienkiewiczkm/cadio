@@ -9,8 +9,8 @@
         Title="{Binding Name}" ResizeMode="NoResize" 
         SizeToContent="WidthAndHeight">
     <StackPanel>
-        <Image Width="256" 
-               Height="256" 
+        <Image Width="512" 
+               Height="512" 
                Source="{Binding ParametricPreviewImage}"/>
         <Button>Try to apply sufrace trimming</Button>
     </StackPanel>

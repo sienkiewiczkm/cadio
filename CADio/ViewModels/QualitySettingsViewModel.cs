@@ -7,6 +7,8 @@ namespace CADio.ViewModels
     {
         private int _surfaceWSubdivisions = 4;
         private int _surfaceHSubdivisions = 4;
+        private double _intersectionStep = 0.1;
+        private double _equalityEpsilon = 0.01;
 
         public int SurfaceWSubdivisions
         {
@@ -18,6 +20,18 @@ namespace CADio.ViewModels
         {
             get { return _surfaceHSubdivisions; }
             set { _surfaceHSubdivisions = value; OnPropertyChanged(); }
+        }
+
+        public double IntersectionStep
+        {
+            get { return _intersectionStep; }
+            set { _intersectionStep = value; OnPropertyChanged(); }
+        }
+
+        public double EqualityEpsilon
+        {
+            get { return _equalityEpsilon; }
+            set { _equalityEpsilon = value; OnPropertyChanged(); }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

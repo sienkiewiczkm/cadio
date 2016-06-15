@@ -16,7 +16,7 @@ namespace CADio.Mathematics.Intersections
 
         public int MaximumNewtonIterations { get; set; } = 300;
         public double MinimumStepLength { get; set; } = 0.0001;
-        public double TrackingDistance { get; set; } = 0.05;
+        public double TrackingDistance { get; set; } = 0.2;
         public ISurfaceNearestPointFinder NearestPointFinder { get; set; }
 
         public PolygonIntersection FindIntersectionPolygon(
@@ -81,6 +81,7 @@ namespace CADio.Mathematics.Intersections
             );
 
             var polygon = new PolygonIntersection();
+            polygon.EqualityEpsilon = MinimumStepLength;
 
             while (currentIntersectionParametrisation.HasValue &&
                 !AreEdgeTrackingBoundaryConditionsFullfilled(
@@ -89,11 +90,10 @@ namespace CADio.Mathematics.Intersections
                     )
                 )
             {
-                if (polygon.IsParameterAlreadyFound(
+                if (polygon.FinishIfLoopedBack(
                         currentIntersectionParametrisation.Value
                     ))
                 {
-                    polygon.IsLooped = true;
                     break;
                 }
 
@@ -362,21 +362,29 @@ namespace CADio.Mathematics.Intersections
             DerivativeParameter parameter
             )
         {
-            const double parametrisationStep = 0.1;
+            var parametrisationStep = 0.01;
             Parametrisation newParametrisation;
             switch (parameter)
             {
                 case DerivativeParameter.U:
+                    if (parametrisation.U > 1 - parametrisationStep - 0.001)
+                        parametrisationStep = -parametrisationStep;
+
                     newParametrisation = parametrisation + new Parametrisation(
                         parametrisationStep,
                         0.0
                     );
+
                     break;
                 case DerivativeParameter.V:
+                    if (parametrisation.V > 1 - parametrisationStep - 0.001)
+                        parametrisationStep = -parametrisationStep;
+
                     newParametrisation = parametrisation + new Parametrisation(
                         0.0,
                         parametrisationStep
                     );
+
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(

@@ -10,11 +10,16 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
 using CADio.Mathematics.Interfaces;
+using CADio.Mathematics.Trimming;
 
 namespace CADio.ViewModels
 {
     public class ParametricPreviewViewModel : INotifyPropertyChanged
     {
+        private const int Offset = 8;
+        private const int PreviewSize = 512 - 2*Offset;
+        private const int SideWidth = Offset * 2 + PreviewSize;
+
         private ObservableCollection<Parametrisation> _parametricPolygon
             = new ObservableCollection<Parametrisation>();
         private WriteableBitmap _parametricPreviewImage;
@@ -25,6 +30,8 @@ namespace CADio.ViewModels
             get { return _parametricPolygon; }
             set { _parametricPolygon = value; OnPropertyChanged(); }
         }
+
+        public SurfaceTrimmer Trimmer { get; set; }
 
         public WriteableBitmap ParametricPreviewImage
         {
@@ -45,21 +52,18 @@ namespace CADio.ViewModels
 
         public void RedrawPreview()
         {
-            const int offset = 8;
-            const int previewSize = 500;
-            const int sideWidth = offset*2 + previewSize;
-
-            var writeableBitmap = BitmapFactory.New(sideWidth, sideWidth);
+            var writeableBitmap = BitmapFactory.New(SideWidth, SideWidth);
             using (writeableBitmap.GetBitmapContext())
             {
                 writeableBitmap.Clear(Colors.White);
-                DrawGrid(writeableBitmap, previewSize, offset);
+                DrawTrimMap(writeableBitmap);
+                DrawGrid(writeableBitmap, PreviewSize, Offset);
                 for (var i = 0; i < ParametricPolygon.Count - 1; ++i)
                 {
                     DrawLine(
                         writeableBitmap,
-                        previewSize,
-                        offset,
+                        PreviewSize,
+                        Offset,
                         ParametricPolygon[i],
                         ParametricPolygon[i + 1]
                     );
@@ -67,6 +71,25 @@ namespace CADio.ViewModels
             }
 
             ParametricPreviewImage = writeableBitmap;
+        }
+
+        public void DrawTrimMap(WriteableBitmap bitmap)
+        {
+            if (Trimmer == null)
+                return;
+
+            for (var y = 0; y < PreviewSize; ++y)
+            {
+                for (var x = 0; x < PreviewSize; ++x)
+                {
+                    var u = ((double) x)/PreviewSize;
+                    var v = ((double) y)/PreviewSize;
+                    var color = Trimmer.VerifyParametrisation(u, v)
+                        ? Colors.Green
+                        : Colors.LightGray;
+                    bitmap.SetPixel(Offset + x, Offset + y, color);
+                }
+            }
         }
 
         private static void DrawGrid(
@@ -117,13 +140,12 @@ namespace CADio.ViewModels
                 Math.Abs(y0 - y1) > maxDistance)
                 return;
 
-            writeableBitmap.DrawLineAa(
+            writeableBitmap.DrawLine(
                 offset + x0,
                 offset + y0,
                 offset + x1,
                 offset + y1,
-                Colors.Red,
-                3
+                Colors.Red
             );
         }
 

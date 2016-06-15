@@ -13,22 +13,38 @@ namespace CADio.Mathematics.Intersections
         public List<IntersectionParametrisation> Polygon { get; set; } =
             new List<IntersectionParametrisation>();
 
-        public bool IsParameterAlreadyFound(
+        public bool FinishIfLoopedBack(
             IntersectionParametrisation parametrisation
             )
         {
-            foreach (var param in Polygon)
+            var index = FindParametrisationIndex(parametrisation);
+            if (index == -1)
+                return false;
+
+            Polygon = Polygon.Skip(index).ToList();
+            Polygon.Add(parametrisation);
+            Polygon.Add(Polygon.First());
+
+            IsLooped = true;
+            return true;
+        }
+
+        private int FindParametrisationIndex(
+            IntersectionParametrisation parametrisation
+            )
+        {
+            for (var i = 0; i < Polygon.Count; ++i)
             {
                 var norm = IntersectionParametrisation.DistanceNormMax(
-                    param,
-                    parametrisation
+                    parametrisation,
+                    Polygon[i]
                 );
 
                 if (norm < EqualityEpsilon)
-                    return true;
+                    return i;
             }
 
-            return false;
+            return -1;
         }
 
         public void Add(IntersectionParametrisation parametrisation)
@@ -50,6 +66,10 @@ namespace CADio.Mathematics.Intersections
             };
             
             return intersection;
+        }
+
+        public void FindLoopAndIsolate(IntersectionParametrisation value)
+        {
         }
     }
 }

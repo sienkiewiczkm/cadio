@@ -101,6 +101,7 @@
     <Compile Include="Mathematics\Interfaces\IParametricSurface.cs" />
     <Compile Include="Mathematics\Interfaces\ISurfaceNearestPointFinder.cs" />
     <Compile Include="Mathematics\Intersections\DomainIntersectionFinder.cs" />
+    <Compile Include="Mathematics\Intersections\GeometricIntersections.cs" />
     <Compile Include="Mathematics\Intersections\IntersectionParametrisation.cs" />
     <Compile Include="Mathematics\Intersections\PolygonIntersection.cs" />
     <Compile Include="Mathematics\MathHelpers.cs" />
@@ -121,6 +122,7 @@
     <Compile Include="Mathematics\Surfaces\BsplineSurface.cs" />
     <Compile Include="Mathematics\Surfaces\SurfaceSamplingNearestFinder.cs" />
     <Compile Include="Mathematics\Transformations3D.cs" />
+    <Compile Include="Mathematics\Trimming\SurfaceTrimmer.cs" />
     <Compile Include="Mathematics\Vector3DExtensions.cs" />
     <Compile Include="Mathematics\Vector4D.cs" />
     <Compile Include="Properties\Resources.Designer.cs">

@@ -76,6 +76,12 @@ namespace CADio.Mathematics.Interfaces
             return true;
         }
 
+        public override string ToString()
+        {
+            return
+                $"U={U} V={V} UnboundedU={UnboundedU} UndboudedV={UnboundedV}";
+        }
+
         public static Parametrisation operator +(
             Parametrisation left,
             Parametrisation right

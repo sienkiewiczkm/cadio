@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media.Media3D;
 using CADio.Configuration;
@@ -16,13 +17,16 @@ using CADio.Helpers.MVVM;
 using CADio.Mathematics.Interfaces;
 using CADio.Mathematics.Intersections;
 using CADio.Mathematics.Surfaces;
+using CADio.Mathematics.Trimming;
 using CADio.Rendering;
 using CADio.SceneManagement;
 using CADio.SceneManagement.Curves;
 using CADio.SceneManagement.Interfaces;
 using CADio.SceneManagement.Surfaces;
 using CADio.Views;
-using Microsoft.Win32;
+using MessageBox = System.Windows.MessageBox;
+using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
+using SaveFileDialog = Microsoft.Win32.SaveFileDialog;
 
 namespace CADio.ViewModels
 {
@@ -159,6 +163,8 @@ namespace CADio.ViewModels
                 .Cast<IParametrizationQueryable>()
                 .ToList();
 
+            // todo: check for surfaces size
+
             var firstPatch = surfaces[0].GetParametricSurface();
             var secondPatch = surfaces[1].GetParametricSurface();
 
@@ -170,12 +176,30 @@ namespace CADio.ViewModels
 
             var finder = new DomainIntersectionFinder();
             finder.NearestPointFinder = nearestFinder;
+            finder.MinimumStepLength = QualitySettingsViewModel.EqualityEpsilon;
+            finder.TrackingDistance = QualitySettingsViewModel.IntersectionStep;
 
-            var polygon = finder.FindIntersectionPolygon(
-                firstPatch,
-                secondPatch,
-                referencePosition
-            );
+            PolygonIntersection polygon;
+            try
+            {
+                polygon = finder.FindIntersectionPolygon(
+                    firstPatch,
+                    secondPatch,
+                    referencePosition
+                    );
+            }
+            catch (Exception)
+            {
+                MessageBox.Show(
+                    _ownerWindow,
+                    "Intersection search has been terminated.",
+                    "Intersection search failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error
+                );
+
+                return;
+            }
 
             if (polygon == null || polygon.Polygon.Count == 0)
             {
@@ -201,6 +225,10 @@ namespace CADio.ViewModels
                 = new ObservableCollection<Parametrisation>(
                     polygon.Polygon.Select(t => t.Second).ToList());
 
+            var trimmer = new SurfaceTrimmer();
+            trimmer.BuildTrimmingAreas(polygon, (t) => t.First);
+            firstParametrisationWindow.ViewModel.Trimmer = trimmer;
+
             firstParametrisationWindow.ViewModel.Name = surfaces[0].Name;
             secondParametrisationWindow.ViewModel.Name = surfaces[1].Name;
 
@@ -214,9 +242,6 @@ namespace CADio.ViewModels
                 .Select(parametrisation =>
                     firstPatch.Evaluate(parametrisation.First)
                 ).ToList();
-
-            if (polygon.IsLooped)
-                controlPoints.Add(controlPoints.First());
 
             var intersectionR3Curve = new PolygonCurveWorldObject(
                 controlPoints

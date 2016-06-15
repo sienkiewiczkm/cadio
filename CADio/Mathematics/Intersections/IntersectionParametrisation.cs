@@ -36,6 +36,11 @@ namespace CADio.Mathematics.Intersections
             return First.IsValid() && Second.IsValid();
         }
 
+        public override string ToString()
+        {
+            return $"First=[{First}] Second=[{Second}]";
+        }
+
         public static explicit operator Vector(
             IntersectionParametrisation parametrisation
             )
@@ -59,7 +64,7 @@ namespace CADio.Mathematics.Intersections
             return new IntersectionParametrisation(
                 left.First + right.First,
                 left.Second + right.Second
-                );
+            );
         }
 
         public static IntersectionParametrisation operator -(

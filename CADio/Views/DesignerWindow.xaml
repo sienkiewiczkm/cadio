@@ -102,31 +102,58 @@
                     </Grid>
                 </TabItem>
                 <TabItem Header="Settings">
-                    <Expander Header="Rendering quality">
-                        <StackPanel>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="2*"/>
-                                    <ColumnDefinition Width="2*"/>
-                                    <ColumnDefinition Width="1*"/>
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                </Grid.RowDefinitions>
-                            
-                                <TextBlock Grid.Row="0" Grid.Column="0" TextWrapping="Wrap">Surface W-Subs:</TextBlock>
-                                <Slider Grid.Row="0" Grid.Column="1" Minimum="2" Maximum="32" TickFrequency="1" TickPlacement="BottomRight" IsSnapToTickEnabled="True"
-                                        Value="{Binding QualitySettingsViewModel.SurfaceWSubdivisions}"/>
-                                <TextBox Grid.Row="0" Grid.Column="2" Text="{Binding QualitySettingsViewModel.SurfaceWSubdivisions}"/>
+                    <StackPanel>
+                        <Expander Header="Rendering quality">
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="2*"/>
+                                        <ColumnDefinition Width="2*"/>
+                                        <ColumnDefinition Width="1*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                    </Grid.RowDefinitions>
 
-                                <TextBlock Grid.Row="1" Grid.Column="0" TextWrapping="Wrap">Surface H-Subs:</TextBlock>
-                                <Slider Grid.Row="1" Grid.Column="1" Minimum="2" Maximum="32" TickFrequency="1" TickPlacement="BottomRight" IsSnapToTickEnabled="True"
+                                    <TextBlock Grid.Row="0" Grid.Column="0" TextWrapping="Wrap">Surface W-Subs:</TextBlock>
+                                    <Slider Grid.Row="0" Grid.Column="1" Minimum="2" Maximum="32" TickFrequency="1" TickPlacement="BottomRight" IsSnapToTickEnabled="True"
+                                        Value="{Binding QualitySettingsViewModel.SurfaceWSubdivisions}"/>
+                                    <TextBox Grid.Row="0" Grid.Column="2" Text="{Binding QualitySettingsViewModel.SurfaceWSubdivisions}"/>
+
+                                    <TextBlock Grid.Row="1" Grid.Column="0" TextWrapping="Wrap">Surface H-Subs:</TextBlock>
+                                    <Slider Grid.Row="1" Grid.Column="1" Minimum="2" Maximum="32" TickFrequency="1" TickPlacement="BottomRight" IsSnapToTickEnabled="True"
                                         Value="{Binding QualitySettingsViewModel.SurfaceHSubdivisions}"/>
-                                <TextBox Grid.Row="1" Grid.Column="2" Text="{Binding QualitySettingsViewModel.SurfaceHSubdivisions}"/>
-                            </Grid>
-                        </StackPanel>
-                    </Expander>
+                                    <TextBox Grid.Row="1" Grid.Column="2" Text="{Binding QualitySettingsViewModel.SurfaceHSubdivisions}"/>
+                                </Grid>
+                            </StackPanel>
+                        </Expander>
+                        <Expander Header="Intersections quality">
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="2*"/>
+                                        <ColumnDefinition Width="2*"/>
+                                        <ColumnDefinition Width="1*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0" Grid.Column="0" TextWrapping="Wrap">Step:</TextBlock>
+                                    <Slider Grid.Row="0" Grid.Column="1" Minimum="0" Maximum="0.5" TickFrequency="0.01" TickPlacement="BottomRight" IsSnapToTickEnabled="True"
+                                        Value="{Binding QualitySettingsViewModel.IntersectionStep}"/>
+                                    <TextBox Grid.Row="0" Grid.Column="2" Text="{Binding QualitySettingsViewModel.IntersectionStep}"/>
+
+                                    <TextBlock Grid.Row="1" Grid.Column="0" TextWrapping="Wrap">Equality epsilon:</TextBlock>
+                                    <Slider Grid.Row="1" Grid.Column="1" Minimum="0.1" Maximum="1" TickFrequency="0.005" TickPlacement="BottomRight" IsSnapToTickEnabled="True"
+                                        Value="{Binding QualitySettingsViewModel.EqualityEpsilon}"/>
+                                    <TextBox Grid.Row="1" Grid.Column="2" Text="{Binding QualitySettingsViewModel.EqualityEpsilon}"/>
+                                </Grid>
+                            </StackPanel>
+                        </Expander>
+                    </StackPanel>
                 </TabItem>
             </TabControl>
         </Grid>
