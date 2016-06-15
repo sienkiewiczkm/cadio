@@ -24,12 +24,15 @@ namespace CADio.Mathematics.Trimming
 
             var area = new TrimmingArea();
 
+            Point? leftSnap = null;
+
             var firstParam = paramSelector(intersection.Polygon[0]);
-            if (!intersection.IsLooped && IsSnappable(firstParam.V))
+            if (!intersection.IsLooped && 
+                (IsSnappable(firstParam.U) || IsSnappable(firstParam.V))
+                )
             {
-                area.Polygon.Add(
-                    new Point(firstParam.U, Snap(firstParam.V))
-                );
+                leftSnap = new Point(Snap(firstParam.U), Snap(firstParam.V));
+                area.Polygon.Add(leftSnap.Value);
             }
 
             Parametrisation? previous = null;
@@ -80,11 +83,49 @@ namespace CADio.Mathematics.Trimming
             }
 
             var lastParam = paramSelector(intersection.Polygon.Last());
-            if (!intersection.IsLooped && IsSnappable(lastParam.V))
+            if (!intersection.IsLooped && 
+                (IsSnappable(lastParam.U) || IsSnappable(lastParam.V))
+                )
             {
-                area.Polygon.Add(
-                    new Point(firstParam.U, Snap(lastParam.V))
+                Point rightSnap = new Point(
+                    Snap(lastParam.U), 
+                    Snap(lastParam.V)
                 );
+                area.Polygon.Add(rightSnap);
+
+                if (leftSnap.HasValue)
+                {
+                    bool top, bottom, right, left;
+                    top = bottom = right = left = false;
+
+                    top |= AlmostEqual(leftSnap.Value.Y, 0.0);
+                    top |= AlmostEqual(rightSnap.Y, 0.0);
+                    bottom |= AlmostEqual(leftSnap.Value.Y, 1.0);
+                    bottom |= AlmostEqual(rightSnap.Y, 1.0);
+
+                    left |= AlmostEqual(leftSnap.Value.X, 0.0);
+                    left |= AlmostEqual(rightSnap.X, 0.0);
+                    right |= AlmostEqual(leftSnap.Value.X, 1.0);
+                    right |= AlmostEqual(rightSnap.X, 1.0);
+
+                    Point? additional = null;
+                    if (top && bottom || left && right)
+                    {
+                        
+                    }
+                    else
+                    {
+                        var x = left ? 0.0 : 1.0;
+                        var y = top ? 0.0 : 1.0;
+                        additional = new Point(x, y);
+                    }
+
+                    if (additional.HasValue)
+                    {
+                        area.Polygon.Add(additional.Value);
+                        area.Polygon.Add(leftSnap.Value);
+                    }
+                }
             }
 
             _trimmingAreas.Add(area);
@@ -96,7 +137,7 @@ namespace CADio.Mathematics.Trimming
                 return 0.0;
             if (Math.Abs(1.0 - d) < SnapThreshold)
                 return 1.0;
-            throw new ArgumentException("Argument not snappable");
+            return d;
         }
 
         private bool IsSnappable(double intersectionParametrisation)
@@ -106,6 +147,11 @@ namespace CADio.Mathematics.Trimming
             if (Math.Abs(1.0 - intersectionParametrisation) < SnapThreshold)
                 return true;
             return false;
+        }
+
+        private bool AlmostEqual(double a, double b)
+        {
+            return Math.Abs(a - b) < SnapThreshold;
         }
 
         public TrimMode TrimMode { get; set; }
