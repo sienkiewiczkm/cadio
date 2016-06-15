@@ -37,7 +37,7 @@ namespace CADio.Geometry.Shapes.Dynamic
         public IList<IParametricSurface> EdgesUParametrisations { get; set; }
             = new List<IParametricSurface>();
 
-        public double Distance { get; set; } = 1.0f;
+        public double Distance { get; set; } = 0.1f;
         public bool DrawVectors { get; set; } = false;
 
         public void UpdateGeometry(
@@ -98,7 +98,7 @@ namespace CADio.Geometry.Shapes.Dynamic
             }
             */
 
-            for (var i = 0; i == 0 && i < EdgesUParametrisations.Count; ++i)
+            for (var i = 0; i < EdgesUParametrisations.Count; ++i)
             {
                 var currentMiddleCurve = i;
                 var previousMiddleCurve = (currentMiddleCurve + 2)%3;
@@ -129,39 +129,39 @@ namespace CADio.Geometry.Shapes.Dynamic
                 var currentMiddleBoundaryDerivative = 
                     currentSurface.Derivative(0.5, 0.0, DerivativeParameter.U);
 
-                var curveToCenterControlPoints = new List<Point3D>();
-                var curveFromCenterControlPoints = new List<Point3D>();
+                var curveMidNextControlPoints = new List<Point3D>();
+                var curveMidCurrentControlPoints = new List<Point3D>();
 
                 for (var j = 0; j < 3; ++j)
                 {
-                    curveToCenterControlPoints.Add(
+                    curveMidNextControlPoints.Add(
                         innerControlPoints[nextMiddleCurve, j]);
-                    curveFromCenterControlPoints.Add(
+                    curveMidCurrentControlPoints.Add(
                         innerControlPoints[currentMiddleCurve, j]);
                 }
 
-                curveToCenterControlPoints.Add(innerCurvesMiddlePoint);
-                curveFromCenterControlPoints.Add(innerCurvesMiddlePoint);
+                curveMidNextControlPoints.Add(innerCurvesMiddlePoint);
+                curveMidCurrentControlPoints.Add(innerCurvesMiddlePoint);
 
-                var curveToCenterDerivative = 
+                var curveMidNextDerivative = 
                     BernsteinPolynomial.CalculateDerivative(
-                        curveToCenterControlPoints
+                        curveMidNextControlPoints
                     );
 
-                var curveFromCenterDerivative =
+                var curveMidCurrentDerivative =
                     BernsteinPolynomial.CalculateDerivative(
-                        curveFromCenterControlPoints
+                        curveMidCurrentControlPoints
                     );
 
-                var currentA2 = 3*(innerControlPoints[previousMiddleCurve, 2] -
+                var currentIn = 3*(innerCurvesMiddlePoint -
+                    innerControlPoints[previousMiddleCurve, 2]);
+                var currentOut = 3*(innerControlPoints[nextMiddleCurve, 2] -
                     innerCurvesMiddlePoint);
-                var currentB2 = 3*(innerCurvesMiddlePoint -
-                    innerControlPoints[nextMiddleCurve, 2]);
 
-                var previousA2 = 3*(innerControlPoints[previousMiddleCurve, 2] -
-                    innerCurvesMiddlePoint);
-                var previousB2 = 3*(innerCurvesMiddlePoint - 
+                var previousIn = 3*(innerCurvesMiddlePoint - 
                     innerControlPoints[currentMiddleCurve, 2]);
+                var previousOut = 3*(innerControlPoints[previousMiddleCurve, 2] -
+                    innerCurvesMiddlePoint);
 
                 var gregoryPatch = new GregoryPatch();
 
@@ -190,25 +190,25 @@ namespace CADio.Geometry.Shapes.Dynamic
                 gregoryPatch.ReshapeEdge(
                     2,
                     (t) => BernsteinPolynomial.Evaluate3DPolynomial(
-                            curveToCenterControlPoints, t),
+                            curveMidNextControlPoints, t),
                     (t) => (Vector3D) BernsteinPolynomial.Evaluate3DPolynomial(
-                            curveToCenterDerivative, t),
+                            curveMidNextDerivative, t),
                     nextMiddleBoundaryDerivative, 
                     nextMiddleBoundaryDerivative,
-                    previousB2,
-                    previousA2 
+                    previousIn,
+                    previousOut
                 );
 
                 gregoryPatch.ReshapeEdge(
                     3, 
                     (t) => BernsteinPolynomial.Evaluate3DPolynomial(
-                            curveFromCenterControlPoints, t), 
+                            curveMidCurrentControlPoints, t), 
                     (t) => (Vector3D) BernsteinPolynomial.Evaluate3DPolynomial(
-                            curveFromCenterDerivative, t),
+                            curveMidCurrentDerivative, t),
                     currentMiddleBoundaryDerivative,
                     currentMiddleBoundaryDerivative,
-                    currentA2,
-                    currentB2
+                    currentIn,
+                    currentOut
                 );
 
 

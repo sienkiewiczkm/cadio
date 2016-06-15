@@ -67,6 +67,21 @@ namespace CADio.Geometry.Shapes.Dynamic
                 var uvTwist = gregoryPatch.GetCornerTwistVectorUV(i);
                 var vuTwist = gregoryPatch.GetCornerTwistVectorVU(i);
 
+                var uvFlip = 1;
+                var vuFlip = 1;
+
+                if (i == 2)
+                {
+                    uvFlip = 1;
+                    vuFlip = -1;
+                }
+
+                if (i == 3)
+                {
+                    uvFlip = 1;
+                    vuFlip = -1;
+                }
+
                 builder.DrawVector(
                     cornerPos, 
                     cornerdU*uFlips[i], 
@@ -83,14 +98,14 @@ namespace CADio.Geometry.Shapes.Dynamic
 
                 builder.DrawVector(
                     uvTwistPos, 
-                    uvTwist, 
+                    uvFlip*uvTwist, 
                     cVectorMagnitude,
                     Colors.GreenYellow
                 );
 
                 builder.DrawVector(
                     vuTwistPos, 
-                    vuTwist, 
+                    vuFlip*vuTwist, 
                     cVectorMagnitude,
                     Colors.Magenta
                 );
