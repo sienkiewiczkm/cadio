@@ -8,7 +8,7 @@ namespace CADio.ViewModels
         private int _surfaceWSubdivisions = 4;
         private int _surfaceHSubdivisions = 4;
         private double _intersectionStep = 0.1;
-        private double _equalityEpsilon = 0.01;
+        private double _equalityEpsilon = 0.0001;
 
         public int SurfaceWSubdivisions
         {

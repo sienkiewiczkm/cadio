@@ -33,7 +33,7 @@ namespace CADio.Mathematics.Trimming
         }
 
         public static SurfaceTimmerLookup CreateBasedOn(
-            ISurfaceTrimmer trimmer,
+            SurfaceTrimmer trimmer,
             int uLookups,
             int vLookups
             )
@@ -44,15 +44,26 @@ namespace CADio.Mathematics.Trimming
             var lookupTable = new bool[vLookups, uLookups];
             for (var v = 0; v < vLookups; ++v)
             {
+                var fillFalse = false;
                 for (var u = 0; u < uLookups; ++u)
                 {
                     var uParam = ((double) u)/(uLookups - 1);
                     var vParam = ((double) v)/(vLookups - 1);
 
-                    lookupTable[v, u] = trimmer.VerifyParametrisation(
-                        uParam,
-                        vParam
-                    );
+                    if (fillFalse)
+                    {
+                        lookupTable[v, u] = false;
+                    }
+                    else
+                    {
+                        lookupTable[v, u] = trimmer.VerifyParametrisation(
+                            uParam,
+                            vParam
+                            );
+                    }
+
+                    if (trimmer.WasZeroIntersections)
+                        fillFalse = true;
                 }
             }
 

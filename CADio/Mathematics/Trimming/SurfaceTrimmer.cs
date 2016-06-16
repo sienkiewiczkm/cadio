@@ -156,8 +156,10 @@ namespace CADio.Mathematics.Trimming
 
         public TrimMode TrimMode { get; set; }
 
+        public bool WasZeroIntersections = false;
         public bool VerifyParametrisation(double u, double v)
         {
+            WasZeroIntersections = false;
             if (TrimMode == TrimMode.Disabled)
                 return true;
             var valueToReturnIfInside = TrimMode == TrimMode.Outside;
@@ -202,6 +204,9 @@ namespace CADio.Mathematics.Trimming
 
                 if (intersections%2 == 1)
                     return valueToReturnIfInside;
+
+                if (intersections == 0)
+                    WasZeroIntersections = true;
             }
 
             return !valueToReturnIfInside;

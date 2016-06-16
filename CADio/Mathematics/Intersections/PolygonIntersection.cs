@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CADio.Mathematics.Interfaces;
 
 namespace CADio.Mathematics.Intersections
 {
     public class PolygonIntersection
     {
         public bool IsLooped { get; set; }
-        public double EqualityEpsilon { get; set; } = 0.001;
+        public double EqualityEpsilon { get; set; } = 0.01;
         public List<IntersectionParametrisation> Polygon { get; set; } =
             new List<IntersectionParametrisation>();
 
@@ -33,14 +34,24 @@ namespace CADio.Mathematics.Intersections
             IntersectionParametrisation parametrisation
             )
         {
-            for (var i = 0; i < Polygon.Count; ++i)
+            for (var i = 0; i < Polygon.Count - 10; ++i)
             {
-                var norm = IntersectionParametrisation.DistanceNormMax(
-                    parametrisation,
-                    Polygon[i]
+                var norm1 = Parametrisation.DistanceNormMax(
+                    parametrisation.First,
+                    Polygon[i].First
                 );
 
-                if (norm < EqualityEpsilon)
+                var norm2 = Parametrisation.DistanceNormMax(
+                    parametrisation.Second,
+                    Polygon[i].Second
+                );
+                    
+                    //IntersectionParametrisation.DistanceNormMax(
+                    //parametrisation,
+                    //Polygon[i]
+                //);
+
+                if (norm1 < EqualityEpsilon || norm2 < EqualityEpsilon)
                     return i;
             }
 
