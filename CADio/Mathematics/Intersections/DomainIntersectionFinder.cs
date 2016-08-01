@@ -81,7 +81,7 @@ namespace CADio.Mathematics.Intersections
             );
 
             var polygon = new PolygonIntersection();
-            polygon.EqualityEpsilon = 3*MinimumStepLength;
+            polygon.EqualityEpsilon = 0.001;
 
             while (currentIntersectionParametrisation.HasValue &&
                 !AreEdgeTrackingBoundaryConditionsFullfilled(

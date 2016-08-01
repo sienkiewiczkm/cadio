@@ -212,8 +212,8 @@ namespace CADio.ViewModels
 
             Trimmer = SurfaceTimmerLookup.CreateBasedOn(
                 heavySurfaceTrimmer,
-                1024,
-                1024
+                256,
+                256
             );
         }
 
